@@ -1,3 +1,5 @@
+import { getTeamResultNarrative } from '../utils/teamResultNarrativeUtils';
+
 const stateLabels = {
   aceBurnoutRisk: '에이스 소진 위험',
   growthShrinkRisk: '성장 위축 위험',
@@ -23,7 +25,7 @@ function describeState(key, value = 0) {
   return `${label}이 위험 수준입니다. 다음 라운드에서 우선적으로 완화해야 합니다.`;
 }
 
-function buildDebriefQuestions(card, calculation) {
+function buildDebriefQuestions(card, calculation, teamNarrative) {
   const choice = calculation?.choiceText || card?.choiceLabel || '이번 선택';
   const evidenceReview = calculation?.outputEvidenceReview;
   const evidenceQuestion = evidenceReview
@@ -32,6 +34,7 @@ function buildDebriefQuestions(card, calculation) {
   return [
     `우리 팀은 왜 ${choice} 방향을 선택했습니까?`,
     '이 선택은 어떤 작은 진전을 만들었고, 어떤 부담을 남겼습니까?',
+    teamNarrative?.question || '우리 팀의 기능 관점에서 이번 선택의 대가는 무엇입니까?',
     evidenceQuestion,
     '이번 선택에서 팀 안의 인물 카드는 결과에 어떤 영향을 주었습니까?',
     '이번 선택은 팀원 역량에 어떤 성장 경험 또는 위축 신호를 남겼습니까?',
@@ -57,6 +60,7 @@ export default function ResultCard({ card, calculation }) {
   const growthLines = calculation?.competencyGrowthLines || [];
   const evidenceReview = calculation?.outputEvidenceReview;
   const evidenceSummary = buildEvidenceSummary(evidenceReview);
+  const teamNarrative = getTeamResultNarrative({ teamId: calculation?.teamId, choiceType: calculation?.choiceInternalType });
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
     const before = previousState[key] ?? 0;
@@ -64,7 +68,7 @@ export default function ResultCard({ card, calculation }) {
     return { key, value, before, diff };
   });
   const highest = stateEntries.reduce((max, item) => item.value > max.value ? item : max, stateEntries[0]);
-  const questions = buildDebriefQuestions(card, calculation);
+  const questions = buildDebriefQuestions(card, calculation, teamNarrative);
 
   return (
     <section className="card result-card">
@@ -86,6 +90,15 @@ export default function ResultCard({ card, calculation }) {
           <p>{card.reorgReviewView}</p>
         </div>
       </div>
+
+      {teamNarrative && (
+        <div className="sceneBox">
+          <h4>팀별 결과 해석 · {teamNarrative.title}</h4>
+          <p><b>진전:</b> {teamNarrative.gain}</p>
+          <p><b>남은 대가:</b> {teamNarrative.risk}</p>
+          <div className="notice"><b>강사용 질문:</b> {teamNarrative.question}</div>
+        </div>
+      )}
 
       {evidenceReview && (
         <div className="sceneBox">
