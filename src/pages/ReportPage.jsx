@@ -77,6 +77,8 @@ function buildMarkdownReport(room, teams, summary) {
     const reflections = dec?.individualReflections || {};
     const teamPlayers = getTeamPlayers(room, t.teamId);
     lines.push(`### ${t.teamName}`);
+    lines.push(`- 비밀 미션: ${final?.secretMissionTitle || '미생성'}`);
+    lines.push(`- 비밀 미션 점수: ${final?.secretMissionScore ?? '미생성'}/3`);
     lines.push(`- 조직개편 생존 판정: ${resultLabel(final?.survivalLabel)}`);
     lines.push(`- 미션 달성 판정: ${resultLabel(final?.missionLabel)}`);
     lines.push(`- 종합 판정: ${resultLabel(final?.finalLevel)}`);
@@ -85,7 +87,9 @@ function buildMarkdownReport(room, teams, summary) {
     lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
     lines.push(`- 팀 선언문: ${dec?.teamDeclaration || '미작성'}`);
     if (final) {
-      lines.push('- 판정 근거:');
+      lines.push('- 비밀 미션 근거:');
+      (final.missionEvidenceLines || []).forEach(line => lines.push(`  - ${line}`));
+      lines.push('- 종합 판정 근거:');
       (final.evidenceLines || []).forEach(line => lines.push(`  - ${line}`));
       lines.push(`- 가장 큰 자산: ${final.strongestAsset}`);
       lines.push(`- 남은 부담: ${final.remainingBurden}`);
@@ -109,7 +113,7 @@ function buildMarkdownReport(room, teams, summary) {
   lines.push('1. 우리 팀은 위기 앞에서 속도, 기준, 균형, 조건 중 무엇을 반복했습니까?');
   lines.push('2. 그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?');
   lines.push('3. 조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?');
-  lines.push('4. 가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?');
+  lines.push('4. 비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?');
   lines.push('5. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
   return lines.join('\n');
 }
@@ -147,7 +151,7 @@ export default function ReportPage() {
       <section className="card">
         <h3>팀별 요약표</h3>
         <table>
-          <thead><tr><th>팀</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>핵심 리스크</th><th>다음 행동</th></tr></thead>
+          <thead><tr><th>팀</th><th>비밀 미션</th><th>미션 점수</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>핵심 리스크</th><th>다음 행동</th></tr></thead>
           <tbody>
             {teams.map(t => {
               const st = room.stateValues?.[t.teamId];
@@ -155,6 +159,8 @@ export default function ReportPage() {
               return (
                 <tr key={t.teamId}>
                   <td>{t.teamName}</td>
+                  <td>{final?.secretMissionTitle || '미생성'}</td>
+                  <td>{final?.secretMissionScore ?? '미생성'}/3</td>
                   <td>{resultLabel(final?.survivalLabel)}</td>
                   <td>{resultLabel(final?.missionLabel)}</td>
                   <td>{resultLabel(final?.finalLevel)}</td>
@@ -183,13 +189,18 @@ export default function ReportPage() {
                 <div><b>{resultLabel(final?.survivalLabel)}</b><span>조직개편 생존 판정</span></div>
                 <div><b>{resultLabel(final?.missionLabel)}</b><span>미션 달성 판정</span></div>
                 <div><b>{resultLabel(final?.finalLevel)}</b><span>종합 판정</span></div>
+                <div><b>{final?.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
               </div>
+              <p><b>비밀 미션:</b> {final?.secretMissionTitle || '미생성'}</p>
+              {final?.secretMissionBrief && <p className="muted">{final.secretMissionBrief}</p>}
               <p><b>판단 패턴:</b> {final?.judgmentPattern || '아직 계산되지 않았습니다.'}</p>
               <p><b>핵심 리스크:</b> {stateLabels[st?.maxRiskKey] || '-'} · {st?.maxRiskLabel || '-'}</p>
               <p><b>선택한 KSA:</b> {getKsaText(t)}</p>
               {final ? (
                 <>
-                  <h4>판정 근거</h4>
+                  <h4>비밀 미션 근거</h4>
+                  <ol>{final.missionEvidenceLines?.map((line, i) => <li key={i}>{line}</li>)}</ol>
+                  <h4>종합 판정 근거</h4>
                   <ol>{final.evidenceLines?.map((line, i) => <li key={i}>{line}</li>)}</ol>
                   <div className="reportInsight">
                     <p><b>가장 큰 자산:</b> {final.strongestAsset}</p>
@@ -226,7 +237,7 @@ export default function ReportPage() {
           <li>우리 팀은 위기 앞에서 속도, 기준, 균형, 조건 중 무엇을 반복했습니까?</li>
           <li>그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?</li>
           <li>조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?</li>
-          <li>가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?</li>
+          <li>비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
