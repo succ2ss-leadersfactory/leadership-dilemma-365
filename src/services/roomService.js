@@ -19,6 +19,7 @@ export function createRoom(input = {}) {
       roomProgress: { roomId, status:'waiting', currentRoundId:'round0', currentPhase:'intro', currentRoundOrder:1, isPaused:false, isScreenLocked:false, resultVisible:false, finalResultVisible:false, updatedAt: Date.now() },
       teams: Object.fromEntries(seedTeams.map(t => [t.teamId, { ...t, selectedKSA:{ knowledge:[], skill:[], attitude:[] }, createdAt: Date.now(), updatedAt: Date.now() }])),
       players: {},
+      competencyProfiles: Object.fromEntries(seedTeams.map(t => [t.teamId, {}])),
       roundProgress: Object.fromEntries(seedRounds.map(r => [r.roundId, { roundId:r.roundId, week:r.week, title:r.title, status:r.roundId === 'round0' ? 'active' : 'pending', phase:'intro', resultRevealed:false, locked:false, skipped:false }])),
       votes: {}, teamDecisions: {}, submissions: {},
       stateValues: Object.fromEntries(seedTeams.map(t => [t.teamId, { teamId:t.teamId, values:{...emptyState}, maxRiskValue:0, maxRiskKey:'aceBurnoutRisk', maxRiskLabel:'안정', updatedAt:Date.now() }])),
