@@ -8,14 +8,14 @@ import { generateTeamCompetencyProfiles } from '../utils/competencyProfileUtils'
 import { getPersonaById } from '../utils/playerPersonaUtils';
 import { buildOpsHealth } from '../utils/opsHealthUtils';
 
-const rounds = ['week1', 'week5', 'week8', 'week10', 'week11'];
+const rounds = ['week1', 'week2', 'week3', 'week4', 'week5', 'week6', 'week7', 'week8', 'week9', 'week10', 'week11'];
 const emptyState = { aceBurnoutRisk: 0, growthShrinkRisk: 0, executionPressure: 0, executiveTrustRisk: 0, collaborationDebt: 0 };
 
 const scenarios = {
-  success: { label: '미션 성공형', choiceTypes: ['BALANCE', 'STRUCTURE', 'ALIGN', 'STRUCTURE', 'BALANCE'], qualities: ['high', 'high', 'veryHigh', 'high', 'veryHigh'], personas: ['standard_keeper', 'relationship_connector', 'silent_expert'], names: ['기준형 리더', '관계형 조율자', '침묵형 전문가'], note: '기준과 협업 조건을 먼저 맞추고 마지막에는 하나의 증거로 성과를 보여주겠습니다.' },
-  ace: { label: '에이스 과부하형', choiceTypes: ['SPEED', 'SPEED', 'SPEED', 'SPEED', 'BALANCE'], qualities: ['medium', 'medium', 'high', 'medium', 'high'], personas: ['ace_practitioner', 'ace_practitioner', 'careful_newcomer'], names: ['에이스 김프로', '해결사 이프로', '꼼꼼한 문프로'], note: '속도를 냈지만 다음 현업에서는 에이스에게 몰린 일을 나누는 구조를 먼저 만들겠습니다.' },
-  rumor: { label: '루머 대응형', choiceTypes: ['STRUCTURE', 'ALIGN', 'BALANCE', 'SPEED', 'STRUCTURE'], qualities: ['medium', 'medium', 'medium', 'low', 'medium'], personas: ['relationship_connector', 'careful_newcomer', 'silent_expert'], names: ['분위기 읽는 박프로', '기준 묻는 문프로', '조용한 전문가'], note: '불안을 덮지 않고 확인된 사실과 추측을 나누어 말하는 방식을 다시 세우겠습니다.' },
-  pressure: { label: '재편 위험형', choiceTypes: ['SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED'], qualities: ['low', 'low', 'medium', 'low', 'low'], personas: ['challenge_driver', 'ace_practitioner', 'careful_newcomer'], names: ['도전형 강프로', '에이스 오프로', '불안한 신입'], note: '빠르게 움직였지만 기준과 부담 배분을 놓친 대가를 확인했습니다.' }
+  success: { label: '미션 성공형', choiceTypes: ['BALANCE', 'STRUCTURE', 'BALANCE', 'STRUCTURE', 'BALANCE', 'ALIGN', 'STRUCTURE', 'ALIGN', 'BALANCE', 'STRUCTURE', 'BALANCE'], qualities: ['high', 'high', 'high', 'veryHigh', 'high', 'high', 'high', 'veryHigh', 'high', 'high', 'veryHigh'], personas: ['standard_keeper', 'relationship_connector', 'silent_expert'], names: ['기준형 리더', '관계형 조율자', '침묵형 전문가'], note: '기준과 협업 조건을 먼저 맞추고 마지막에는 하나의 증거로 성과를 보여주겠습니다.' },
+  ace: { label: '에이스 과부하형', choiceTypes: ['SPEED', 'SPEED', 'SPEED', 'STRUCTURE', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'BALANCE', 'STRUCTURE', 'BALANCE'], qualities: ['medium', 'medium', 'medium', 'high', 'medium', 'medium', 'high', 'high', 'medium', 'medium', 'high'], personas: ['ace_practitioner', 'ace_practitioner', 'careful_newcomer'], names: ['에이스 김프로', '해결사 이프로', '꼼꼼한 문프로'], note: '속도를 냈지만 다음 현업에서는 에이스에게 몰린 일을 나누는 구조를 먼저 만들겠습니다.' },
+  rumor: { label: '루머 대응형', choiceTypes: ['STRUCTURE', 'BALANCE', 'BALANCE', 'STRUCTURE', 'BALANCE', 'ALIGN', 'STRUCTURE', 'BALANCE', 'STRUCTURE', 'SPEED', 'STRUCTURE'], qualities: ['medium', 'medium', 'medium', 'medium', 'medium', 'medium', 'high', 'medium', 'medium', 'low', 'medium'], personas: ['relationship_connector', 'careful_newcomer', 'silent_expert'], names: ['분위기 읽는 박프로', '기준 묻는 문프로', '조용한 전문가'], note: '불안을 덮지 않고 확인된 사실과 추측을 나누어 말하는 방식을 다시 세우겠습니다.' },
+  pressure: { label: '재편 위험형', choiceTypes: ['SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED', 'SPEED'], qualities: ['low', 'low', 'medium', 'low', 'low', 'medium', 'low', 'medium', 'low', 'low', 'low'], personas: ['challenge_driver', 'ace_practitioner', 'careful_newcomer'], names: ['도전형 강프로', '에이스 오프로', '불안한 신입'], note: '빠르게 움직였지만 기준과 부담 배분을 놓친 대가를 확인했습니다.' }
 };
 
 const habits = ['불확실하면 속도부터 선택하는 경향이 있었다.', '기준을 세우느라 실행을 늦추는 순간이 있었다.', '사람 부담을 알면서도 성과 압박을 먼저 본 순간이 있었다.'];
