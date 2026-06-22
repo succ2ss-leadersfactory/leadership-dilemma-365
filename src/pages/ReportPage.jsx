@@ -6,6 +6,15 @@ import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
 
 const riskOrder = { 안정: 0, 신호: 1, 주의: 2, 위험: 3 };
+const personaLabels = {
+  ace_practitioner: '에이스 실무자',
+  careful_newcomer: '꼼꼼한 신입',
+  relationship_connector: '관계형 조율자',
+  silent_expert: '침묵형 전문가',
+  challenge_driver: '도전 추진자',
+  standard_keeper: '기준 수호자'
+};
+const choiceTypeLabels = { SPEED: '빠른 실행형', STRUCTURE: '기준 정리형', BALANCE: '균형 조정형', ALIGN: '조건 조율형' };
 
 function getKsaText(team) {
   const selected = team.selectedKSA || { knowledge: [], skill: [], attitude: [] };
@@ -17,6 +26,68 @@ function getRiskText(final, state) {
   const riskKey = final?.reviewMaxRiskKey || state?.maxRiskKey;
   const riskLabel = final?.reviewMaxRiskLabel || state?.maxRiskLabel;
   return `${stateLabels[riskKey] || riskKey || '-'} · ${riskLabel || '-'}`;
+}
+
+function countBy(items = [], getKey) {
+  return items.reduce((acc, item) => {
+    const key = getKey(item);
+    if (!key) return acc;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function formatCounts(counts = {}, labels = {}) {
+  const entries = Object.entries(counts).filter(([, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+  return entries.length ? entries.map(([key, count]) => `${labels[key] || key} ${count}`).join(' / ') : '기록 없음';
+}
+
+function getChoice(gameContent, choiceId) {
+  return gameContent.choices?.find(choice => choice.choiceId === choiceId);
+}
+
+function getTeamObservation(room, gameContent, team) {
+  const profiles = Object.values(room.competencyProfiles?.[team.teamId] || {}).filter(Boolean);
+  const decisions = Object.values(room.teamDecisions || {}).filter(decision => decision.teamId === team.teamId);
+  const final = room.finalResults?.[team.teamId];
+  const personaCounts = countBy(profiles, profile => profile.personaId);
+  const choiceCounts = countBy(decisions, decision => getChoice(gameContent, decision.finalChoiceId)?.internalType);
+  const topChoice = Object.entries(choiceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '미정';
+  const influenceLines = Object.values(room.roundCalculations || {})
+    .filter(calc => calc.teamId === team.teamId)
+    .flatMap(calc => (calc.personaInfluenceLines || []).map(line => `${calc.roundId}: ${line}`));
+
+  let observation = '큰 개입 신호는 적지만, 팀이 반복한 선택 기준과 실제 남은 부담을 연결해 정리하는 것이 좋습니다.';
+  if ((personaCounts.ace_practitioner || 0) >= 1 && topChoice === 'SPEED') observation = '빠른 실행으로 성과를 만들 가능성이 높지만, 중요한 일이 특정 사람에게 몰리는 패턴을 점검해야 합니다.';
+  else if ((personaCounts.relationship_connector || 0) >= 1 && ['BALANCE', 'ALIGN'].includes(topChoice)) observation = '협업 온도와 수용성을 읽는 힘이 강점으로 작동했습니다. 다만 어려운 결정을 미루지 않았는지 함께 확인해야 합니다.';
+  else if ((personaCounts.standard_keeper || 0) >= 1 && ['STRUCTURE', 'ALIGN'].includes(topChoice)) observation = '기준과 책임선을 붙잡아 신뢰 리스크를 낮추는 장면이 있었을 가능성이 큽니다. 기준이 실행 속도를 늦추지는 않았는지 확인해야 합니다.';
+  else if ((personaCounts.challenge_driver || 0) >= 1 && topChoice === 'SPEED') observation = '새로운 시도와 선행 실행의 힘이 보였습니다. 주변 정렬과 마무리 조건이 뒤따랐는지 점검해야 합니다.';
+  else if (final?.weekLogImpactCount > 0) observation = '중간 사건 후폭풍이 남았습니다. 사건 자체보다 그때 반복한 판단 습관을 중심으로 디브리핑해야 합니다.';
+
+  let intervention = '팀이 반복한 판단 기준을 하나의 문장으로 정리하게 하십시오.';
+  if (final?.reviewMaxRiskValue >= 3) intervention = '최종 리스크가 위험 수준입니다. 성과 논의보다 먼저 어떤 부담을 누구에게서 덜어낼 것인지 묻게 하십시오.';
+  else if ((personaCounts.ace_practitioner || 0) >= 1) intervention = '성과를 낸 사람을 칭찬한 뒤 곧바로 그 일이 다시 한 사람에게 몰리지 않게 할 방법을 묻게 하십시오.';
+  else if ((personaCounts.relationship_connector || 0) >= 1) intervention = '말하지 않은 불편과 감정 신호를 공식 대화로 꺼내게 하십시오.';
+  else if ((personaCounts.standard_keeper || 0) >= 1) intervention = '기준을 더 늘리기보다 이번 현업에 남길 기준 하나와 내려놓을 기준 하나를 정하게 하십시오.';
+  else if (topChoice === 'SPEED') intervention = '빠른 실행의 성과와 부작용을 분리해서 말하게 하십시오.';
+
+  let question = `반복된 ${choiceTypeLabels[topChoice] || '선택'} 판단은 어떤 성과와 부담을 동시에 만들었습니까?`;
+  if ((personaCounts.ace_practitioner || 0) >= 1) question = '이번 12주 동안 “그 사람이 해야 한다”고 여긴 일은 무엇이었습니까?';
+  else if ((personaCounts.careful_newcomer || 0) >= 1) question = '신입도 스스로 판단할 수 있도록 남긴 기준은 무엇이었습니까?';
+  else if ((personaCounts.relationship_connector || 0) >= 1) question = '팀원들이 말하지 않았지만 표정으로 드러낸 불편은 무엇이었습니까?';
+  else if ((personaCounts.silent_expert || 0) >= 1) question = '전문가가 알고 있었지만 팀 기준으로 공유되지 않은 것은 무엇이었습니까?';
+
+  return {
+    teamId: team.teamId,
+    teamName: team.teamName,
+    personaMix: formatCounts(personaCounts, personaLabels),
+    choiceMix: formatCounts(choiceCounts, choiceTypeLabels),
+    topChoiceLabel: choiceTypeLabels[topChoice] || '미정',
+    influenceLines,
+    observation,
+    intervention,
+    question
+  };
 }
 
 function getReportSummary(teams, room) {
@@ -85,7 +156,7 @@ function buildTimelineMarkdown(gameContent) {
   return lines;
 }
 
-function buildMarkdownReport(room, teams, summary, gameContent) {
+function buildMarkdownReport(room, teams, summary, gameContent, observations) {
   const lines = [];
   lines.push('# 리더십 딜레마 365 교육 리포트');
   lines.push('');
@@ -100,14 +171,30 @@ function buildMarkdownReport(room, teams, summary, gameContent) {
   lines.push(`- 개인 성찰 제출: ${summary.reflectionCount}`);
   lines.push('');
   lines.push(...buildTimelineMarkdown(gameContent));
-  lines.push('## 팀별 결과');
 
+  lines.push('## 강사용 관찰 요약');
+  observations.forEach(obs => {
+    lines.push(`### ${obs.teamName}`);
+    lines.push(`- 인물 카드 구성: ${obs.personaMix}`);
+    lines.push(`- 선택 유형 분포: ${obs.choiceMix}`);
+    lines.push(`- 관찰 요약: ${obs.observation}`);
+    lines.push(`- 개입 제안: ${obs.intervention}`);
+    lines.push(`- 핵심 질문: ${obs.question}`);
+    if (obs.influenceLines.length) {
+      lines.push('- 인물 카드 영향 기록:');
+      obs.influenceLines.forEach(line => lines.push(`  - ${line}`));
+    }
+    lines.push('');
+  });
+
+  lines.push('## 팀별 결과');
   teams.forEach(t => {
     const st = room.stateValues?.[t.teamId] || {};
     const final = room.finalResults?.[t.teamId];
     const dec = room.declarations?.[t.teamId];
     const reflections = dec?.individualReflections || {};
     const teamPlayers = getTeamPlayers(room, t.teamId);
+    const obs = observations.find(item => item.teamId === t.teamId);
     lines.push(`### ${t.teamName}`);
     lines.push(`- 비밀 미션: ${final?.secretMissionTitle || '미생성'}`);
     lines.push(`- 비밀 미션 점수: ${final?.secretMissionScore ?? '미생성'}/3`);
@@ -118,6 +205,7 @@ function buildMarkdownReport(room, teams, summary, gameContent) {
     lines.push(`- 판단 패턴: ${final?.judgmentPattern || '-'}`);
     lines.push(`- 핵심 리스크: ${getRiskText(final, st)}`);
     lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
+    lines.push(`- 강사용 관찰: ${obs?.observation || '-'}`);
     lines.push(`- 팀 선언문: ${dec?.teamDeclaration || '미작성'}`);
     if (final) {
       lines.push('- 중간 사건 후폭풍 근거:');
@@ -150,7 +238,9 @@ function buildMarkdownReport(room, teams, summary, gameContent) {
   lines.push('3. 조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?');
   lines.push('4. 비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?');
   lines.push('5. 중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?');
-  lines.push('6. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
+  lines.push('6. 후폭풍으로 남은 리스크는 다음 현업에서 어떻게 먼저 낮출 수 있습니까?');
+  lines.push('7. 팀 안의 인물 카드 구성은 선택의 장점과 부작용에 어떤 영향을 주었습니까?');
+  lines.push('8. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
   return lines.join('\n');
 }
 
@@ -165,7 +255,8 @@ export default function ReportPage() {
 
   const teams = Object.values(room.teams);
   const summary = getReportSummary(teams, room);
-  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary, db.gameContent));
+  const observations = teams.map(team => getTeamObservation(room, db.gameContent, team));
+  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary, db.gameContent, observations));
 
   return (
     <Layout roomId={roomId}>
@@ -187,6 +278,26 @@ export default function ReportPage() {
       </section>
 
       <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={12} />
+
+      <section className="card debriefBox">
+        <h3>강사용 관찰 요약</h3>
+        {observations.map(obs => (
+          <div className="reflectionItem" key={obs.teamId}>
+            <h4>{obs.teamName}</h4>
+            <p><b>인물 카드 구성:</b> {obs.personaMix}</p>
+            <p><b>선택 유형 분포:</b> {obs.choiceMix}</p>
+            <p><b>관찰 요약:</b> {obs.observation}</p>
+            <p><b>개입 제안:</b> {obs.intervention}</p>
+            <p><b>핵심 질문:</b> {obs.question}</p>
+            {obs.influenceLines.length > 0 && (
+              <>
+                <h4>인물 카드 영향 기록</h4>
+                <ol>{obs.influenceLines.map((line, i) => <li key={i}>{line}</li>)}</ol>
+              </>
+            )}
+          </div>
+        ))}
+      </section>
 
       <section className="card">
         <h3>팀별 요약표</h3>
@@ -222,6 +333,7 @@ export default function ReportPage() {
           const dec = room.declarations?.[t.teamId];
           const reflections = dec?.individualReflections || {};
           const teamPlayers = getTeamPlayers(room, t.teamId);
+          const obs = observations.find(item => item.teamId === t.teamId);
           return (
             <section className="card teamReportCard" key={t.teamId}>
               <p className="eyebrow">{t.teamName}</p>
@@ -238,6 +350,13 @@ export default function ReportPage() {
               <p><b>판단 패턴:</b> {final?.judgmentPattern || '아직 계산되지 않았습니다.'}</p>
               <p><b>핵심 리스크:</b> {getRiskText(final, st)}</p>
               <p><b>선택한 KSA:</b> {getKsaText(t)}</p>
+              {obs && (
+                <div className="reportInsight">
+                  <p><b>강사용 관찰:</b> {obs.observation}</p>
+                  <p><b>개입 제안:</b> {obs.intervention}</p>
+                  <p><b>핵심 질문:</b> {obs.question}</p>
+                </div>
+              )}
               {final ? (
                 <>
                   {final.weekLogImpactLines?.length > 0 && (
@@ -288,6 +407,7 @@ export default function ReportPage() {
           <li>비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?</li>
           <li>중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?</li>
           <li>후폭풍으로 남은 리스크는 다음 현업에서 어떻게 먼저 낮출 수 있습니까?</li>
+          <li>팀 안의 인물 카드 구성은 선택의 장점과 부작용에 어떤 영향을 주었습니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
