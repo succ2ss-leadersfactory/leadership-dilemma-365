@@ -75,6 +75,7 @@ export function generatePlayerCompetencyProfile({ player, team, selectedKSA }) {
       category: item.category,
       categoryLabel: item.categoryLabel,
       name: item.name,
+      initialLevel: level,
       level,
       levelLabel: levelLabels[level],
       note: level >= 4 ? '초기 강점' : level <= 2 ? '우선 성장 필요' : '실행 가능'
@@ -93,11 +94,14 @@ export function generatePlayerCompetencyProfile({ player, team, selectedKSA }) {
     archetypeCode: archetype.code,
     archetypeLabel: archetype.label,
     archetypeDescription: archetype.description,
+    initialAverageLevel: averageLevel,
     averageLevel,
     strengths,
     growthFocus,
     competencies,
+    growthEvents: [],
     generatedAt: Date.now(),
+    updatedAt: Date.now(),
     source: 'round0_ksa_auto'
   };
 }
