@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import RoundCard from '../components/RoundCard.jsx';
+import StrategicEventCard from '../components/StrategicEventCard.jsx';
 import ChoiceList from '../components/ChoiceList.jsx';
 import KsaSelector from '../components/KsaSelector.jsx';
 import OutputForm from '../components/OutputForm.jsx';
@@ -45,6 +46,7 @@ export default function TeamPage() {
   }
 
   const team = room.teams[teamId];
+  const strategicEvent = db.gameContent.strategicEvents?.[round.strategicEventId];
   const choices = db.gameContent.choices
     .filter(c => round.choiceIds.includes(c.choiceId))
     .sort((a, b) => a.displayOrder - b.displayOrder);
@@ -121,6 +123,7 @@ export default function TeamPage() {
   return (
     <Layout roomId={roomId}>
       <RoundCard round={round} />
+      <StrategicEventCard event={strategicEvent} teamId={teamId} />
 
       <section className="card">
         <h2>{team.teamName}</h2>
