@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import RoundCard from '../components/RoundCard.jsx';
 import ChoiceList from '../components/ChoiceList.jsx';
@@ -12,6 +12,189 @@ import { getTeamVotes } from '../services/voteService';
 import { saveTeamKSA, submitTeamDecision, getTeamDecision } from '../services/teamService';
 import { submitRoundOutput, getSubmission } from '../services/submissionService';
 import { defaultResultCard } from '../data/seedResultCards';
-export default function TeamPage(){ const {roomId,teamId}=useParams(); const [tick,setTick]=useState(0); const [finalChoiceId,setFinalChoiceId]=useState(''); const [summary,setSummary]=useState(''); const [msg,setMsg]=useState(''); useEffect(()=>subscribe(()=>setTick(x=>x+1)),[]); const db=readDb(); const room=db.rooms[roomId]; const round=getCurrentRound(roomId); if(!room||!round) return <Layout><div className="card">팀 정보를 찾을 수 없습니다.</div></Layout>; const team=room.teams[teamId]; const choices=db.gameContent.choices.filter(c=>round.choiceIds.includes(c.choiceId)).sort((a,b)=>a.displayOrder-b.displayOrder); const votes=getTeamVotes(roomId,round.roundId,teamId); const decision=getTeamDecision(roomId,round.roundId,teamId); const outputRequirement=db.gameContent.outputRequirements[round.outputRequirementId]; const submission=getSubmission(roomId,round.roundId,teamId); const calculation=room.roundCalculations[`${round.roundId}_${teamId}`]; const resultCard=db.gameContent.resultCards[calculation?.resultCardId]||defaultResultCard;
-const canEdit=!room.roomProgress.isScreenLocked;
-return <Layout roomId={roomId}><RoundCard round={round}/><section className="card"><h2>{team.teamName}</h2><p>{team.slogan}</p><p className="muted">현재 단계: {room.roomProgress.currentPhase}</p>{msg&&<div className="notice">{msg}</div>}</section>{round.roundId==='round0'&&<KsaSelector options={db.gameContent.ksaOptions[teamId]} selectedKSA={team.selectedKSA} onSubmit={(ksa)=>{try{saveTeamKSA(roomId,teamId,ksa);setMsg('KSA를 저장했습니다.')}catch(e){setMsg(e.message)}}}/>} {choices.length>0&&<section className="card"><h3>개인 선택 분포</h3>{votes.length?votes.map(v=><p key={v.voteId}>• {choices.find(c=>c.choiceId===v.choiceId)?.choiceText}<br/><small>{v.reason}</small></p>):<p className="muted">아직 개인 선택이 없습니다.</p>}<h3>팀 최종 선택</h3><ChoiceList choices={choices} selectedChoiceId={finalChoiceId||decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit}/><label>토론 요약<textarea value={summary||decision?.discussionSummary||''} onChange={e=>setSummary(e.target.value)} /></label><button className="primary" onClick={()=>{try{submitTeamDecision({roomId,roundId:round.roundId,teamId,finalChoiceId:finalChoiceId||decision?.finalChoiceId,discussionSummary:summary||decision?.discussionSummary,submittedBy:'team'});setMsg('팀 결정을 저장했습니다.')}catch(e){setMsg(e.message)}}}>팀 결정 저장</button></section>} {choices.length>0&&<section className="card"><h3>산출물 입력</h3><OutputForm outputRequirement={outputRequirement} initialAnswers={submission?.answers} onSubmit={(answers)=>{try{submitRoundOutput({roomId,roundId:round.roundId,teamId,answers,submittedBy:'team'});setMsg('산출물을 저장했습니다.')}catch(e){setMsg(e.message)}}}/></section>}{room.roomProgress.resultVisible&&calculation&&<ResultCard card={resultCard} calculation={calculation}/>} {round.roundId==='week12'&&<section className="card"><h3>팀 선언문</h3><textarea placeholder="우리는 12주 동안..." onChange={e=>setSummary(e.target.value)} /><button className="primary" onClick={()=>{updateDb(db2=>{db2.rooms[roomId].declarations[teamId]={...(db2.rooms[roomId].declarations[teamId]||{teamId}),teamDeclaration:summary,submittedAt:Date.now()};});setMsg('팀 선언문을 저장했습니다.')}}>선언문 저장</button></section>}</Layout>}
+
+function isKsaComplete(selectedKSA) {
+  return (
+    selectedKSA?.knowledge?.length === 3 &&
+    selectedKSA?.skill?.length === 3 &&
+    selectedKSA?.attitude?.length === 3
+  );
+}
+
+export default function TeamPage() {
+  const { roomId, teamId } = useParams();
+  const navigate = useNavigate();
+  const [tick, setTick] = useState(0);
+  const [finalChoiceId, setFinalChoiceId] = useState('');
+  const [summary, setSummary] = useState('');
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => subscribe(() => setTick(x => x + 1)), []);
+
+  const db = readDb();
+  const room = db.rooms[roomId];
+  const round = getCurrentRound(roomId);
+
+  if (!room || !round) {
+    return <Layout><div className="card">팀 정보를 찾을 수 없습니다.</div></Layout>;
+  }
+
+  const team = room.teams[teamId];
+  const choices = db.gameContent.choices
+    .filter(c => round.choiceIds.includes(c.choiceId))
+    .sort((a, b) => a.displayOrder - b.displayOrder);
+  const votes = getTeamVotes(roomId, round.roundId, teamId);
+  const decision = getTeamDecision(roomId, round.roundId, teamId);
+  const outputRequirement = db.gameContent.outputRequirements[round.outputRequirementId];
+  const submission = getSubmission(roomId, round.roundId, teamId);
+  const calculation = room.roundCalculations[`${round.roundId}_${teamId}`];
+  const resultCard = db.gameContent.resultCards[calculation?.resultCardId] || defaultResultCard;
+  const canEdit = !room.roomProgress.isScreenLocked;
+  const ksaComplete = isKsaComplete(team.selectedKSA);
+
+  function startWeek1PlayerVote() {
+    updateDb(db2 => {
+      const targetRoom = db2.rooms[roomId];
+      targetRoom.roomProgress.currentRoundId = 'week1';
+      targetRoom.roomProgress.currentPhase = 'playerVote';
+      targetRoom.roomProgress.currentRoundOrder = 2;
+      targetRoom.roomProgress.resultVisible = false;
+      targetRoom.roomProgress.updatedAt = Date.now();
+      if (targetRoom.roundProgress.round0) {
+        targetRoom.roundProgress.round0.status = 'completed';
+        targetRoom.roundProgress.round0.resultRevealed = true;
+      }
+      if (targetRoom.roundProgress.week1) {
+        targetRoom.roundProgress.week1.status = 'active';
+        targetRoom.roundProgress.week1.phase = 'playerVote';
+      }
+    });
+    setMsg('Week 1 개인 선택 단계로 이동했습니다. 아래에서 선택지와 선택 이유를 입력하세요.');
+    navigate(`/team/${roomId}/${teamId}`);
+  }
+
+  return (
+    <Layout roomId={roomId}>
+      <RoundCard round={round} />
+
+      <section className="card">
+        <h2>{team.teamName}</h2>
+        <p>{team.slogan}</p>
+        <p className="muted">현재 단계: {room.roomProgress.currentPhase}</p>
+        {msg && <div className="notice">{msg}</div>}
+      </section>
+
+      {round.roundId === 'round0' && (
+        <>
+          <KsaSelector
+            options={db.gameContent.ksaOptions[teamId]}
+            selectedKSA={team.selectedKSA}
+            onSubmit={(ksa) => {
+              try {
+                saveTeamKSA(roomId, teamId, ksa);
+                setMsg('KSA를 저장했습니다. 이제 바로 Week 1 개인 선택 단계로 이동할 수 있습니다.');
+              } catch (e) {
+                setMsg(e.message);
+              }
+            }}
+          />
+          <section className="card next-step-card">
+            <h3>다음 행동</h3>
+            <p>
+              KSA 저장을 마쳤다면 아래 버튼으로 바로 Week 1의 개인 선택 단계로 이동하세요.
+              Host 화면을 따로 거치지 않고 테스트 흐름을 이어갈 수 있습니다.
+            </p>
+            {!ksaComplete && (
+              <p className="muted">지식·기술·태도 각 3개씩 선택 후 KSA를 저장하면 이동할 수 있습니다.</p>
+            )}
+            <div className="actions">
+              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>
+                KSA 저장하고 Week 1 개인 선택으로 이동
+              </button>
+              <Link className="button" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
+            </div>
+          </section>
+        </>
+      )}
+
+      {choices.length > 0 && (
+        <section className="card">
+          <h3>개인 선택 분포</h3>
+          {votes.length ? votes.map(v => (
+            <p key={v.voteId}>• {choices.find(c => c.choiceId === v.choiceId)?.choiceText}<br /><small>{v.reason}</small></p>
+          )) : <p className="muted">아직 개인 선택이 없습니다.</p>}
+
+          <h3>팀 최종 선택</h3>
+          <ChoiceList
+            choices={choices}
+            selectedChoiceId={finalChoiceId || decision?.finalChoiceId}
+            onSelect={setFinalChoiceId}
+            disabled={!canEdit}
+          />
+          <label>
+            토론 요약
+            <textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} />
+          </label>
+          <button
+            className="primary"
+            onClick={() => {
+              try {
+                submitTeamDecision({
+                  roomId,
+                  roundId: round.roundId,
+                  teamId,
+                  finalChoiceId: finalChoiceId || decision?.finalChoiceId,
+                  discussionSummary: summary || decision?.discussionSummary,
+                  submittedBy: 'team'
+                });
+                setMsg('팀 결정을 저장했습니다. 이어서 산출물을 입력하세요.');
+              } catch (e) {
+                setMsg(e.message);
+              }
+            }}
+          >팀 결정 저장</button>
+        </section>
+      )}
+
+      {choices.length > 0 && (
+        <section className="card">
+          <h3>산출물 입력</h3>
+          <OutputForm
+            outputRequirement={outputRequirement}
+            initialAnswers={submission?.answers}
+            onSubmit={(answers) => {
+              try {
+                submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
+                setMsg('산출물을 저장했습니다. Host에서 계산 후 결과를 공개하세요.');
+              } catch (e) {
+                setMsg(e.message);
+              }
+            }}
+          />
+        </section>
+      )}
+
+      {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} />}
+
+      {round.roundId === 'week12' && (
+        <section className="card">
+          <h3>팀 선언문</h3>
+          <textarea placeholder="우리는 12주 동안..." onChange={e => setSummary(e.target.value)} />
+          <button
+            className="primary"
+            onClick={() => {
+              updateDb(db2 => {
+                db2.rooms[roomId].declarations[teamId] = {
+                  ...(db2.rooms[roomId].declarations[teamId] || { teamId }),
+                  teamDeclaration: summary,
+                  submittedAt: Date.now()
+                };
+              });
+              setMsg('팀 선언문을 저장했습니다.');
+            }}
+          >선언문 저장</button>
+        </section>
+      )}
+    </Layout>
+  );
+}
