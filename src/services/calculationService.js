@@ -49,7 +49,7 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       submission,
       risk
     });
-    const teamResultNarrative = getTeamResultNarrative({ teamId, choiceType: choice?.internalType });
+    const teamResultNarrative = getTeamResultNarrative({ teamId, choiceType: choice?.internalType, roundId });
     db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
       calculationId:`${roundId}_${teamId}`,
       roundId,
