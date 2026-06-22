@@ -25,13 +25,27 @@ function describeState(key, value = 0) {
 
 function buildDebriefQuestions(card, calculation) {
   const choice = calculation?.choiceText || card?.choiceLabel || '이번 선택';
+  const evidenceReview = calculation?.outputEvidenceReview;
+  const evidenceQuestion = evidenceReview
+    ? `이번 산출물의 증거 수준은 ${evidenceReview.evidenceLevel}입니다. 무엇을 더 구체적으로 남겼어야 합니까?`
+    : '이번 산출물에서 더 구체적으로 남겼어야 할 증거는 무엇입니까?';
   return [
     `우리 팀은 왜 ${choice} 방향을 선택했습니까?`,
     '이 선택은 어떤 작은 진전을 만들었고, 어떤 부담을 남겼습니까?',
+    evidenceQuestion,
     '이번 선택에서 팀 안의 인물 카드는 결과에 어떤 영향을 주었습니까?',
     '이번 선택은 팀원 역량에 어떤 성장 경험 또는 위축 신호를 남겼습니까?',
     '다음 라운드에서 이 부담을 줄이기 위해 무엇을 먼저 관리해야 합니까?'
   ];
+}
+
+function buildEvidenceSummary(evidenceReview) {
+  if (!evidenceReview) return null;
+  const score = Number(evidenceReview.evidenceScore || 0);
+  if (score >= 4) return '산출물에 판단 근거, 구체 증거, 다음 행동, 남는 리스크가 비교적 균형 있게 담겼습니다.';
+  if (score >= 3) return '산출물의 기본 증거는 충실하지만, 한 가지 기준은 더 보완하면 좋습니다.';
+  if (score >= 2) return '산출물의 방향은 보이지만, 증거와 다음 행동을 더 구체화해야 합니다.';
+  return '산출물이 실행 메모에 가깝습니다. 판단 근거, 수치, 다음 행동, 리스크 신호를 더 남겨야 합니다.';
 }
 
 export default function ResultCard({ card, calculation }) {
@@ -41,6 +55,8 @@ export default function ResultCard({ card, calculation }) {
   const previousState = calculation?.previousState || {};
   const personaLines = calculation?.personaInfluenceLines || [];
   const growthLines = calculation?.competencyGrowthLines || [];
+  const evidenceReview = calculation?.outputEvidenceReview;
+  const evidenceSummary = buildEvidenceSummary(evidenceReview);
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
     const before = previousState[key] ?? 0;
@@ -70,6 +86,23 @@ export default function ResultCard({ card, calculation }) {
           <p>{card.reorgReviewView}</p>
         </div>
       </div>
+
+      {evidenceReview && (
+        <div className="sceneBox">
+          <h4>전문성 신호</h4>
+          <p><b>산출물 증거 수준:</b> {evidenceReview.evidenceLevel} · {evidenceReview.evidenceScore}/4</p>
+          <p>{evidenceSummary}</p>
+          {evidenceReview.expertiseKeywords?.length > 0 && (
+            <p><b>관련 역량:</b> {evidenceReview.expertiseKeywords.join(' / ')}</p>
+          )}
+          {evidenceReview.evidenceStandards?.length > 0 && (
+            <div className="notice"><b>팀별 좋은 산출물 기준:</b> {evidenceReview.evidenceStandards.join(' · ')}</div>
+          )}
+          <ul>
+            {(evidenceReview.evidenceSignals || []).map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}
+          </ul>
+        </div>
+      )}
 
       <div className="stateSummary">
         <h4>팀 상태 변화</h4>
