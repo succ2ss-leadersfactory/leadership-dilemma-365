@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
+import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
 
@@ -55,7 +56,26 @@ function downloadText(filename, text) {
   URL.revokeObjectURL(a.href);
 }
 
-function buildMarkdownReport(room, teams, summary) {
+function buildTimelineMarkdown(gameContent) {
+  const roundsByWeek = Object.fromEntries((gameContent.rounds || []).map(round => [round.week, round]));
+  const logsByWeek = Object.fromEntries((gameContent.weekLogs || []).map(log => [log.week, log]));
+  const lines = ['## 12주 타임라인'];
+  Array.from({ length: 13 }, (_, week) => week).forEach(week => {
+    const round = roundsByWeek[week];
+    const log = logsByWeek[week];
+    if (round) {
+      lines.push(`- Week ${week} · PLAY · ${round.title}: ${round.teamSignalText || round.coreQuestion}`);
+    } else if (log) {
+      lines.push(`- Week ${week} · LOG · ${log.title}: ${log.signalText || log.storyText}`);
+    } else {
+      lines.push(`- Week ${week} · 미등록`);
+    }
+  });
+  lines.push('');
+  return lines;
+}
+
+function buildMarkdownReport(room, teams, summary, gameContent) {
   const lines = [];
   lines.push('# 리더십 딜레마 365 교육 리포트');
   lines.push('');
@@ -68,6 +88,7 @@ function buildMarkdownReport(room, teams, summary) {
   lines.push(`- 대표 판단 패턴: ${summary.topPattern}`);
   lines.push(`- 개인 성찰 제출: ${summary.reflectionCount}`);
   lines.push('');
+  lines.push(...buildTimelineMarkdown(gameContent));
   lines.push('## 팀별 결과');
 
   teams.forEach(t => {
@@ -114,7 +135,8 @@ function buildMarkdownReport(room, teams, summary) {
   lines.push('2. 그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?');
   lines.push('3. 조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?');
   lines.push('4. 비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?');
-  lines.push('5. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
+  lines.push('5. 중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?');
+  lines.push('6. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
   return lines.join('\n');
 }
 
@@ -123,12 +145,13 @@ export default function ReportPage() {
   const [tick, setTick] = useState(0);
   useEffect(() => subscribe(() => setTick(x => x + 1)), []);
 
-  const room = readDb().rooms[roomId];
+  const db = readDb();
+  const room = db.rooms[roomId];
   if (!room) return <Layout><div className="card">방 정보를 찾을 수 없습니다.</div></Layout>;
 
   const teams = Object.values(room.teams);
   const summary = getReportSummary(teams, room);
-  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary));
+  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary, db.gameContent));
 
   return (
     <Layout roomId={roomId}>
@@ -147,6 +170,8 @@ export default function ReportPage() {
         </div>
         <div className="actions"><button onClick={() => window.print()}>인쇄 / PDF 저장</button><button className="secondary" onClick={saveMarkdown}>Markdown 다운로드</button></div>
       </section>
+
+      <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={12} />
 
       <section className="card">
         <h3>팀별 요약표</h3>
@@ -238,6 +263,7 @@ export default function ReportPage() {
           <li>그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?</li>
           <li>조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?</li>
           <li>비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?</li>
+          <li>중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
