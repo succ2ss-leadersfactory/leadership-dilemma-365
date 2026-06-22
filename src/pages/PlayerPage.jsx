@@ -5,6 +5,7 @@ import RoundCard from '../components/RoundCard.jsx';
 import ChoiceList from '../components/ChoiceList.jsx';
 import ResultCard from '../components/ResultCard.jsx';
 import CompetencyProfilePanel from '../components/CompetencyProfilePanel.jsx';
+import ParticipantOnboardingPanel from '../components/ParticipantOnboardingPanel.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getPlayer } from '../services/playerService';
 import { getCurrentRound } from '../services/roundService';
@@ -19,6 +20,7 @@ export default function PlayerPage() {
   const [habit, setHabit] = useState('');
   const [nextBehavior, setNextBehavior] = useState('');
   const [msg, setMsg] = useState('');
+  const [showGuide, setShowGuide] = useState(() => localStorage.getItem(`participantGuide_${playerId}`) !== 'hidden');
 
   useEffect(() => subscribe(() => setTick(x => x + 1)), []);
 
@@ -61,12 +63,24 @@ export default function PlayerPage() {
     setMsg('개인 성찰을 저장했습니다. 팀 화면에서 선언문을 작성해 마무리하세요.');
   };
 
+  const hideGuide = () => {
+    localStorage.setItem(`participantGuide_${playerId}`, 'hidden');
+    setShowGuide(false);
+  };
+
   return (
     <Layout roomId={roomId}>
+      {showGuide && (
+        <>
+          <ParticipantOnboardingPanel mode="player" playerName={player.displayName} teamName={team.teamName} />
+          <section className="card"><button className="secondary" onClick={hideGuide}>안내 접기</button></section>
+        </>
+      )}
       <RoundCard round={round} />
       <section className="card">
         <p>참가자: <b>{player.displayName}</b> · 팀: <Link to={`/team/${roomId}/${player.teamId}`}>{team.teamName}</Link></p>
         <p className="muted">현재 단계: {room.roomProgress.currentPhase}</p>
+        {!showGuide && <button className="secondary" onClick={() => setShowGuide(true)}>참가 안내 다시 보기</button>}
         {msg && <div className="notice">{msg}</div>}
 
         {choices.length > 0 ? (
