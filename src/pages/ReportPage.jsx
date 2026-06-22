@@ -158,6 +158,12 @@ function buildTimelineMarkdown(gameContent) {
   return lines;
 }
 
+function pushMarkdownList(lines, title, items = []) {
+  if (!items.length) return;
+  lines.push(`- ${title}:`);
+  items.forEach(line => lines.push(`  - ${line}`));
+}
+
 function buildMarkdownReport(room, teams, summary, gameContent, observations, expertiseSummaries) {
   const lines = [];
   lines.push('# 리더십 딜레마 365 교육 리포트');
@@ -194,15 +200,20 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations, ex
     lines.push(`### ${item.teamName}`);
     lines.push(`- 전문성 렌즈: ${item.lensTitle}`);
     lines.push(`- 평균 증거 수준: ${item.evidenceLevel} (${item.averageScore || '-'}/4, ${item.evidenceCount}건)`);
+    lines.push(`- 결과 해석 기록: ${item.narrativeCount || 0}건`);
+    lines.push(`- 누적 결과 해석: ${item.narrativeSummary || '-'}`);
     lines.push(`- 관련 역량: ${item.expertiseKeywords.join(', ') || '-'}`);
     lines.push(`- 강한 주차: ${item.strongestWeeks}`);
     lines.push(`- 취약 주차: ${item.weakestWeeks}`);
     lines.push(`- 요약: ${item.summaryLine}`);
+    pushMarkdownList(lines, '반복된 진전', item.repeatedGains || []);
+    pushMarkdownList(lines, '반복된 대가', item.repeatedRisks || []);
+    pushMarkdownList(lines, '강사용 경고 신호', item.warningSignals || []);
     if (item.needsMoreEvidence.length) {
       lines.push('- 보완 신호:');
       item.needsMoreEvidence.forEach(line => lines.push(`  - ${line}`));
     }
-    lines.push(`- 강사용 질문: ${item.facilitatorQuestion}`);
+    lines.push(`- 강사용 질문: ${item.narrativeQuestions?.[0] || item.facilitatorQuestion}`);
     lines.push('');
   });
 
@@ -227,6 +238,10 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations, ex
     lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
     lines.push(`- 강사용 관찰: ${obs?.observation || '-'}`);
     lines.push(`- 전문성 요약: ${expertise?.summaryLine || '-'}`);
+    lines.push(`- 누적 결과 해석: ${expertise?.narrativeSummary || '-'}`);
+    pushMarkdownList(lines, '반복된 진전', expertise?.repeatedGains || []);
+    pushMarkdownList(lines, '반복된 대가', expertise?.repeatedRisks || []);
+    pushMarkdownList(lines, '강사용 경고 신호', expertise?.warningSignals || []);
     lines.push(`- 팀 선언문: ${dec?.teamDeclaration || '미작성'}`);
     if (final) {
       lines.push('- 중간 사건 후폭풍 근거:');
@@ -262,7 +277,8 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations, ex
   lines.push('6. 후폭풍으로 남은 리스크는 다음 현업에서 어떻게 먼저 낮출 수 있습니까?');
   lines.push('7. 팀 안의 인물 카드 구성은 선택의 장점과 부작용에 어떤 영향을 주었습니까?');
   lines.push('8. 이 팀은 자기 기능 전문성에 맞는 증거를 충분히 남겼습니까?');
-  lines.push('9. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
+  lines.push('9. 팀별 결과 해석에서 반복된 대가는 무엇이며, 왜 뒤로 미뤄졌습니까?');
+  lines.push('10. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
   return lines.join('\n');
 }
 
