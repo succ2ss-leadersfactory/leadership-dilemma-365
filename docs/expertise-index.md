@@ -2,7 +2,7 @@
 
 이 문서는 리더십 딜레마 365의 전문성 고도화 기능을 빠르게 찾기 위한 안내 문서입니다.
 
-전문성 고도화는 팀별 기능 전문성, 산출물 증거 수준, 결과 카드 해석, 교육 리포트 요약, 운영 QA 점검을 연결하는 흐름입니다.
+전문성 고도화는 팀별 기능 전문성, 산출물 증거 수준, 결과 카드 해석, 비밀 미션, 교육 리포트 요약, 운영 QA 점검을 연결하는 흐름입니다.
 
 ```text
 팀별 전문지식 렌즈
@@ -10,6 +10,7 @@
 → 산출물 증거 수준 저장
 → 결과 카드 전문성 신호
 → 최종 판정 약한 보정
+→ 비밀 미션 일부 기준 반영
 → 교육 리포트 전문성 요약
 → 운영 QA 점검
 ```
@@ -23,8 +24,9 @@
 | 1 | `docs/expertise-lens-feature-summary.md` | 전문성 고도화 기능 전체 요약 |
 | 2 | `docs/expertise-lens-enhancement-plan.md` | 1~5단계 고도화 진행 상태 |
 | 3 | `docs/expertise-final-adjustment-policy.md` | 산출물 증거 수준의 최종 판정 반영 기준 |
-| 4 | `docs/team-result-narrative-policy.md` | 팀별 결과 카드 문장 세분화 기준 |
-| 5 | `docs/cumulative-result-narrative-report-policy.md` | 리포트 누적 해석과 경고 신호 기준 |
+| 4 | `docs/secret-mission-expertise-evidence-policy.md` | 비밀 미션 전문성 증거 기준 |
+| 5 | `docs/team-result-narrative-policy.md` | 팀별 결과 카드 문장 세분화 기준 |
+| 6 | `docs/cumulative-result-narrative-report-policy.md` | 리포트 누적 해석과 경고 신호 기준 |
 
 ---
 
@@ -33,6 +35,7 @@
 | 파일 | 역할 |
 |---|---|
 | `src/data/seedTeamExpertiseLenses.js` | 팀별 전문지식 렌즈 데이터 |
+| `src/data/seedMissions.js` | 팀별 비밀 미션과 전문성 증거 기준 |
 | `src/utils/teamOutputEvidenceUtils.js` | 산출물 증거 수준 계산 |
 | `src/utils/expertiseFinalAdjustmentUtils.js` | 전문성 증거 수준 최종 판정 보정 |
 | `src/utils/teamResultNarrativeUtils.js` | 팀별 결과 카드 문장 생성 |
@@ -62,6 +65,7 @@
 | `room.roundCalculations` | `teamResultNarrative` | 팀별 결과 카드 해석 |
 | `room.finalResults` | `expertiseEvidenceAdjustment` | 최종 판정 전문성 보정 결과 |
 | `room.finalResults` | `expertiseEvidenceLines` | 최종 판정 근거 문장 |
+| `room.finalResults` | `missionCriteriaResults` | 비밀 미션 기준별 충족 여부 |
 
 ---
 
@@ -88,6 +92,7 @@
 - 반복된 선택 방식은 강점인가, 습관인가?
 - 다음 현업에서 줄여야 할 부담은 무엇인가?
 - 산출물은 상무나 타부서가 믿을 수 있는 증거가 되었는가?
+- 비밀 미션을 충족하기에 충분한 전문성 증거가 있었는가?
 
 ---
 
@@ -95,6 +100,7 @@
 
 - 산출물 증거 수준은 자동 키워드 기반 보조 판단입니다.
 - 최종 판정에는 약하게만 반영합니다.
+- 비밀 미션에는 일부 기준으로만 반영합니다.
 - Markdown 리포트에는 누적 결과 해석, 반복된 진전, 반복된 대가, 강사용 경고 신호가 포함됩니다.
 - 실제 파일럿 후 산출물 문장에 맞춰 키워드와 문장을 보정해야 합니다.
 
@@ -102,8 +108,7 @@
 
 ## 8. 다음 개발 후보
 
-1. 누적 대가가 반복될 때 라운드별 원인 표시
-2. 비밀 미션 기준에 전문성 증거 수준 조건 추가
-3. 팀별 result narrative를 라운드별로 더 세분화
-4. 실제 파일럿 산출물 기반으로 evidenceReview 키워드 보정
-5. 전문성 QA 문서를 파일럿 최종 QA 판정표에 연결
+1. 팀별 result narrative를 라운드별로 더 세분화
+2. 실제 파일럿 산출물 기반으로 evidenceReview 키워드 보정
+3. 전문성 QA 문서를 파일럿 최종 QA 판정표에 연결
+4. Markdown 다운로드에 반복 대가 발생 라운드 추가
