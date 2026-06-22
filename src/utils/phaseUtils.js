@@ -1,4 +1,4 @@
-export const roundOrder = ['round0', 'week1', 'week5', 'week8', 'week10', 'week11', 'week12'];
+export const roundOrder = ['round0', 'week1', 'week2', 'week3', 'week4', 'week5', 'week6', 'week7', 'week8', 'week9', 'week10', 'week11', 'week12'];
 export const generalPhases = ['intro', 'playerVote', 'teamDiscussion', 'teamDecision', 'submission', 'calculationReview', 'resultReveal'];
 export const setupPhases = ['intro', 'ksaSelection', 'resultReveal'];
 export const finalPhases = ['intro', 'finalCalculation', 'finalReview', 'finalResult', 'reflection', 'declaration'];
