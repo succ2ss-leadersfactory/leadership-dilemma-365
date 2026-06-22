@@ -251,12 +251,19 @@ export default function TeamPage() {
                 <div><b>{resultLabel(finalResult.missionLabel)}</b><span>2차 미션 달성 판정</span></div>
                 <div><b>{resultLabel(finalResult.finalLevel)}</b><span>종합 판정</span></div>
                 <div><b>{finalResult.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
+                <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 후폭풍</span></div>
               </div>
               <p><b>비밀 미션:</b> {finalResult.secretMissionTitle || '팀별 비밀 미션'}</p>
               {finalResult.secretMissionBrief && <p className="muted">{finalResult.secretMissionBrief}</p>}
               <p><b>판단 패턴:</b> {finalResult.judgmentPattern}</p>
               <p><b>남은 부담:</b> {finalResult.remainingBurden}</p>
               <p><b>현업 적용 행동:</b> {finalResult.nextAction}</p>
+              {finalResult.weekLogImpactLines?.length > 0 && (
+                <>
+                  <h4>중간 사건 후폭풍</h4>
+                  <ol>{finalResult.weekLogImpactLines.map((line, i) => <li key={i}>{line}</li>)}</ol>
+                </>
+              )}
               {finalResult.missionEvidenceLines?.length > 0 && (
                 <>
                   <h4>비밀 미션 근거</h4>
