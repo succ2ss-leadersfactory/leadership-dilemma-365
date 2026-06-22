@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage.jsx';
 import HostCreatePage from './pages/HostCreatePage.jsx';
 import HostDashboardPage from './pages/HostDashboardPage.jsx';
@@ -8,6 +8,7 @@ import TeamPage from './pages/TeamPage.jsx';
 import MultiTeamComparePage from './pages/MultiTeamComparePage.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import AdminOpsPage from './pages/AdminOpsPage.jsx';
+import FacilitatorGuidePage from './pages/FacilitatorGuidePage.jsx';
 
 export default function App() {
   return (
@@ -20,8 +21,8 @@ export default function App() {
       <Route path="/team/:roomId/:teamId" element={<TeamPage />} />
       <Route path="/compare/:roomId" element={<MultiTeamComparePage />} />
       <Route path="/report/:roomId" element={<ReportPage />} />
+      <Route path="/guide/:roomId" element={<FacilitatorGuidePage />} />
       <Route path="/admin/:roomId" element={<AdminOpsPage />} />
-      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
