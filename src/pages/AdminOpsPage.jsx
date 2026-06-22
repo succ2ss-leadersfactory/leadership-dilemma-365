@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import FinalPilotChecklistPanel from '../components/FinalPilotChecklistPanel.jsx';
+import RehearsalBalancePanel from '../components/RehearsalBalancePanel.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { calculateRoundResult, generateFinalResults } from '../services/calculationService';
 import { generateTeamCompetencyProfiles } from '../utils/competencyProfileUtils';
@@ -120,6 +121,7 @@ export default function AdminOpsPage() {
       </section>
 
       <FinalPilotChecklistPanel roomId={roomId} joinCode={room.joinCode} />
+      <RehearsalBalancePanel room={room} />
 
       <section className="card">
         <h3>리허설 샘플 시나리오 생성</h3>
