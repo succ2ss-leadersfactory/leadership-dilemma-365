@@ -11,6 +11,7 @@
 | 목적 | 볼 문서 |
 |---|---|
 | 전체 구조 파악 | `README.md` |
+| 최종 운영 여부 판정 | `docs/pilot-final-qa-decision-table.md` |
 | 20분 리허설 진행 | `docs/pilot-rehearsal-script.md` |
 | 이번 버전 요약 | `docs/release-notes-v1.0-pilot.md` |
 | 리허설 샘플 밸런스 확인 | `docs/rehearsal-scenario-balance-check.md` |
@@ -32,6 +33,7 @@
 6. 리허설 샘플 밸런스 검증 패널 확인
 7. QA 리포트 다운로드
 8. `/report/:roomId`에서 교육 리포트 다운로드
+9. `docs/pilot-final-qa-decision-table.md` 기준으로 운영 가능 여부 판정
 
 ---
 
