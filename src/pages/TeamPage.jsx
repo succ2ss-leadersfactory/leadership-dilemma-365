@@ -47,6 +47,7 @@ export default function TeamPage() {
   }
 
   const team = room.teams[teamId];
+  const expertiseLens = db.gameContent.teamExpertiseLenses?.[teamId];
   const strategicEvent = db.gameContent.strategicEvents?.[round.strategicEventId];
   const choices = db.gameContent.choices
     .filter(c => round.choiceIds.includes(c.choiceId))
@@ -182,12 +183,18 @@ export default function TeamPage() {
       {choices.length > 0 && (
         <section className="card">
           <h3>산출물 입력</h3>
-          <OutputForm outputRequirement={outputRequirement} initialAnswers={submission?.answers} onSubmit={(answers) => {
-            try {
-              submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
-              setMsg('산출물을 저장했습니다. 이제 결과를 계산하고 공개할 수 있습니다.');
-            } catch (e) { setMsg(e.message); }
-          }} />
+          <OutputForm
+            outputRequirement={outputRequirement}
+            initialAnswers={submission?.answers}
+            expertiseLens={expertiseLens}
+            evidenceReview={submission?.evidenceReview}
+            onSubmit={(answers) => {
+              try {
+                submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
+                setMsg('산출물을 저장했습니다. 증거 수준을 확인한 뒤 결과를 계산하고 공개하세요.');
+              } catch (e) { setMsg(e.message); }
+            }}
+          />
         </section>
       )}
 
@@ -251,27 +258,13 @@ export default function TeamPage() {
                 <div><b>{resultLabel(finalResult.missionLabel)}</b><span>2차 미션 달성 판정</span></div>
                 <div><b>{resultLabel(finalResult.finalLevel)}</b><span>종합 판정</span></div>
                 <div><b>{finalResult.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
-                <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 후폭풍</span></div>
+                <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 반영</span></div>
+                <div><b>{finalResult.skippedPlayableLogCount ?? 0}</b><span>플레이로 처리된 사건</span></div>
               </div>
-              <p><b>비밀 미션:</b> {finalResult.secretMissionTitle || '팀별 비밀 미션'}</p>
-              {finalResult.secretMissionBrief && <p className="muted">{finalResult.secretMissionBrief}</p>}
-              <p><b>판단 패턴:</b> {finalResult.judgmentPattern}</p>
-              <p><b>남은 부담:</b> {finalResult.remainingBurden}</p>
-              <p><b>현업 적용 행동:</b> {finalResult.nextAction}</p>
-              {finalResult.weekLogImpactLines?.length > 0 && (
-                <>
-                  <h4>중간 사건 후폭풍</h4>
-                  <ol>{finalResult.weekLogImpactLines.map((line, i) => <li key={i}>{line}</li>)}</ol>
-                </>
-              )}
-              {finalResult.missionEvidenceLines?.length > 0 && (
-                <>
-                  <h4>비밀 미션 근거</h4>
-                  <ol>{finalResult.missionEvidenceLines.map((line, i) => <li key={i}>{line}</li>)}</ol>
-                </>
-              )}
-              <h4>종합 판정 근거</h4>
-              <ol>{finalResult.evidenceLines?.map((line, i) => <li key={i}>{line}</li>)}</ol>
+              <h4>판정 근거</h4>
+              <ul>
+                {(finalResult.evidenceLines || []).map(line => <li key={line}>{line}</li>)}
+              </ul>
             </section>
           )}
         </>
