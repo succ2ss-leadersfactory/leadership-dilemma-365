@@ -19,26 +19,37 @@ export function getJudgmentPattern(teamDecisions = [], choices = []) {
   return { code: best, label: choiceTypeLabels[best] || '균형 조정형', counts };
 }
 
+function getRiskStats(values = {}) {
+  const nums = Object.values(values).map(Number);
+  const max = nums.length ? Math.max(...nums) : 0;
+  const dangerCount = nums.filter(v => v >= 3).length;
+  const warningCount = nums.filter(v => v >= 2).length;
+  const riskLoad = nums.reduce((sum, value) => sum + value, 0);
+  return { nums, max, dangerCount, warningCount, riskLoad };
+}
+
 export function calculateFinalLevel({ values = {}, week11Quality = 'medium', secretMissionScore = 0 }) {
   let score = 4;
-  const nums = Object.values(values).map(Number);
-  if (nums.some(v => v >= 3)) score -= 1;
-  if (nums.filter(v => v >= 2).length >= 2) score -= 1;
+  const { dangerCount, warningCount, riskLoad } = getRiskStats(values);
+  if (dangerCount >= 2) score -= 2;
+  else if (dangerCount === 1) score -= 1;
+  if (warningCount >= 3) score -= 1;
+  if (riskLoad >= 10) score -= 1;
   if (['high', 'veryHigh'].includes(week11Quality)) score += 1;
   if (secretMissionScore === 3) score += 1;
+  if (secretMissionScore === 0 && warningCount >= 3) score -= 1;
   score = clamp(score, 0, 4);
   const levels = ['전면 재설계 대상팀', '통합 검토팀', '조건부 유지팀', '유지팀', '전략 유지·확대팀'];
   return { baseScore: score, finalLevel: levels[score] };
 }
 
 export function calculateSurvivalOutcome({ values = {}, week11Quality = 'medium' }) {
-  const nums = Object.values(values).map(Number);
-  const max = nums.length ? Math.max(...nums) : 0;
-  const warnings = nums.filter(v => v >= 2).length;
+  const { dangerCount, warningCount, riskLoad } = getRiskStats(values);
   const strong = ['high', 'veryHigh'].includes(week11Quality);
-  if (max >= 3 && warnings >= 2) return { survivalCode: 'OUT', survivalLabel: '조직개편 탈락', survivalScore: 0 };
-  if (max >= 3) return { survivalCode: 'REDESIGN', survivalLabel: '전면 재편 대상', survivalScore: 1 };
-  if (warnings >= 2 || (warnings === 1 && !strong)) return { survivalCode: 'CONDITIONAL', survivalLabel: '조건부 생존', survivalScore: 2 };
+  if (dangerCount >= 2 && warningCount >= 3 && riskLoad >= 11 && !strong) return { survivalCode: 'OUT', survivalLabel: '조직개편 탈락', survivalScore: 0 };
+  if (dangerCount >= 2 && warningCount >= 3) return { survivalCode: 'REDESIGN', survivalLabel: '전면 재편 대상', survivalScore: 1 };
+  if (dangerCount >= 1 && warningCount >= 2 && !strong) return { survivalCode: 'REDESIGN', survivalLabel: '전면 재편 대상', survivalScore: 1 };
+  if (dangerCount >= 1 || warningCount >= 2 || (warningCount === 1 && !strong)) return { survivalCode: 'CONDITIONAL', survivalLabel: '조건부 생존', survivalScore: 2 };
   return { survivalCode: 'SURVIVE', survivalLabel: '조직개편 생존', survivalScore: 3 };
 }
 
