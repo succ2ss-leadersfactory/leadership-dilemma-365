@@ -110,3 +110,4 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 - `docs/pilot-rehearsal-script.md`
 - `docs/firestore-migration-plan.md`
 - `docs/dependency-stability-policy.md`
+- `docs/dependency-update-checklist.md`
