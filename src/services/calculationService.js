@@ -2,6 +2,7 @@ import { readDb, updateDb } from './storage';
 import { clamp } from '../utils/clamp';
 import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalOutcome, calculateMissionOutcome } from '../utils/judgmentUtils';
 import { calculateWeekLogImpacts } from '../utils/weekLogImpactUtils';
+import { applyRoundCompetencyGrowth } from '../utils/competencyGrowthUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -31,6 +32,14 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
   const finalState = applyOutputQualityModifier(afterChoice, submission.quality);
   const risk = getMaxRisk(finalState);
   updateDb(db2 => {
+    const growth = applyRoundCompetencyGrowth({
+      room: db2.rooms[roomId],
+      teamId,
+      roundId,
+      choice,
+      submission,
+      risk
+    });
     db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
       calculationId:`${roundId}_${teamId}`,
       roundId,
@@ -42,6 +51,8 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       outputQuality:submission.quality,
       previousState,
       finalState,
+      competencyGrowthLines: growth.growthLines,
+      competencyGrowthEvents: growth.growthEvents,
       resultCardId:decision.finalChoiceId,
       calculatedAt:Date.now(),
       calculatedBy:'system'
