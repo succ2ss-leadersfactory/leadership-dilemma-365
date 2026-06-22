@@ -1,10 +1,17 @@
 const phaseLabels = {
   intro: '상황 안내',
+  ksaSelection: 'KSA 선택',
   playerVote: '개인 선택',
-  teamDecision: '팀 토의·결정',
-  output: '산출물 입력',
-  result: '결과 공개',
-  finalResult: '최종 판정'
+  teamDiscussion: '팀 토의',
+  teamDecision: '팀 결정',
+  submission: '산출물 입력',
+  calculationReview: '계산 확인',
+  resultReveal: '결과 공개',
+  finalCalculation: '최종 계산',
+  finalReview: '최종 검토',
+  finalResult: '최종 판정',
+  reflection: '개인 성찰',
+  declaration: '팀 선언문'
 };
 
 const roundLabels = {
@@ -30,24 +37,24 @@ function getPhaseGuide(roundId, phase, resultVisible) {
   if (roundId === 'round0') {
     return {
       operatorAction: '팀 화면에서 KSA 9개를 저장하게 한 뒤, Week 1 개인 선택 단계로 이동합니다.',
-      buttonOrder: ['팀 화면 열기', 'KSA 저장 확인', '다음 라운드 또는 Week 1 이동'],
+      buttonOrder: ['팀 화면 열기', 'KSA 저장 확인', '다음 라운드'],
       screenToShow: '팀 화면 또는 역량 프로필 화면',
       caution: 'KSA 저장 전에는 팀원 역량 프로필과 인물 카드가 생성되지 않습니다.',
       timeBox: '5~8분'
     };
   }
 
-  if (roundId === 'week12' || phase === 'finalResult') {
-    return {
-      operatorAction: '개인 성찰과 팀 선언문을 저장한 뒤 최종 판정을 생성하고 리포트로 이동합니다.',
-      buttonOrder: ['개인 성찰 저장 안내', '팀 선언문 저장', '최종 판정 생성', '교육 리포트 보기'],
-      screenToShow: '개인 화면 → 팀 화면 → 교육 리포트',
-      caution: '최종 판정만 보여주고 끝내면 점수 게임처럼 보일 수 있습니다. 반드시 판단 습관과 다음 행동을 묻습니다.',
-      timeBox: '12~18분'
-    };
+  if (roundId === 'week12') {
+    if (phase === 'reflection') {
+      return { operatorAction: '참가자가 개인 성찰을 먼저 저장하게 합니다.', buttonOrder: ['개인 화면 안내', '개인 성찰 저장', '팀 선언문 단계 이동'], screenToShow: '개인 화면', caution: '성찰을 평가처럼 말하지 말고 다음 현업 행동을 찾는 기록으로 안내합니다.', timeBox: '5~7분' };
+    }
+    if (phase === 'declaration') {
+      return { operatorAction: '팀 선언문을 저장하고 교육 리포트로 이동합니다.', buttonOrder: ['팀 선언문 저장', '교육 리포트 보기'], screenToShow: '팀 화면 → 교육 리포트', caution: '선언문은 멋진 문장보다 다음 주 행동이 보여야 합니다.', timeBox: '5~7분' };
+    }
+    return { operatorAction: '개인 성찰과 팀 선언문을 저장한 뒤 최종 판정을 생성하고 리포트로 이동합니다.', buttonOrder: ['최종 판정 생성', '개인 성찰 안내', '팀 선언문 저장', '교육 리포트 보기'], screenToShow: 'Host 화면 → 개인 화면 → 팀 화면 → 리포트', caution: '최종 판정만 보여주고 끝내면 점수 게임처럼 보일 수 있습니다. 반드시 판단 습관과 다음 행동을 묻습니다.', timeBox: '12~18분' };
   }
 
-  if (resultVisible || phase === 'result') {
+  if (resultVisible || phase === 'resultReveal') {
     return {
       operatorAction: '결과 카드에서 작은 진전, 남은 부담, 인물 카드 영향을 읽고 다음 라운드로 이동합니다.',
       buttonOrder: ['결과 카드 확인', '강사 질문 1개 선택', '다음 라운드'],
@@ -60,30 +67,50 @@ function getPhaseGuide(roundId, phase, resultVisible) {
   if (phase === 'playerVote') {
     return {
       operatorAction: '참가자가 개인 선택과 선택 이유를 먼저 저장하게 합니다.',
-      buttonOrder: ['화면 잠금 해제', '참가자 개인 선택 저장 안내', '팀 화면으로 이동'],
+      buttonOrder: ['화면 잠금 해제', '참가자 개인 선택 저장 안내', '팀 토의 단계 이동'],
       screenToShow: '개인 화면',
       caution: '처음부터 팀 합의를 시키면 개인 판단 흔적이 사라집니다. 먼저 혼자 고르게 하십시오.',
       timeBox: '3~5분'
     };
   }
 
-  if (phase === 'teamDecision') {
+  if (phase === 'teamDiscussion') {
     return {
-      operatorAction: '팀 토의 후 최종 선택과 토론 요약을 저장하게 합니다.',
-      buttonOrder: ['팀 화면 열기', '팀 최종 선택 저장', '토론 요약 확인'],
+      operatorAction: '개인 선택 분포를 보고 팀 토의를 진행하게 합니다.',
+      buttonOrder: ['팀 화면 열기', '개인 선택 분포 확인', '팀 결정 단계 이동'],
       screenToShow: '팀 화면',
-      caution: '다수결만 남기지 말고, 선택하지 않은 대가를 한 문장으로 남기게 하십시오.',
-      timeBox: '6~10분'
+      caution: '토의가 다수결로 끝나지 않도록 선택하지 않은 대가를 반드시 말하게 하십시오.',
+      timeBox: '5~8분'
     };
   }
 
-  if (phase === 'output') {
+  if (phase === 'teamDecision') {
     return {
-      operatorAction: '산출물 입력을 마치고 결과 계산·공개를 실행합니다.',
-      buttonOrder: ['산출물 저장 확인', '계산 후 결과 공개', '결과 카드 확인'],
+      operatorAction: '팀 최종 선택과 토론 요약을 저장하게 합니다.',
+      buttonOrder: ['팀 최종 선택 저장', '토론 요약 확인', '산출물 입력 단계 이동'],
+      screenToShow: '팀 화면',
+      caution: '최종 선택만 저장하지 말고, 선택 이유와 남는 부담을 한 문장으로 남기게 하십시오.',
+      timeBox: '4~6분'
+    };
+  }
+
+  if (phase === 'submission') {
+    return {
+      operatorAction: '산출물 입력을 마치게 합니다.',
+      buttonOrder: ['산출물 작성', '산출물 저장', '계산 확인 단계 이동'],
       screenToShow: '팀 화면 산출물 입력 영역',
       caution: '산출물은 길게 쓰는 것보다 책임자, 기준, 확인 시점이 보여야 합니다.',
       timeBox: '5~8분'
+    };
+  }
+
+  if (phase === 'calculationReview') {
+    return {
+      operatorAction: '계산 후 결과 공개를 실행합니다.',
+      buttonOrder: ['계산 후 결과 공개', '결과 카드 확인'],
+      screenToShow: 'Host 화면 → 팀 화면 결과 카드',
+      caution: '결과 공개 전 팀 결정과 산출물이 저장되었는지 한 번 더 확인합니다.',
+      timeBox: '2~3분'
     };
   }
 
