@@ -39,6 +39,21 @@ function makeSample(roomId) {
   updateDb(db => { const room = db.rooms[roomId]; room.roomProgress.currentRoundId = 'week12'; room.roomProgress.currentPhase = 'finalResult'; room.roomProgress.finalResultVisible = true; Object.values(room.finalResults).forEach(r => { r.visible = true; }); });
 }
 
+function health(room) {
+  const teams = Object.values(room.teams || {});
+  const players = Object.values(room.players || {});
+  const finals = Object.values(room.finalResults || {});
+  const reflections = Object.values(room.declarations || {}).reduce((n, d) => n + Object.keys(d.individualReflections || {}).length, 0);
+  return [
+    { label: 'roomProgress', ok: Boolean(room.roomProgress), note: room.roomProgress ? `${room.roomProgress.currentRoundId} / ${room.roomProgress.currentPhase}` : '없음' },
+    { label: 'teams', ok: teams.length > 0, note: `${teams.length}개` },
+    { label: 'players', ok: players.length > 0, note: `${players.length}명` },
+    { label: 'stateValues', ok: Object.keys(room.stateValues || {}).length === teams.length, note: `${Object.keys(room.stateValues || {}).length}/${teams.length}` },
+    { label: 'finalResults', ok: finals.length > 0, note: `${finals.length}개 팀` },
+    { label: 'reflections', ok: reflections > 0, note: `${reflections}건` }
+  ];
+}
+
 export default function AdminOpsPage() {
   const { roomId } = useParams();
   const [tick, setTick] = useState(0);
@@ -46,7 +61,8 @@ export default function AdminOpsPage() {
   useEffect(() => subscribe(() => setTick(x => x + 1)), []);
   const room = readDb().rooms[roomId];
   if (!room) return <Layout><div className="card">방 정보를 찾을 수 없습니다.</div></Layout>;
+  const checks = health(room);
   const backup = () => { const blob = new Blob([JSON.stringify(room, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${roomId}_backup.json`; a.click(); };
   const importJson = e => { const f = e.target.files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const data = JSON.parse(r.result); if (!data.teams || !data.roomProgress) throw new Error('형식 오류'); updateDb(db => { db.rooms[roomId] = { ...data, roomId }; }); setMsg('JSON 가져오기를 완료했습니다.'); } catch (err) { setMsg(`JSON 가져오기 실패: ${err.message}`); } e.target.value = ''; }; r.readAsText(f); };
-  return <Layout roomId={roomId}><section className="card hero"><p className="eyebrow">운영 안정화</p><h2>테스트와 리포트 검증 도구</h2><p>현재 라운드: {room.roomProgress.currentRoundId} · 단계: {room.roomProgress.currentPhase}</p><p>참가자: {Object.keys(room.players).length}명 · 팀: {Object.keys(room.teams).length}개</p>{msg && <div className="notice">{msg}</div>}<div className="actions"><button onClick={backup}>JSON 백업 다운로드</button><label className="secondary">JSON 가져오기<input type="file" accept=".json" onChange={importJson} style={{ display: 'none' }} /></label><button onClick={() => setMsg('데이터 건강도: 기본 room, teams, progress 확인 완료')}>데이터 건강도 점검</button><button className="primary" onClick={() => { makeSample(roomId); setMsg('6개 팀 샘플 데이터, 참가자 성찰, 최종 판정을 생성했습니다.'); }}>6팀 샘플 데이터 생성</button><Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link></div></section><section className="card"><h3>샘플 생성 내용</h3><ul><li>6개 팀 KSA 자동 선택</li><li>팀별 샘플 참가자 3명과 개인 성찰 생성</li><li>주요 라운드 팀 결정과 산출물 생성</li><li>상태값 계산과 최종 판정 생성</li></ul></section></Layout>;
+  return <Layout roomId={roomId}><section className="card hero"><p className="eyebrow">운영 안정화</p><h2>테스트와 리포트 검증 도구</h2><p>현재 라운드: {room.roomProgress.currentRoundId} · 단계: {room.roomProgress.currentPhase}</p><p>참가자: {Object.keys(room.players).length}명 · 팀: {Object.keys(room.teams).length}개</p>{msg && <div className="notice">{msg}</div>}<div className="actions"><button onClick={backup}>JSON 백업 다운로드</button><label className="secondary">JSON 가져오기<input type="file" accept=".json" onChange={importJson} style={{ display: 'none' }} /></label><button onClick={() => setMsg('데이터 건강도 점검 결과를 아래 표에서 확인하세요.')}>데이터 건강도 점검</button><button className="primary" onClick={() => { makeSample(roomId); setMsg('6개 팀 샘플 데이터, 참가자 성찰, 최종 판정을 생성했습니다.'); }}>6팀 샘플 데이터 생성</button><Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link></div></section><section className="card"><h3>데이터 건강도</h3><table><thead><tr><th>항목</th><th>상태</th><th>내용</th></tr></thead><tbody>{checks.map(c => <tr key={c.label}><td>{c.label}</td><td>{c.ok ? '정상' : '확인 필요'}</td><td>{c.note}</td></tr>)}</tbody></table></section><section className="card"><h3>샘플 생성 내용</h3><ul><li>6개 팀 KSA 자동 선택</li><li>팀별 샘플 참가자 3명과 개인 성찰 생성</li><li>주요 라운드 팀 결정과 산출물 생성</li><li>상태값 계산과 최종 판정 생성</li></ul></section></Layout>;
 }
