@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
+import FinalPilotChecklistPanel from '../components/FinalPilotChecklistPanel.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { calculateRoundResult, generateFinalResults } from '../services/calculationService';
 import { generateTeamCompetencyProfiles } from '../utils/competencyProfileUtils';
@@ -29,7 +30,7 @@ function getChoiceByType(gameContent, roundId, type) {
 function applyPersona(profile, personaId) {
   const persona = getPersonaById(personaId);
   if (!profile || !persona) return profile;
-  return { ...profile, personaId: persona.personaId, personaLabel: persona.personaLabel, personaCardTitle: persona.cardTitle, personaSceneText: persona.sceneText, personaStrengthText: persona.strengthText, personaRiskText: persona.riskText, personaDecisionHabit: persona.decisionHabit };
+  return { ...profile, personaId: persona.personaId, personaLabel: persona.personaLabel, personaCardTitle: persona.cardTitle, personaSceneText: persona.sceneText, personaStrengthText: persona.strengthText, personaRiskText: persona.riskText, personaDecisionHabit: persona.personaDecisionHabit || persona.decisionHabit };
 }
 
 function resetRoom(room) {
@@ -117,6 +118,8 @@ export default function AdminOpsPage() {
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
         </div>
       </section>
+
+      <FinalPilotChecklistPanel roomId={roomId} joinCode={room.joinCode} />
 
       <section className="card">
         <h3>리허설 샘플 시나리오 생성</h3>
