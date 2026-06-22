@@ -19,17 +19,31 @@ function getReportSummary(teams, room) {
   const reflectionCount = declarations.reduce((sum, d) => sum + Object.keys(d.individualReflections || {}).length, 0);
   const warningTeams = stateValues.filter(s => (s.maxRiskValue ?? riskOrder[s.maxRiskLabel] ?? 0) >= 2).length;
   const maintainTeams = finalResults.filter(r => ['전략 유지·확대팀', '유지팀'].includes(r.finalLevel)).length;
+  const survivalTeams = finalResults.filter(r => ['조직개편 생존', '조건부 생존'].includes(r.survivalLabel)).length;
+  const missionPositiveTeams = finalResults.filter(r => ['미션 달성', '미션 부분 달성'].includes(r.missionLabel)).length;
   const patterns = finalResults.reduce((acc, r) => {
     if (!r.judgmentPattern) return acc;
     acc[r.judgmentPattern] = (acc[r.judgmentPattern] || 0) + 1;
     return acc;
   }, {});
   const topPattern = Object.entries(patterns).sort((a, b) => b[1] - a[1])[0]?.[0] || '아직 없음';
-  return { totalTeams: teams.length, warningTeams, maintainTeams, topPattern, reflectionCount };
+  return {
+    totalTeams: teams.length,
+    warningTeams,
+    maintainTeams,
+    survivalTeams,
+    missionPositiveTeams,
+    topPattern,
+    reflectionCount
+  };
 }
 
 function getTeamPlayers(room, teamId) {
   return Object.values(room.players || {}).filter(p => p.teamId === teamId);
+}
+
+function resultLabel(value) {
+  return value || '미생성';
 }
 
 function downloadText(filename, text) {
@@ -48,20 +62,24 @@ function buildMarkdownReport(room, teams, summary) {
   lines.push('## 전체 요약');
   lines.push(`- 전체 팀: ${summary.totalTeams}`);
   lines.push(`- 주의 이상 리스크 팀: ${summary.warningTeams}`);
-  lines.push(`- 유지 이상 판정 팀: ${summary.maintainTeams}`);
+  lines.push(`- 조직개편 생존/조건부 생존 팀: ${summary.survivalTeams}`);
+  lines.push(`- 미션 달성/부분 달성 팀: ${summary.missionPositiveTeams}`);
+  lines.push(`- 유지 이상 종합 판정 팀: ${summary.maintainTeams}`);
   lines.push(`- 대표 판단 패턴: ${summary.topPattern}`);
   lines.push(`- 개인 성찰 제출: ${summary.reflectionCount}`);
   lines.push('');
   lines.push('## 팀별 결과');
 
   teams.forEach(t => {
-    const st = room.stateValues[t.teamId] || {};
-    const final = room.finalResults[t.teamId];
-    const dec = room.declarations[t.teamId];
+    const st = room.stateValues?.[t.teamId] || {};
+    const final = room.finalResults?.[t.teamId];
+    const dec = room.declarations?.[t.teamId];
     const reflections = dec?.individualReflections || {};
     const teamPlayers = getTeamPlayers(room, t.teamId);
     lines.push(`### ${t.teamName}`);
-    lines.push(`- 최종 판정: ${final?.finalLevel || '미생성'}`);
+    lines.push(`- 조직개편 생존 판정: ${resultLabel(final?.survivalLabel)}`);
+    lines.push(`- 미션 달성 판정: ${resultLabel(final?.missionLabel)}`);
+    lines.push(`- 종합 판정: ${resultLabel(final?.finalLevel)}`);
     lines.push(`- 판단 패턴: ${final?.judgmentPattern || '-'}`);
     lines.push(`- 핵심 리스크: ${stateLabels[st?.maxRiskKey] || '-'} · ${st?.maxRiskLabel || '-'}`);
     lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
@@ -90,8 +108,8 @@ function buildMarkdownReport(room, teams, summary) {
   lines.push('## 공통 디브리핑 질문');
   lines.push('1. 우리 팀은 위기 앞에서 속도, 기준, 균형, 조건 중 무엇을 반복했습니까?');
   lines.push('2. 그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?');
-  lines.push('3. 가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?');
-  lines.push('4. 개인 성찰에 반복적으로 나타난 행동 변화 키워드는 무엇입니까?');
+  lines.push('3. 조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?');
+  lines.push('4. 가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?');
   lines.push('5. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
   return lines.join('\n');
 }
@@ -117,7 +135,9 @@ export default function ReportPage() {
         <div className="summaryCards">
           <div><b>{summary.totalTeams}</b><span>전체 팀</span></div>
           <div><b>{summary.warningTeams}</b><span>주의 이상 리스크 팀</span></div>
-          <div><b>{summary.maintainTeams}</b><span>유지 이상 판정 팀</span></div>
+          <div><b>{summary.survivalTeams}</b><span>생존/조건부 생존 팀</span></div>
+          <div><b>{summary.missionPositiveTeams}</b><span>미션 달성/부분 달성 팀</span></div>
+          <div><b>{summary.maintainTeams}</b><span>유지 이상 종합 판정 팀</span></div>
           <div><b>{summary.topPattern}</b><span>대표 판단 패턴</span></div>
           <div><b>{summary.reflectionCount}</b><span>개인 성찰 제출</span></div>
         </div>
@@ -127,15 +147,17 @@ export default function ReportPage() {
       <section className="card">
         <h3>팀별 요약표</h3>
         <table>
-          <thead><tr><th>팀</th><th>최종 판정</th><th>판단 패턴</th><th>핵심 리스크</th><th>다음 행동</th></tr></thead>
+          <thead><tr><th>팀</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>핵심 리스크</th><th>다음 행동</th></tr></thead>
           <tbody>
             {teams.map(t => {
-              const st = room.stateValues[t.teamId];
-              const final = room.finalResults[t.teamId];
+              const st = room.stateValues?.[t.teamId];
+              const final = room.finalResults?.[t.teamId];
               return (
                 <tr key={t.teamId}>
                   <td>{t.teamName}</td>
-                  <td>{final?.finalLevel || '미생성'}</td>
+                  <td>{resultLabel(final?.survivalLabel)}</td>
+                  <td>{resultLabel(final?.missionLabel)}</td>
+                  <td>{resultLabel(final?.finalLevel)}</td>
                   <td>{final?.judgmentPattern || '-'}</td>
                   <td>{stateLabels[st?.maxRiskKey] || '-'} · {st?.maxRiskLabel || '-'}</td>
                   <td>{final?.nextAction || '최종 판정 생성 후 표시됩니다.'}</td>
@@ -148,15 +170,20 @@ export default function ReportPage() {
 
       <div className="grid2">
         {teams.map(t => {
-          const st = room.stateValues[t.teamId];
-          const final = room.finalResults[t.teamId];
-          const dec = room.declarations[t.teamId];
+          const st = room.stateValues?.[t.teamId];
+          const final = room.finalResults?.[t.teamId];
+          const dec = room.declarations?.[t.teamId];
           const reflections = dec?.individualReflections || {};
           const teamPlayers = getTeamPlayers(room, t.teamId);
           return (
             <section className="card teamReportCard" key={t.teamId}>
               <p className="eyebrow">{t.teamName}</p>
-              <h3>{final?.finalLevel || '최종 판정 미생성'}</h3>
+              <h3>{resultLabel(final?.finalLevel)}</h3>
+              <div className="summaryCards">
+                <div><b>{resultLabel(final?.survivalLabel)}</b><span>조직개편 생존 판정</span></div>
+                <div><b>{resultLabel(final?.missionLabel)}</b><span>미션 달성 판정</span></div>
+                <div><b>{resultLabel(final?.finalLevel)}</b><span>종합 판정</span></div>
+              </div>
               <p><b>판단 패턴:</b> {final?.judgmentPattern || '아직 계산되지 않았습니다.'}</p>
               <p><b>핵심 리스크:</b> {stateLabels[st?.maxRiskKey] || '-'} · {st?.maxRiskLabel || '-'}</p>
               <p><b>선택한 KSA:</b> {getKsaText(t)}</p>
@@ -198,8 +225,8 @@ export default function ReportPage() {
         <ol>
           <li>우리 팀은 위기 앞에서 속도, 기준, 균형, 조건 중 무엇을 반복했습니까?</li>
           <li>그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?</li>
+          <li>조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?</li>
           <li>가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?</li>
-          <li>개인 성찰에 반복적으로 나타난 행동 변화 키워드는 무엇입니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
