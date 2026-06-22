@@ -1,5 +1,6 @@
 import { clamp } from './clamp';
 import { getLevelLabel } from './competencyProfileUtils';
+import { applyPersonaGrowthLens } from './playerPersonaUtils';
 
 const choiceGrowthCategory = {
   SPEED: 'skill',
@@ -55,7 +56,8 @@ function getGrowthPlan({ choice, submission, risk }) {
   if (['high', 'veryHigh'].includes(quality)) {
     return {
       direction: 'up',
-      delta: quality === 'veryHigh' ? 1 : 1,
+      delta: 1,
+      choiceType,
       category: choiceGrowthCategory[choiceType] || 'skill',
       reason: quality === 'veryHigh'
         ? '매우 높은 산출물 품질이 확인되어 실행 경험이 역량 성장으로 이어졌습니다.'
@@ -67,6 +69,7 @@ function getGrowthPlan({ choice, submission, risk }) {
     return {
       direction: 'down',
       delta: -1,
+      choiceType,
       category: riskShrinkCategory[riskKey] || 'skill',
       reason: quality === 'low'
         ? '산출물 품질이 낮아 해당 라운드의 학습 부담이 역량 위축 신호로 남았습니다.'
@@ -79,8 +82,8 @@ function getGrowthPlan({ choice, submission, risk }) {
 export function applyRoundCompetencyGrowth({ room, teamId, roundId, choice, submission, risk }) {
   const profiles = room.competencyProfiles?.[teamId];
   if (!profiles) return { growthLines: [], growthEvents: [] };
-  const plan = getGrowthPlan({ choice, submission, risk });
-  if (!plan) return { growthLines: [], growthEvents: [] };
+  const basePlan = getGrowthPlan({ choice, submission, risk });
+  if (!basePlan) return { growthLines: [], growthEvents: [] };
 
   const growthLines = [];
   const growthEvents = [];
@@ -90,6 +93,7 @@ export function applyRoundCompetencyGrowth({ room, teamId, roundId, choice, subm
     profile.growthEvents = profile.growthEvents || [];
     if (profile.growthEvents.some(event => event.eventId === eventId)) return;
 
+    const plan = applyPersonaGrowthLens(profile, basePlan);
     const target = pickCompetency(profile, plan.category, plan.direction);
     if (!target) return;
     target.initialLevel = target.initialLevel || target.level;
@@ -103,6 +107,8 @@ export function applyRoundCompetencyGrowth({ room, teamId, roundId, choice, subm
       roundId,
       playerId: profile.playerId,
       displayName: profile.displayName,
+      personaId: profile.personaId,
+      personaLabel: profile.personaLabel,
       competencyId: target.competencyId,
       competencyName: target.name,
       category: target.category,
@@ -112,12 +118,13 @@ export function applyRoundCompetencyGrowth({ room, teamId, roundId, choice, subm
       before,
       after,
       reason: plan.reason,
+      personaApplied: Boolean(plan.personaApplied),
       createdAt: Date.now()
     };
     profile.growthEvents.push(event);
     refreshProfileSummary(profile);
     growthEvents.push(event);
-    growthLines.push(`${profile.displayName} · ${target.name} ${before}→${after}: ${plan.reason}`);
+    growthLines.push(`${profile.displayName}(${profile.personaLabel || '인물 카드'}) · ${target.name} ${before}→${after}: ${plan.reason}`);
   });
 
   return { growthLines, growthEvents };
