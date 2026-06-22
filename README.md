@@ -100,11 +100,13 @@ npm run dev
 
 ## Firebase 전환 방향
 
-`.env.example`을 복사해 `.env`를 만들고 Firebase 값을 입력합니다.
+`.env.example`을 복사해 `.env.local`을 만들고 Firebase 값을 입력합니다.
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
+
+상세 전환 순서는 `docs/firestore-migration-plan.md`를 참고합니다.
 
 다음 Sprint에서는 `services/storage.js`를 Firestore adapter로 교체하고, room, players, teamDecisions, submissions, declarations, finalResults를 Firestore 컬렉션/문서 구조로 분리합니다.
 
