@@ -1,6 +1,7 @@
 import { readDb, updateDb } from './storage';
 import { clamp } from '../utils/clamp';
 import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalOutcome, calculateMissionOutcome } from '../utils/judgmentUtils';
+import { calculateWeekLogImpacts } from '../utils/weekLogImpactUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -143,12 +144,22 @@ export function generateFinalResults(roomId) {
       const week11 = room.submissions[`week11_${teamId}`]?.quality || 'medium';
       const decisions = Object.values(room.teamDecisions).filter(d => d.teamId === teamId);
       const pattern = getJudgmentPattern(decisions, choices);
-      const missionEval = calculateSecretMission({ db, room, teamId, values, decisions, choices });
+      const logImpact = calculateWeekLogImpacts({
+        weekLogs: db.gameContent.weekLogs,
+        weekLogImpacts: db.gameContent.weekLogImpacts,
+        values,
+        decisions,
+        choices,
+        submissions: room.submissions,
+        teamId
+      });
+      const reviewValues = logImpact.reviewValues;
+      const missionEval = calculateSecretMission({ db, room, teamId, values: reviewValues, decisions, choices });
       const secretMissionScore = missionEval.secretMissionScore;
-      const level = calculateFinalLevel({ values, week11Quality:week11, secretMissionScore });
-      const survival = calculateSurvivalOutcome({ values, week11Quality: week11 });
+      const level = calculateFinalLevel({ values: reviewValues, week11Quality:week11, secretMissionScore });
+      const survival = calculateSurvivalOutcome({ values: reviewValues, week11Quality: week11 });
       const mission = calculateMissionOutcome(secretMissionScore);
-      const risk = getMaxRisk(values);
+      const risk = getMaxRisk(reviewValues);
       const riskName = stateLabels[risk.maxRiskKey] || '남은 부담';
       db2.rooms[roomId].finalResults[teamId] = {
         teamId,
@@ -156,6 +167,14 @@ export function generateFinalResults(roomId) {
         ...survival,
         ...mission,
         judgmentPattern: pattern.label,
+        baseValues: values,
+        reviewValues,
+        reviewMaxRiskKey: risk.maxRiskKey,
+        reviewMaxRiskValue: risk.maxRiskValue,
+        reviewMaxRiskLabel: risk.maxRiskLabel,
+        weekLogImpactCount: logImpact.weekLogImpactCount,
+        weekLogImpacts: logImpact.weekLogImpacts,
+        weekLogImpactLines: logImpact.weekLogImpactLines,
         secretMissionScore,
         secretMissionTitle: missionEval.mission?.missionTitle || '팀별 비밀 미션',
         secretMissionBrief: missionEval.mission?.missionBrief || '',
@@ -164,6 +183,7 @@ export function generateFinalResults(roomId) {
         missionEvidenceLines: missionEval.missionEvidenceLines,
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
+          logImpact.weekLogImpactCount > 0 ? `중간 사건 로그 ${logImpact.weekLogImpactCount}건이 최종 심사에서 후폭풍으로 반영되었습니다.` : '중간 사건 로그의 추가 후폭풍은 크지 않았습니다.',
           riskSentence(risk),
           `${survival.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
           `${mission.missionLabel} 상태입니다. 팀별 비밀 미션 '${missionEval.mission?.missionTitle || '미션'}'의 충족 기준 ${secretMissionScore}/3개가 반영되었습니다.`,
