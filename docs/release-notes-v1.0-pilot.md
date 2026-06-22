@@ -107,6 +107,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 ## 관련 문서
 
 - `README.md`
+- `docs/pilot-operator-handoff.md`
 - `docs/pilot-rehearsal-script.md`
 - `docs/firestore-migration-plan.md`
 - `docs/dependency-stability-policy.md`
