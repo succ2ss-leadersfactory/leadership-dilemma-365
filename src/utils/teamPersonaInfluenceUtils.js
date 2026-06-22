@@ -99,10 +99,17 @@ function countPersonas(profiles = {}) {
   }, {});
 }
 
+function applyBalancedAmount(current, amount) {
+  const before = Number(current || 0);
+  const change = Number(amount || 0);
+  if (change > 0 && before >= 2) return before;
+  return clamp(before + change, 0, 3);
+}
+
 function applyEffects(values, effects = {}) {
   const next = { ...values };
   Object.entries(effects).forEach(([riskKey, amount]) => {
-    next[riskKey] = clamp(Number(next[riskKey] || 0) + Number(amount || 0), 0, 3);
+    next[riskKey] = applyBalancedAmount(next[riskKey], amount);
   });
   return next;
 }
@@ -132,13 +139,14 @@ export function applyTeamPersonaInfluence({ values = {}, profiles = {}, choice }
       effects: rule.effects,
       effectText: buildEffectText(rule.effects),
       before,
-      after: { ...nextValues }
+      after: { ...nextValues },
+      balanced: Object.entries(rule.effects).some(([riskKey, amount]) => Number(amount) > 0 && Number(before[riskKey] || 0) >= 2)
     });
   });
 
   return {
     values: nextValues,
     personaInfluences,
-    personaInfluenceLines: personaInfluences.map(item => `${item.label}(${item.personaCount}명): ${item.effectText}. ${item.evidence}`)
+    personaInfluenceLines: personaInfluences.map(item => `${item.label}(${item.personaCount}명): ${item.effectText}${item.balanced ? ' · 이미 주의 수준인 리스크는 추가 상승 없이 부담 신호로만 기록' : ''}. ${item.evidence}`)
   };
 }
