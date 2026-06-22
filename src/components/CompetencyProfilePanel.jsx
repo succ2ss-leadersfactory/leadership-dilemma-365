@@ -40,9 +40,15 @@ export default function CompetencyProfilePanel({ profiles = {}, title = '팀원 
           const avgDelta = Number(profile.averageLevel || 0) - Number(profile.initialAverageLevel || profile.averageLevel || 0);
           return (
             <div className="competencyCard" key={profile.playerId}>
+              <p className="eyebrow">{profile.personaLabel || '인물 카드'}</p>
               <h4>{profile.displayName}</h4>
+              {profile.personaCardTitle && <p><b>{profile.personaCardTitle}</b></p>}
+              {profile.personaSceneText && <p className="muted">{profile.personaSceneText}</p>}
               <p><b>{profile.archetypeLabel}</b> · 평균 {profile.averageLevel} <span className="muted">초기 대비 {avgDelta >= 0 ? `+${avgDelta.toFixed(1)}` : avgDelta.toFixed(1)}</span></p>
               <p className="muted">{profile.archetypeDescription}</p>
+              <p><b>인물 강점:</b> {profile.personaStrengthText || '-'}</p>
+              <p><b>주의 신호:</b> {profile.personaRiskText || '-'}</p>
+              <p><b>판단 습관:</b> {profile.personaDecisionHabit || '-'}</p>
               <p><b>현재 강점:</b> {profile.strengths?.join(', ') || '-'}</p>
               <p><b>성장 초점:</b> {profile.growthFocus?.join(', ') || '-'}</p>
               {recentEvents.length > 0 && (
