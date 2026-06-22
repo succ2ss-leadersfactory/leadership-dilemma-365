@@ -19,37 +19,25 @@ function evaluateCondition({ condition, values, decisions, choices, submissions,
   if (condition.type === 'roundChoiceTypeIn') {
     const choice = getChoiceForRound(decisions, choices, condition.roundId);
     const passed = Boolean(choice && condition.choiceTypes.includes(choice.internalType));
-    return {
-      passed,
-      detail: choice ? `${condition.roundId} 선택 유형 ${choice.internalType}` : `${condition.roundId} 팀 결정 없음`
-    };
+    return { passed, detail: choice ? `${condition.roundId} 선택 유형 ${choice.internalType}` : `${condition.roundId} 팀 결정 없음` };
   }
 
   if (condition.type === 'roundChoiceTypeNotIn') {
     const choice = getChoiceForRound(decisions, choices, condition.roundId);
     const passed = Boolean(!choice || !condition.choiceTypes.includes(choice.internalType));
-    return {
-      passed,
-      detail: choice ? `${condition.roundId} 선택 유형 ${choice.internalType}` : `${condition.roundId} 팀 결정 없음`
-    };
+    return { passed, detail: choice ? `${condition.roundId} 선택 유형 ${choice.internalType}` : `${condition.roundId} 팀 결정 없음` };
   }
 
   if (condition.type === 'outputQualityAtMost') {
     const quality = getSubmissionQuality(submissions, condition.roundId, teamId);
     const passed = (qualityRank[quality] ?? 0) <= (qualityRank[condition.maxQuality] ?? 0);
-    return {
-      passed,
-      detail: `${condition.roundId} 산출물 품질 ${quality} / 기준 ${condition.maxQuality} 이하`
-    };
+    return { passed, detail: `${condition.roundId} 산출물 품질 ${quality} / 기준 ${condition.maxQuality} 이하` };
   }
 
   if (condition.type === 'riskAtLeast') {
     const current = Number(values?.[condition.riskKey] ?? 0);
     const passed = current >= Number(condition.min ?? 0);
-    return {
-      passed,
-      detail: `${stateLabels[condition.riskKey] || condition.riskKey} ${current} / 기준 ${condition.min} 이상`
-    };
+    return { passed, detail: `${stateLabels[condition.riskKey] || condition.riskKey} ${current} / 기준 ${condition.min} 이상` };
   }
 
   return { passed: false, detail: `지원하지 않는 조건 ${condition.type}` };
@@ -65,11 +53,21 @@ function resolveTeamEffect(rule, teamId) {
   };
 }
 
-export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, values = {}, decisions = [], choices = [], submissions = {}, teamId }) {
+function hasPlayableDecisionForWeek({ log, decisions = [] }) {
+  const playableRoundId = `week${log.week}`;
+  return decisions.some(decision => decision.roundId === playableRoundId);
+}
+
+export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, values = {}, decisions = [], choices = [], submissions = {}, teamId, skipPlayableLogs = true }) {
   const impactValues = { ...values };
   const appliedImpacts = [];
+  const skippedPlayableLogs = [];
 
   weekLogs.forEach(log => {
+    if (skipPlayableLogs && hasPlayableDecisionForWeek({ log, decisions })) {
+      skippedPlayableLogs.push({ logId: log.logId, week: log.week, title: log.title, reason: 'playable_round_decision_exists' });
+      return;
+    }
     const impactGroup = weekLogImpacts?.[log.logId];
     (impactGroup?.rules || []).forEach(rule => {
       const conditionResult = evaluateCondition({ condition: rule.condition, values: impactValues, decisions, choices, submissions, teamId });
@@ -104,6 +102,8 @@ export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, va
     reviewValues: impactValues,
     weekLogImpactCount: appliedImpacts.length,
     weekLogImpacts: appliedImpacts,
+    skippedPlayableLogs,
+    skippedPlayableLogCount: skippedPlayableLogs.length,
     weekLogImpactLines: appliedImpacts.map(impact => `Week ${impact.week} · ${impact.isTeamSpecific ? '팀별 후폭풍 · ' : ''}${impact.label}: ${impact.riskLabel} ${impact.before}→${impact.after}. ${impact.evidence}`)
   };
 }
