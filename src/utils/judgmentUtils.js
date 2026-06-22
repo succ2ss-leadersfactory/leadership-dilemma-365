@@ -30,3 +30,20 @@ export function calculateFinalLevel({ values = {}, week11Quality = 'medium', sec
   const levels = ['전면 재설계 대상팀', '통합 검토팀', '조건부 유지팀', '유지팀', '전략 유지·확대팀'];
   return { baseScore: score, finalLevel: levels[score] };
 }
+
+export function calculateSurvivalOutcome({ values = {}, week11Quality = 'medium' }) {
+  const nums = Object.values(values).map(Number);
+  const max = nums.length ? Math.max(...nums) : 0;
+  const warnings = nums.filter(v => v >= 2).length;
+  const strong = ['high', 'veryHigh'].includes(week11Quality);
+  if (max >= 3 && warnings >= 2) return { survivalCode: 'OUT', survivalLabel: '조직개편 탈락', survivalScore: 0 };
+  if (max >= 3) return { survivalCode: 'REDESIGN', survivalLabel: '전면 재편 대상', survivalScore: 1 };
+  if (warnings >= 2 || (warnings === 1 && !strong)) return { survivalCode: 'CONDITIONAL', survivalLabel: '조건부 생존', survivalScore: 2 };
+  return { survivalCode: 'SURVIVE', survivalLabel: '조직개편 생존', survivalScore: 3 };
+}
+
+export function calculateMissionOutcome(secretMissionScore = 0) {
+  if (secretMissionScore >= 3) return { missionCode: 'ACHIEVED', missionLabel: '미션 달성' };
+  if (secretMissionScore === 2) return { missionCode: 'PARTIAL', missionLabel: '미션 부분 달성' };
+  return { missionCode: 'MISSED', missionLabel: '미션 미달성' };
+}
