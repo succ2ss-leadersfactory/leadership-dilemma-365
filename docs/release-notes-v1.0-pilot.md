@@ -99,7 +99,8 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 - 현재 데이터 저장은 localStorage 기반입니다.
 - 여러 기기 간 실시간 공유는 후속 버전에서 다룹니다.
 - Firestore 전환은 별도 Sprint에서 진행합니다.
-- 자동 빌드 검증은 아직 구성되지 않았습니다.
+- 자동 빌드 검증은 아직 미구성입니다.
+- 의존성은 현재 `latest` 기반이며, 파일럿 빌드 검증 후 lock 파일과 버전 고정을 진행합니다.
 
 ---
 
@@ -108,3 +109,4 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 - `README.md`
 - `docs/pilot-rehearsal-script.md`
 - `docs/firestore-migration-plan.md`
+- `docs/dependency-stability-policy.md`
