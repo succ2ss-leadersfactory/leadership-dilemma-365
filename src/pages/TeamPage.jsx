@@ -111,7 +111,7 @@ export default function TeamPage() {
               <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>
                 KSA 저장하고 Week 1 개인 선택으로 이동
               </button>
-              <Link className="button" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
+              <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
             </div>
           </section>
         </>
