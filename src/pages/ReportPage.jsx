@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
+import ReportExpertiseSummaryPanel from '../components/ReportExpertiseSummaryPanel.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
+import { buildAllTeamExpertiseReportSummaries } from '../utils/reportExpertiseUtils';
 
 const riskOrder = { 안정: 0, 신호: 1, 주의: 2, 위험: 3 };
 const personaLabels = {
@@ -156,7 +158,7 @@ function buildTimelineMarkdown(gameContent) {
   return lines;
 }
 
-function buildMarkdownReport(room, teams, summary, gameContent, observations) {
+function buildMarkdownReport(room, teams, summary, gameContent, observations, expertiseSummaries) {
   const lines = [];
   lines.push('# 리더십 딜레마 365 교육 리포트');
   lines.push('');
@@ -187,6 +189,23 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations) {
     lines.push('');
   });
 
+  lines.push('## 팀별 전문성 요약');
+  expertiseSummaries.forEach(item => {
+    lines.push(`### ${item.teamName}`);
+    lines.push(`- 전문성 렌즈: ${item.lensTitle}`);
+    lines.push(`- 평균 증거 수준: ${item.evidenceLevel} (${item.averageScore || '-'}/4, ${item.evidenceCount}건)`);
+    lines.push(`- 관련 역량: ${item.expertiseKeywords.join(', ') || '-'}`);
+    lines.push(`- 강한 주차: ${item.strongestWeeks}`);
+    lines.push(`- 취약 주차: ${item.weakestWeeks}`);
+    lines.push(`- 요약: ${item.summaryLine}`);
+    if (item.needsMoreEvidence.length) {
+      lines.push('- 보완 신호:');
+      item.needsMoreEvidence.forEach(line => lines.push(`  - ${line}`));
+    }
+    lines.push(`- 강사용 질문: ${item.facilitatorQuestion}`);
+    lines.push('');
+  });
+
   lines.push('## 팀별 결과');
   teams.forEach(t => {
     const st = room.stateValues?.[t.teamId] || {};
@@ -195,6 +214,7 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations) {
     const reflections = dec?.individualReflections || {};
     const teamPlayers = getTeamPlayers(room, t.teamId);
     const obs = observations.find(item => item.teamId === t.teamId);
+    const expertise = expertiseSummaries.find(item => item.teamId === t.teamId);
     lines.push(`### ${t.teamName}`);
     lines.push(`- 비밀 미션: ${final?.secretMissionTitle || '미생성'}`);
     lines.push(`- 비밀 미션 점수: ${final?.secretMissionScore ?? '미생성'}/3`);
@@ -206,6 +226,7 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations) {
     lines.push(`- 핵심 리스크: ${getRiskText(final, st)}`);
     lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
     lines.push(`- 강사용 관찰: ${obs?.observation || '-'}`);
+    lines.push(`- 전문성 요약: ${expertise?.summaryLine || '-'}`);
     lines.push(`- 팀 선언문: ${dec?.teamDeclaration || '미작성'}`);
     if (final) {
       lines.push('- 중간 사건 후폭풍 근거:');
@@ -240,7 +261,8 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations) {
   lines.push('5. 중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?');
   lines.push('6. 후폭풍으로 남은 리스크는 다음 현업에서 어떻게 먼저 낮출 수 있습니까?');
   lines.push('7. 팀 안의 인물 카드 구성은 선택의 장점과 부작용에 어떤 영향을 주었습니까?');
-  lines.push('8. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
+  lines.push('8. 이 팀은 자기 기능 전문성에 맞는 증거를 충분히 남겼습니까?');
+  lines.push('9. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
   return lines.join('\n');
 }
 
@@ -256,7 +278,8 @@ export default function ReportPage() {
   const teams = Object.values(room.teams);
   const summary = getReportSummary(teams, room);
   const observations = teams.map(team => getTeamObservation(room, db.gameContent, team));
-  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary, db.gameContent, observations));
+  const expertiseSummaries = buildAllTeamExpertiseReportSummaries({ room, gameContent: db.gameContent, teams });
+  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary, db.gameContent, observations, expertiseSummaries));
 
   return (
     <Layout roomId={roomId}>
@@ -299,6 +322,8 @@ export default function ReportPage() {
         ))}
       </section>
 
+      <ReportExpertiseSummaryPanel summaries={expertiseSummaries} />
+
       <section className="card">
         <h3>팀별 요약표</h3>
         <table>
@@ -334,6 +359,7 @@ export default function ReportPage() {
           const reflections = dec?.individualReflections || {};
           const teamPlayers = getTeamPlayers(room, t.teamId);
           const obs = observations.find(item => item.teamId === t.teamId);
+          const expertise = expertiseSummaries.find(item => item.teamId === t.teamId);
           return (
             <section className="card teamReportCard" key={t.teamId}>
               <p className="eyebrow">{t.teamName}</p>
@@ -350,6 +376,13 @@ export default function ReportPage() {
               <p><b>판단 패턴:</b> {final?.judgmentPattern || '아직 계산되지 않았습니다.'}</p>
               <p><b>핵심 리스크:</b> {getRiskText(final, st)}</p>
               <p><b>선택한 KSA:</b> {getKsaText(t)}</p>
+              {expertise && (
+                <div className="reportInsight">
+                  <p><b>전문성 요약:</b> {expertise.summaryLine}</p>
+                  <p><b>평균 증거 수준:</b> {expertise.evidenceLevel} · {expertise.averageScore || '-'}/4</p>
+                  <p><b>강사용 질문:</b> {expertise.facilitatorQuestion}</p>
+                </div>
+              )}
               {obs && (
                 <div className="reportInsight">
                   <p><b>강사용 관찰:</b> {obs.observation}</p>
@@ -408,6 +441,7 @@ export default function ReportPage() {
           <li>중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?</li>
           <li>후폭풍으로 남은 리스크는 다음 현업에서 어떻게 먼저 낮출 수 있습니까?</li>
           <li>팀 안의 인물 카드 구성은 선택의 장점과 부작용에 어떤 영향을 주었습니까?</li>
+          <li>이 팀은 자기 기능 전문성에 맞는 증거를 충분히 남겼습니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
