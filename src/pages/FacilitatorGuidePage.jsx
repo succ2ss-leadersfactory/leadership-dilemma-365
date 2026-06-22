@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
+import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
 
@@ -106,6 +107,7 @@ export default function FacilitatorGuidePage() {
       </section>
 
       <StrategicEventCard event={strategicEvent} />
+      <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={currentRound?.week || 0} />
 
       <section className="grid2">
         <div className="card">
@@ -120,7 +122,7 @@ export default function FacilitatorGuidePage() {
         <div className="card">
           <h3>강사 멘트 예시</h3>
           <p>좋은 선택을 찾는 시간이 아니라, 우리 팀이 선택할 때 반복한 기준과 그 대가를 확인하는 시간입니다.</p>
-          <p>이벤트 카드는 정답을 추가하는 장치가 아니라, 같은 선택 안에 숨어 있는 압박과 기회를 보이게 하는 장치입니다.</p>
+          <p>이벤트 카드와 중간 사건 로그는 정답을 추가하는 장치가 아니라, 같은 선택 안에 숨어 있는 압박과 기회를 보이게 하는 장치입니다.</p>
           <p>결과가 낮게 나왔다면 실패로 보지 말고, 현업에서 먼저 고쳐야 할 부담이 드러난 것으로 보겠습니다.</p>
         </div>
       </section>
@@ -135,7 +137,8 @@ export default function FacilitatorGuidePage() {
       <section className="card">
         <h3>진행 순서 제안</h3>
         <ol>
-          <li>전략 이벤트 카드에서 압박, 숨은 대가, 전략적 기회를 먼저 읽습니다.</li>
+          <li>12주 타임라인에서 지난 사건 로그와 현재 플레이 라운드의 연결을 먼저 확인합니다.</li>
+          <li>전략 이벤트 카드에서 압박, 숨은 대가, 전략적 기회를 읽습니다.</li>
           <li>각 팀이 왜 그 선택을 했는지 1분씩 말하게 합니다.</li>
           <li>결과 카드에서 작은 진전과 남은 부담을 구분해 읽습니다.</li>
           <li>팀별 핵심 리스크가 개인 문제인지 구조 문제인지 묻습니다.</li>
