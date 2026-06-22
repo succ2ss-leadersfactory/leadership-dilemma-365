@@ -7,10 +7,11 @@ import KsaSelector from '../components/KsaSelector.jsx';
 import OutputForm from '../components/OutputForm.jsx';
 import ResultCard from '../components/ResultCard.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
-import { getCurrentRound } from '../services/roundService';
+import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
 import { saveTeamKSA, submitTeamDecision, getTeamDecision } from '../services/teamService';
 import { submitRoundOutput, getSubmission } from '../services/submissionService';
+import { calculateAllTeamResultsForRound } from '../services/calculationService';
 import { defaultResultCard } from '../data/seedResultCards';
 
 function isKsaComplete(selectedKSA) {
@@ -51,6 +52,7 @@ export default function TeamPage() {
   const resultCard = db.gameContent.resultCards[calculation?.resultCardId] || defaultResultCard;
   const canEdit = !room.roomProgress.isScreenLocked;
   const ksaComplete = isKsaComplete(team.selectedKSA);
+  const canRevealResult = Boolean(decision && submission);
 
   function startWeek1PlayerVote() {
     updateDb(db2 => {
@@ -71,6 +73,28 @@ export default function TeamPage() {
     });
     setMsg('Week 1 개인 선택 단계로 이동했습니다. 아래에서 선택지와 선택 이유를 입력하세요.');
     navigate(`/team/${roomId}/${teamId}`);
+  }
+
+  function calculateAndReveal() {
+    try {
+      calculateAllTeamResultsForRound(roomId, round.roundId);
+      revealRoundResult(roomId);
+      setMsg('결과를 공개했습니다. 결과 카드를 확인한 뒤 다음 라운드로 이동하세요.');
+    } catch (e) {
+      setMsg(e.message);
+    }
+  }
+
+  function goNextRound() {
+    try {
+      moveToNextRound(roomId);
+      setFinalChoiceId('');
+      setSummary('');
+      setMsg('다음 라운드로 이동했습니다. 새 상황을 확인하고 선택을 이어가세요.');
+      navigate(`/team/${roomId}/${teamId}`);
+    } catch (e) {
+      setMsg(e.message);
+    }
   }
 
   return (
@@ -122,7 +146,7 @@ export default function TeamPage() {
           <h3>개인 선택 분포</h3>
           {votes.length ? votes.map(v => (
             <p key={v.voteId}>• {choices.find(c => c.choiceId === v.choiceId)?.choiceText}<br /><small>{v.reason}</small></p>
-          )) : <p className="muted">아직 개인 선택이 없습니다.</p>}
+          )) : <p className="muted">아직 개인 선택이 없습니다. 빠른 테스트에서는 아래 팀 최종 선택부터 진행해도 됩니다.</p>}
 
           <h3>팀 최종 선택</h3>
           <ChoiceList
@@ -165,7 +189,7 @@ export default function TeamPage() {
             onSubmit={(answers) => {
               try {
                 submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
-                setMsg('산출물을 저장했습니다. Host에서 계산 후 결과를 공개하세요.');
+                setMsg('산출물을 저장했습니다. 이제 결과를 계산하고 공개할 수 있습니다.');
               } catch (e) {
                 setMsg(e.message);
               }
@@ -174,7 +198,31 @@ export default function TeamPage() {
         </section>
       )}
 
-      {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} />}
+      {choices.length > 0 && !room.roomProgress.resultVisible && (
+        <section className="card next-step-card">
+          <h3>다음 행동</h3>
+          <p>팀 결정과 산출물 저장을 마쳤다면 결과를 계산하고 공개하세요.</p>
+          {!canRevealResult && <p className="muted">팀 결정과 산출물이 모두 저장되어야 결과 공개가 가능합니다.</p>}
+          <div className="actions">
+            <button className="primary" disabled={!canRevealResult} onClick={calculateAndReveal}>결과 계산하고 공개</button>
+            <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 계산하기</Link>
+          </div>
+        </section>
+      )}
+
+      {room.roomProgress.resultVisible && calculation && (
+        <>
+          <ResultCard card={resultCard} calculation={calculation} />
+          <section className="card next-step-card">
+            <h3>다음 행동</h3>
+            <p>결과를 확인했다면 다음 라운드로 이동해 같은 흐름을 이어가세요.</p>
+            <div className="actions">
+              <button className="primary" onClick={goNextRound}>다음 라운드로 이동</button>
+              <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
+            </div>
+          </section>
+        </>
+      )}
 
       {round.roundId === 'week12' && (
         <section className="card">
