@@ -7,6 +7,7 @@ import { seedKsaOptions } from '../data/seedKsaOptions';
 import { seedMissions } from '../data/seedMissions';
 import { seedStrategicEvents } from '../data/seedStrategicEvents';
 import { seedWeekLogs } from '../data/seedWeekLogs';
+import { seedWeekLogImpacts } from '../data/seedWeekLogImpacts';
 
 const KEY = 'leadership_dilemma_365_react_mvp';
 const listeners = new Set();
@@ -21,7 +22,8 @@ function baseGameContent() {
     ksaOptions: seedKsaOptions,
     secretMissions: seedMissions,
     strategicEvents: seedStrategicEvents,
-    weekLogs: seedWeekLogs
+    weekLogs: seedWeekLogs,
+    weekLogImpacts: seedWeekLogImpacts
   };
 }
 
@@ -63,7 +65,11 @@ function mergeGameContent(parsedGameContent = {}) {
       ...base.strategicEvents,
       ...(parsedGameContent.strategicEvents || {})
     },
-    weekLogs: mergeById(base.weekLogs, parsedGameContent.weekLogs, 'logId')
+    weekLogs: mergeById(base.weekLogs, parsedGameContent.weekLogs, 'logId'),
+    weekLogImpacts: {
+      ...base.weekLogImpacts,
+      ...(parsedGameContent.weekLogImpacts || {})
+    }
   };
 }
 
