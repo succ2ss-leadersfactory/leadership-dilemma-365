@@ -60,7 +60,7 @@ export default function ResultCard({ card, calculation }) {
   const growthLines = calculation?.competencyGrowthLines || [];
   const evidenceReview = calculation?.outputEvidenceReview;
   const evidenceSummary = buildEvidenceSummary(evidenceReview);
-  const teamNarrative = getTeamResultNarrative({ teamId: calculation?.teamId, choiceType: calculation?.choiceInternalType });
+  const teamNarrative = calculation?.teamResultNarrative || getTeamResultNarrative({ teamId: calculation?.teamId, choiceType: calculation?.choiceInternalType, roundId: calculation?.roundId });
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
     const before = previousState[key] ?? 0;
