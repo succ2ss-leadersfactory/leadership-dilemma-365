@@ -18,6 +18,12 @@ export default function ReportExpertiseSummaryPanel({ summaries = [] }) {
             <p><b>전문성 렌즈:</b> {summary.lensTitle}</p>
             <p>{summary.summaryLine}</p>
             {summary.narrativeSummary && <p><b>누적 결과 해석:</b> {summary.narrativeSummary}</p>}
+            {summary.warningSignals?.length > 0 && (
+              <div className="notice">
+                <b>강사용 경고 신호</b>
+                <ul>{summary.warningSignals.map(line => <li key={line}>{line}</li>)}</ul>
+              </div>
+            )}
             <p><b>관련 역량:</b> {summary.expertiseKeywords.join(' / ') || '-'}</p>
             <p><b>강한 주차:</b> {summary.strongestWeeks}</p>
             <p><b>취약 주차:</b> {summary.weakestWeeks}</p>
