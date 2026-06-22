@@ -11,7 +11,7 @@ import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services
 import { getTeamVotes } from '../services/voteService';
 import { saveTeamKSA, submitTeamDecision, getTeamDecision } from '../services/teamService';
 import { submitRoundOutput, getSubmission } from '../services/submissionService';
-import { calculateAllTeamResultsForRound } from '../services/calculationService';
+import { calculateAllTeamResultsForRound, generateFinalResults } from '../services/calculationService';
 import { defaultResultCard } from '../data/seedResultCards';
 
 function isKsaComplete(selectedKSA) {
@@ -50,6 +50,8 @@ export default function TeamPage() {
   const submission = getSubmission(roomId, round.roundId, teamId);
   const calculation = room.roundCalculations[`${round.roundId}_${teamId}`];
   const resultCard = db.gameContent.resultCards[calculation?.resultCardId] || defaultResultCard;
+  const finalResult = room.finalResults?.[teamId];
+  const declaration = room.declarations?.[teamId];
   const canEdit = !room.roomProgress.isScreenLocked;
   const ksaComplete = isKsaComplete(team.selectedKSA);
   const canRevealResult = Boolean(decision && submission);
@@ -97,6 +99,21 @@ export default function TeamPage() {
     }
   }
 
+  function createFinalJudgment() {
+    try {
+      generateFinalResults(roomId);
+      updateDb(db2 => {
+        const targetRoom = db2.rooms[roomId];
+        targetRoom.roomProgress.currentPhase = 'finalResult';
+        targetRoom.roomProgress.finalResultVisible = true;
+        Object.values(targetRoom.finalResults).forEach(result => { result.visible = true; });
+      });
+      setMsg('최종 판정을 생성했습니다. 아래 요약을 확인하거나 교육 리포트로 이동하세요.');
+    } catch (e) {
+      setMsg(e.message);
+    }
+  }
+
   return (
     <Layout roomId={roomId}>
       <RoundCard round={round} />
@@ -124,17 +141,10 @@ export default function TeamPage() {
           />
           <section className="card next-step-card">
             <h3>다음 행동</h3>
-            <p>
-              KSA 저장을 마쳤다면 아래 버튼으로 바로 Week 1의 개인 선택 단계로 이동하세요.
-              Host 화면을 따로 거치지 않고 테스트 흐름을 이어갈 수 있습니다.
-            </p>
-            {!ksaComplete && (
-              <p className="muted">지식·기술·태도 각 3개씩 선택 후 KSA를 저장하면 이동할 수 있습니다.</p>
-            )}
+            <p>KSA 저장을 마쳤다면 아래 버튼으로 바로 Week 1의 개인 선택 단계로 이동하세요.</p>
+            {!ksaComplete && <p className="muted">지식·기술·태도 각 3개씩 선택 후 KSA를 저장하면 이동할 수 있습니다.</p>}
             <div className="actions">
-              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>
-                KSA 저장하고 Week 1 개인 선택으로 이동
-              </button>
+              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>KSA 저장하고 Week 1 개인 선택으로 이동</button>
               <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
             </div>
           </section>
@@ -149,52 +159,26 @@ export default function TeamPage() {
           )) : <p className="muted">아직 개인 선택이 없습니다. 빠른 테스트에서는 아래 팀 최종 선택부터 진행해도 됩니다.</p>}
 
           <h3>팀 최종 선택</h3>
-          <ChoiceList
-            choices={choices}
-            selectedChoiceId={finalChoiceId || decision?.finalChoiceId}
-            onSelect={setFinalChoiceId}
-            disabled={!canEdit}
-          />
-          <label>
-            토론 요약
-            <textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} />
-          </label>
-          <button
-            className="primary"
-            onClick={() => {
-              try {
-                submitTeamDecision({
-                  roomId,
-                  roundId: round.roundId,
-                  teamId,
-                  finalChoiceId: finalChoiceId || decision?.finalChoiceId,
-                  discussionSummary: summary || decision?.discussionSummary,
-                  submittedBy: 'team'
-                });
-                setMsg('팀 결정을 저장했습니다. 이어서 산출물을 입력하세요.');
-              } catch (e) {
-                setMsg(e.message);
-              }
-            }}
-          >팀 결정 저장</button>
+          <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
+          <label>토론 요약<textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} /></label>
+          <button className="primary" onClick={() => {
+            try {
+              submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: summary || decision?.discussionSummary, submittedBy: 'team' });
+              setMsg('팀 결정을 저장했습니다. 이어서 산출물을 입력하세요.');
+            } catch (e) { setMsg(e.message); }
+          }}>팀 결정 저장</button>
         </section>
       )}
 
       {choices.length > 0 && (
         <section className="card">
           <h3>산출물 입력</h3>
-          <OutputForm
-            outputRequirement={outputRequirement}
-            initialAnswers={submission?.answers}
-            onSubmit={(answers) => {
-              try {
-                submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
-                setMsg('산출물을 저장했습니다. 이제 결과를 계산하고 공개할 수 있습니다.');
-              } catch (e) {
-                setMsg(e.message);
-              }
-            }}
-          />
+          <OutputForm outputRequirement={outputRequirement} initialAnswers={submission?.answers} onSubmit={(answers) => {
+            try {
+              submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
+              setMsg('산출물을 저장했습니다. 이제 결과를 계산하고 공개할 수 있습니다.');
+            } catch (e) { setMsg(e.message); }
+          }} />
         </section>
       )}
 
@@ -225,23 +209,41 @@ export default function TeamPage() {
       )}
 
       {round.roundId === 'week12' && (
-        <section className="card">
-          <h3>팀 선언문</h3>
-          <textarea placeholder="우리는 12주 동안..." onChange={e => setSummary(e.target.value)} />
-          <button
-            className="primary"
-            onClick={() => {
+        <>
+          <section className="card">
+            <h3>팀 선언문</h3>
+            <p className="muted">12주 동안 우리 팀이 지키려 했던 기준과, 현업으로 가져갈 행동을 한 문장으로 남깁니다.</p>
+            <textarea defaultValue={declaration?.teamDeclaration || ''} placeholder="우리는 12주 동안..." onChange={e => setSummary(e.target.value)} />
+            <button className="primary" onClick={() => {
               updateDb(db2 => {
-                db2.rooms[roomId].declarations[teamId] = {
-                  ...(db2.rooms[roomId].declarations[teamId] || { teamId }),
-                  teamDeclaration: summary,
-                  submittedAt: Date.now()
-                };
+                db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: summary || declaration?.teamDeclaration || '', submittedAt: Date.now() };
               });
-              setMsg('팀 선언문을 저장했습니다.');
-            }}
-          >선언문 저장</button>
-        </section>
+              setMsg('팀 선언문을 저장했습니다. 이제 최종 판정을 생성하고 교육 리포트를 확인하세요.');
+            }}>선언문 저장</button>
+          </section>
+
+          <section className="card next-step-card">
+            <h3>마지막 단계</h3>
+            <p>팀 선언문을 저장했다면 최종 판정을 생성하고 교육 리포트에서 전체 결과를 확인하세요.</p>
+            <div className="actions">
+              <button className="primary" onClick={createFinalJudgment}>최종 판정 생성</button>
+              <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
+              <Link className="secondary" to={`/compare/${roomId}`}>다팀 비교 보기</Link>
+              <Link className="secondary" to={`/host/${roomId}`}>Host 화면</Link>
+            </div>
+          </section>
+
+          {finalResult && (
+            <section className="card result-card">
+              <p className="eyebrow">최종 판정</p>
+              <h3>{finalResult.finalLevel}</h3>
+              <p><b>판단 패턴:</b> {finalResult.judgmentPattern}</p>
+              <p><b>남은 부담:</b> {finalResult.remainingBurden}</p>
+              <p><b>현업 적용 행동:</b> {finalResult.nextAction}</p>
+              <ol>{finalResult.evidenceLines?.map((line, i) => <li key={i}>{line}</li>)}</ol>
+            </section>
+          )}
+        </>
       )}
     </Layout>
   );
