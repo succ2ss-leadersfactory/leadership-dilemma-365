@@ -9,6 +9,7 @@ import { generateTeamCompetencyProfiles } from '../utils/competencyProfileUtils'
 import { getPersonaById } from '../utils/playerPersonaUtils';
 import { buildOpsHealth } from '../utils/opsHealthUtils';
 import { buildRehearsalBalanceCheck } from '../utils/rehearsalBalanceUtils';
+import { buildTeamOutputEvidenceReview } from '../utils/teamOutputEvidenceUtils';
 
 const rounds = ['week1', 'week2', 'week3', 'week4', 'week5', 'week6', 'week7', 'week8', 'week9', 'week10', 'week11'];
 const emptyState = { aceBurnoutRisk: 0, growthShrinkRisk: 0, executionPressure: 0, executiveTrustRisk: 0, collaborationDebt: 0 };
@@ -68,8 +69,10 @@ function makeScenario(roomId, scenarioKey = 'success') {
         const choice = getChoiceByType(db.gameContent, roundId, scenario.choiceTypes[idx]);
         const quality = scenario.qualities[idx] || 'medium';
         const qualityScore = quality === 'veryHigh' ? 95 : quality === 'high' ? 85 : quality === 'medium' ? 65 : 35;
+        const answers = { summary: `${scenario.label} 실행안`, action: quality === 'low' ? '책임자와 확인 시점이 아직 불분명하다.' : '책임자, 기준, 확인 시점을 정한다.' };
+        const evidenceReview = buildTeamOutputEvidenceReview({ answers, expertiseLens: db.gameContent.teamExpertiseLenses?.[team.teamId] });
         room.teamDecisions[`${roundId}_${team.teamId}`] = { decisionId: `${roundId}_${team.teamId}`, roundId, teamId: team.teamId, finalChoiceId: choice?.choiceId, discussionSummary: `${scenario.label}: ${team.teamName}은 선택의 장점과 남는 부담을 함께 확인했다.`, submittedBy: 'scenario', submittedAt: Date.now(), locked: true };
-        room.submissions[`${roundId}_${team.teamId}`] = { submissionId: `${roundId}_${team.teamId}`, roundId, teamId: team.teamId, answers: { summary: `${scenario.label} 실행안`, action: quality === 'low' ? '책임자와 확인 시점이 아직 불분명하다.' : '책임자, 기준, 확인 시점을 정한다.' }, quality, qualityScore, submittedBy: 'scenario', submittedAt: Date.now() };
+        room.submissions[`${roundId}_${team.teamId}`] = { submissionId: `${roundId}_${team.teamId}`, roundId, teamId: team.teamId, answers, quality, qualityScore, evidenceReview, submittedBy: 'scenario', submittedAt: Date.now() };
       });
     });
   });
@@ -84,8 +87,9 @@ function buildOpsMarkdown(room, health) {
   const balance = buildRehearsalBalanceCheck(room);
   const lines = ['# 운영 QA 점검 리포트', '', `- 방 ID: ${room.roomId}`, `- 현재 라운드: ${room.roomProgress.currentRoundId}`, `- 현재 단계: ${room.roomProgress.currentPhase}`, `- 이슈 수: ${health.summary.issueCount}`, '', '## 리허설 샘플 밸런스 검증', `- 시나리오: ${balance.scenarioLabel}`, `- 상태: ${balance.status}`, `- 최종 판정 생성: ${balance.finalCount}/${balance.teamCount}`, `- 기준 충족: ${balance.passedCount}/${balance.totalChecks}`, `- 요약: ${balance.summary}`, '', '### 기준별 확인'];
   balance.checks.forEach(check => lines.push(`- [${check.status}] ${check.label}: ${check.detail} → ${check.action}`));
+  lines.push('', '## 전문성 고도화 QA', `- 전문성 렌즈 정상 팀: ${health.summary.expertiseReadyTeams}/${health.summary.totalTeams}`, `- 산출물 증거 수준 정상 팀: ${health.summary.evidenceReadyTeams}/${health.summary.totalTeams}`, `- 팀별 결과 해석 정상 팀: ${health.summary.narrativeReadyTeams}/${health.summary.totalTeams}`, `- 누적 경고 신호 팀: ${health.summary.warningSignalTeams}/${health.summary.totalTeams}`);
   lines.push('', '## 팀별 점검');
-  health.teamRows.forEach(row => lines.push(`- ${row.teamName}: ${row.status} / KSA ${row.ksaStatus} / 참가자 ${row.playerCount} / 프로필 ${row.profileCount} / 계산 ${row.calculationCount}/${health.playableRounds.length} / 최종 ${row.finalStatus}`));
+  health.teamRows.forEach(row => lines.push(`- ${row.teamName}: ${row.status} / KSA ${row.ksaStatus} / 전문성 ${row.expertiseLensStatus} / 산출물 ${row.submissionCount}/${health.playableRounds.length} / 증거 ${row.evidenceReviewCount}/${row.submissionCount} / 계산 ${row.calculationCount}/${health.playableRounds.length} / 결과해석 ${row.resultNarrativeCount}/${row.calculationCount} / 경고 ${row.warningSignalCount}건 / 최종 ${row.finalStatus}`));
   lines.push('', '## 확인 필요 항목');
   if (health.issues.length) health.issues.forEach(issue => lines.push(`- [${issue.severity}] ${issue.teamName} · ${issue.area}: ${issue.message} → ${issue.action}`));
   else lines.push('- 확인 필요 항목 없음');
@@ -118,6 +122,9 @@ export default function AdminOpsPage() {
           <div><b>{health.summary.completeKsaTeams}/{health.summary.totalTeams}</b><span>KSA 완료 팀</span></div>
           <div><b>{health.summary.profileTeams}/{health.summary.totalTeams}</b><span>프로필 정상 팀</span></div>
           <div><b>{health.summary.calculatedTeams}/{health.summary.totalTeams}</b><span>라운드 계산 완료 팀</span></div>
+          <div><b>{health.summary.evidenceReadyTeams}/{health.summary.totalTeams}</b><span>증거 수준 정상 팀</span></div>
+          <div><b>{health.summary.narrativeReadyTeams}/{health.summary.totalTeams}</b><span>결과 해석 정상 팀</span></div>
+          <div><b>{health.summary.warningSignalTeams}</b><span>누적 경고 신호 팀</span></div>
           <div><b>{health.summary.finalTeams}/{health.summary.totalTeams}</b><span>최종 판정 팀</span></div>
         </div>
         <div className="actions">
@@ -152,8 +159,8 @@ export default function AdminOpsPage() {
       <section className="card">
         <h3>팀별 운영 점검</h3>
         <table>
-          <thead><tr><th>팀</th><th>상태</th><th>KSA</th><th>참가자</th><th>프로필</th><th>인물 카드</th><th>팀 결정</th><th>산출물</th><th>계산</th><th>인물 영향</th><th>최종</th><th>성찰</th></tr></thead>
-          <tbody>{health.teamRows.map(row => <tr key={row.teamId}><td>{row.teamName}</td><td>{row.status}</td><td>{row.ksaStatus}</td><td>{row.playerCount}</td><td>{row.profileCount}</td><td>{row.personaCount}</td><td>{row.decisionCount}/{health.playableRounds.length}</td><td>{row.submissionCount}/{health.playableRounds.length}</td><td>{row.calculationCount}/{health.playableRounds.length}</td><td>{row.personaInfluenceCount}건</td><td>{row.finalStatus}</td><td>{row.reflectionCount}</td></tr>)}</tbody>
+          <thead><tr><th>팀</th><th>상태</th><th>KSA</th><th>전문성</th><th>참가자</th><th>프로필</th><th>인물 카드</th><th>팀 결정</th><th>산출물</th><th>증거</th><th>계산</th><th>결과해석</th><th>경고</th><th>최종</th><th>성찰</th></tr></thead>
+          <tbody>{health.teamRows.map(row => <tr key={row.teamId}><td>{row.teamName}</td><td>{row.status}</td><td>{row.ksaStatus}</td><td>{row.expertiseLensStatus}</td><td>{row.playerCount}</td><td>{row.profileCount}</td><td>{row.personaCount}</td><td>{row.decisionCount}/{health.playableRounds.length}</td><td>{row.submissionCount}/{health.playableRounds.length}</td><td>{row.evidenceReviewCount}/{row.submissionCount}</td><td>{row.calculationCount}/{health.playableRounds.length}</td><td>{row.resultNarrativeCount}/{row.calculationCount}</td><td>{row.warningSignalCount}건</td><td>{row.finalStatus}</td><td>{row.reflectionCount}</td></tr>)}</tbody>
         </table>
       </section>
 
