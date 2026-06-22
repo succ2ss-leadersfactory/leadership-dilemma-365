@@ -55,6 +55,16 @@ function evaluateCondition({ condition, values, decisions, choices, submissions,
   return { passed: false, detail: `지원하지 않는 조건 ${condition.type}` };
 }
 
+function resolveTeamEffect(rule, teamId) {
+  const teamEffect = rule.teamEffects?.[teamId];
+  return {
+    effect: teamEffect || rule.effect,
+    label: teamEffect?.label || rule.label,
+    evidence: teamEffect?.evidence || rule.evidence,
+    isTeamSpecific: Boolean(teamEffect)
+  };
+}
+
 export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, values = {}, decisions = [], choices = [], submissions = {}, teamId }) {
   const impactValues = { ...values };
   const appliedImpacts = [];
@@ -64,8 +74,9 @@ export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, va
     (impactGroup?.rules || []).forEach(rule => {
       const conditionResult = evaluateCondition({ condition: rule.condition, values: impactValues, decisions, choices, submissions, teamId });
       if (!conditionResult.passed) return;
-      const riskKey = rule.effect?.riskKey;
-      const amount = Number(rule.effect?.amount || 0);
+      const resolved = resolveTeamEffect(rule, teamId);
+      const riskKey = resolved.effect?.riskKey;
+      const amount = Number(resolved.effect?.amount || 0);
       if (!riskKey || amount === 0) return;
       const before = Number(impactValues[riskKey] || 0);
       const after = clamp(before + amount, 0, 3);
@@ -75,14 +86,15 @@ export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, va
         week: log.week,
         title: log.title,
         ruleId: rule.ruleId,
-        label: rule.label,
-        evidence: rule.evidence,
+        label: resolved.label,
+        evidence: resolved.evidence,
         riskKey,
         riskLabel: stateLabels[riskKey] || riskKey,
         amount,
         before,
         after,
-        conditionDetail: conditionResult.detail
+        conditionDetail: conditionResult.detail,
+        isTeamSpecific: resolved.isTeamSpecific
       });
     });
   });
@@ -92,6 +104,6 @@ export function calculateWeekLogImpacts({ weekLogs = [], weekLogImpacts = {}, va
     reviewValues: impactValues,
     weekLogImpactCount: appliedImpacts.length,
     weekLogImpacts: appliedImpacts,
-    weekLogImpactLines: appliedImpacts.map(impact => `Week ${impact.week} · ${impact.label}: ${impact.riskLabel} ${impact.before}→${impact.after}. ${impact.evidence}`)
+    weekLogImpactLines: appliedImpacts.map(impact => `Week ${impact.week} · ${impact.isTeamSpecific ? '팀별 후폭풍 · ' : ''}${impact.label}: ${impact.riskLabel} ${impact.before}→${impact.after}. ${impact.evidence}`)
   };
 }
