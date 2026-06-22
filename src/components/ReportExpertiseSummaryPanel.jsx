@@ -24,6 +24,17 @@ export default function ReportExpertiseSummaryPanel({ summaries = [] }) {
                 <ul>{summary.warningSignals.map(line => <li key={line}>{line}</li>)}</ul>
               </div>
             )}
+            {summary.riskCauseGroups?.length > 0 && (
+              <div className="notice">
+                <b>반복 대가 발생 라운드</b>
+                {summary.riskCauseGroups.map(group => (
+                  <div key={group.theme}>
+                    <p><b>{group.theme}</b> · {group.count}회</p>
+                    <ul>{group.rounds.map(item => <li key={`${group.theme}_${item.roundId}_${item.risk}`}>{item.roundId} · {item.risk}</li>)}</ul>
+                  </div>
+                ))}
+              </div>
+            )}
             <p><b>관련 역량:</b> {summary.expertiseKeywords.join(' / ') || '-'}</p>
             <p><b>강한 주차:</b> {summary.strongestWeeks}</p>
             <p><b>취약 주차:</b> {summary.weakestWeeks}</p>
