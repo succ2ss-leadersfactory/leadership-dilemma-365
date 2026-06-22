@@ -109,7 +109,7 @@ function getDecisionChoice(decisions, choices, roundId) {
   return choices.find(c => c.choiceId === decision.finalChoiceId) || null;
 }
 
-function evaluateMissionRule({ rule, values, submissions, decisions, choices }) {
+function evaluateMissionRule({ rule, values, decisions, choices }) {
   if (rule.type === 'riskAtMost') {
     const current = Number(values?.[rule.riskKey] ?? 0);
     return { ...rule, passed: current <= rule.max, detail: `${stateLabels[rule.riskKey] || rule.riskKey}: ${current} / 허용 ${rule.max}` };
@@ -120,11 +120,6 @@ function evaluateMissionRule({ rule, values, submissions, decisions, choices }) 
     return { ...rule, passed: Boolean(choice && rule.allowedTypes.includes(choice.internalType)), detail: choice ? `${rule.roundId} 선택 유형: ${choice.internalType}` : `${rule.roundId} 팀 결정 없음` };
   }
 
-  if (rule.type === 'outputQualityAtLeast') {
-    const quality = submissions?.[`${rule.roundId}_${rule.teamId || ''}`]?.quality;
-    return { ...rule, passed: false, detail: quality ? `${rule.roundId} 산출물 품질: ${quality}` : `${rule.roundId} 산출물 없음` };
-  }
-
   return { ...rule, passed: false, detail: '지원하지 않는 미션 기준입니다.' };
 }
 
@@ -133,11 +128,26 @@ function evaluateOutputQualityRule({ rule, room, teamId }) {
   return { ...rule, passed: (qualityRank[quality] ?? 0) >= (qualityRank[rule.minQuality] ?? 0), detail: `${rule.roundId} 산출물 품질: ${quality} / 기준 ${rule.minQuality}` };
 }
 
+function evaluateOutputEvidenceRule({ rule, room, teamId }) {
+  const roundIds = rule.roundIds || [rule.roundId];
+  const minScore = Number(rule.minScore ?? 3);
+  const details = roundIds.map(roundId => {
+    const review = room.submissions?.[`${roundId}_${teamId}`]?.evidenceReview;
+    const score = Number(review?.evidenceScore || 0);
+    const level = review?.evidenceLevel || '기록 없음';
+    return { roundId, score, level, passed: score >= minScore };
+  });
+  const passed = details.some(item => item.passed);
+  const detail = details.map(item => `${item.roundId} 증거 수준 ${item.level}(${item.score}/4)`).join(' / ');
+  return { ...rule, passed, detail: `${detail} / 기준 ${minScore}/4 이상` };
+}
+
 function calculateSecretMission({ db, room, teamId, values, decisions, choices }) {
   const mission = getMissionForTeam(db, teamId);
   const ruleResults = (mission?.scoreRules || []).map(rule => {
     if (rule.type === 'outputQualityAtLeast') return evaluateOutputQualityRule({ rule, room, teamId });
-    return evaluateMissionRule({ rule, values, submissions: room.submissions, decisions, choices });
+    if (rule.type === 'outputEvidenceAtLeast') return evaluateOutputEvidenceRule({ rule, room, teamId });
+    return evaluateMissionRule({ rule, values, decisions, choices });
   });
   const secretMissionScore = clamp(ruleResults.filter(r => r.passed).length, 0, 3);
   return {
