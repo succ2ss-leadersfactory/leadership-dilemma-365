@@ -18,6 +18,49 @@ function getTeamCalculations(room = {}, teamId) {
     .sort((a, b) => Number(String(a.roundId).replace('week', '')) - Number(String(b.roundId).replace('week', '')));
 }
 
+function uniqueTop(items = [], limit = 3) {
+  return Array.from(new Set(items.filter(Boolean))).slice(0, limit);
+}
+
+function buildNarrativePattern(calculations = [], teamName) {
+  const narratives = calculations.map(calc => ({
+    roundId: calc.roundId,
+    choiceType: calc.choiceInternalType,
+    ...(calc.teamResultNarrative || {})
+  })).filter(item => item.gain || item.risk || item.question);
+
+  if (!narratives.length) {
+    return {
+      narrativeCount: 0,
+      narrativeSummary: `${teamName}은 아직 팀별 결과 해석을 누적할 계산 결과가 충분하지 않습니다.`,
+      repeatedGains: [],
+      repeatedRisks: [],
+      narrativeQuestions: []
+    };
+  }
+
+  const repeatedGains = uniqueTop(narratives.map(item => item.gain));
+  const repeatedRisks = uniqueTop(narratives.map(item => item.risk));
+  const narrativeQuestions = uniqueTop(narratives.map(item => item.question));
+  const choiceCounts = narratives.reduce((acc, item) => {
+    const key = item.choiceType || 'UNKNOWN';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  const topChoiceType = Object.entries(choiceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'UNKNOWN';
+  const firstGain = repeatedGains[0] || '기능 전문성에 맞는 진전 신호가 일부 나타났습니다.';
+  const firstRisk = repeatedRisks[0] || '반복되는 대가는 아직 뚜렷하지 않습니다.';
+
+  return {
+    narrativeCount: narratives.length,
+    topChoiceType,
+    narrativeSummary: `${teamName}은 ${topChoiceType} 선택 흐름에서 ${firstGain} 그러나 ${firstRisk}`,
+    repeatedGains,
+    repeatedRisks,
+    narrativeQuestions
+  };
+}
+
 export function buildTeamExpertiseReportSummary({ room, gameContent, team }) {
   const lens = gameContent.teamExpertiseLenses?.[team.teamId];
   const calculations = getTeamCalculations(room, team.teamId);
@@ -27,6 +70,7 @@ export function buildTeamExpertiseReportSummary({ room, gameContent, team }) {
   const weakest = calculations.filter(calc => Number(calc.outputEvidenceReview?.evidenceScore || 0) <= 1).map(calc => calc.roundId);
   const repeatedSignals = calculations.flatMap(calc => calc.outputEvidenceReview?.evidenceSignals || []);
   const needsMoreEvidence = repeatedSignals.filter(line => line.includes('더 필요') || line.includes('분명히') || line.includes('드러나지')).slice(0, 3);
+  const narrativePattern = buildNarrativePattern(calculations, team.teamName);
 
   return {
     teamId: team.teamId,
@@ -44,6 +88,7 @@ export function buildTeamExpertiseReportSummary({ room, gameContent, team }) {
     strongestWeeks: strongest.length ? strongest.join(', ') : '뚜렷한 강점 주차 없음',
     weakestWeeks: weakest.length ? weakest.join(', ') : '뚜렷한 취약 주차 없음',
     needsMoreEvidence,
+    ...narrativePattern,
     summaryLine: scores.length ? summarizeEvidence(averageScore, team.teamName) : `${team.teamName}은 아직 산출물 증거 수준을 판단할 계산 결과가 충분하지 않습니다.`
   };
 }
