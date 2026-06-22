@@ -1,6 +1,7 @@
 import { updateDb, readDb } from './storage';
 import { createId } from '../utils/idUtils';
 import { findRoomByJoinCode } from './roomService';
+import { generatePlayerCompetencyProfile, isKsaComplete } from '../utils/competencyProfileUtils';
 
 export function joinRoom({ joinCode, displayName, teamId }) {
   const room = findRoomByJoinCode(joinCode);
@@ -9,7 +10,15 @@ export function joinRoom({ joinCode, displayName, teamId }) {
   if (!teamId) throw new Error('참여할 팀을 선택해 주세요');
   const playerId = createId('player');
   updateDb(db => {
-    db.rooms[room.roomId].players[playerId] = { playerId, displayName:displayName.trim(), teamId, role:'player', connectionStatus:'online', joinedAt:Date.now(), lastSeenAt:Date.now() };
+    const targetRoom = db.rooms[room.roomId];
+    const player = { playerId, displayName:displayName.trim(), teamId, role:'player', connectionStatus:'online', joinedAt:Date.now(), lastSeenAt:Date.now() };
+    targetRoom.players[playerId] = player;
+    const team = targetRoom.teams[teamId];
+    if (isKsaComplete(team?.selectedKSA)) {
+      targetRoom.competencyProfiles = targetRoom.competencyProfiles || {};
+      targetRoom.competencyProfiles[teamId] = targetRoom.competencyProfiles[teamId] || {};
+      targetRoom.competencyProfiles[teamId][playerId] = generatePlayerCompetencyProfile({ player, team, selectedKSA: team.selectedKSA });
+    }
   });
   return { roomId: room.roomId, playerId };
 }
