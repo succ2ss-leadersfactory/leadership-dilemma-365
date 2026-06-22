@@ -8,6 +8,7 @@ import { calculateRoundResult, generateFinalResults } from '../services/calculat
 import { generateTeamCompetencyProfiles } from '../utils/competencyProfileUtils';
 import { getPersonaById } from '../utils/playerPersonaUtils';
 import { buildOpsHealth } from '../utils/opsHealthUtils';
+import { buildRehearsalBalanceCheck } from '../utils/rehearsalBalanceUtils';
 
 const rounds = ['week1', 'week2', 'week3', 'week4', 'week5', 'week6', 'week7', 'week8', 'week9', 'week10', 'week11'];
 const emptyState = { aceBurnoutRisk: 0, growthShrinkRisk: 0, executionPressure: 0, executiveTrustRisk: 0, collaborationDebt: 0 };
@@ -79,7 +80,17 @@ function makeScenario(roomId, scenarioKey = 'success') {
 
 function downloadJson(filename, data) { const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href); }
 function downloadText(filename, text) { const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href); }
-function buildOpsMarkdown(room, health) { const lines = ['# 운영 QA 점검 리포트', '', `- 방 ID: ${room.roomId}`, `- 현재 라운드: ${room.roomProgress.currentRoundId}`, `- 현재 단계: ${room.roomProgress.currentPhase}`, `- 이슈 수: ${health.summary.issueCount}`, '', '## 팀별 점검']; health.teamRows.forEach(row => lines.push(`- ${row.teamName}: ${row.status} / KSA ${row.ksaStatus} / 참가자 ${row.playerCount} / 프로필 ${row.profileCount} / 계산 ${row.calculationCount}/${health.playableRounds.length} / 최종 ${row.finalStatus}`)); lines.push('', '## 확인 필요 항목'); if (health.issues.length) health.issues.forEach(issue => lines.push(`- [${issue.severity}] ${issue.teamName} · ${issue.area}: ${issue.message} → ${issue.action}`)); else lines.push('- 확인 필요 항목 없음'); return lines.join('\n'); }
+function buildOpsMarkdown(room, health) {
+  const balance = buildRehearsalBalanceCheck(room);
+  const lines = ['# 운영 QA 점검 리포트', '', `- 방 ID: ${room.roomId}`, `- 현재 라운드: ${room.roomProgress.currentRoundId}`, `- 현재 단계: ${room.roomProgress.currentPhase}`, `- 이슈 수: ${health.summary.issueCount}`, '', '## 리허설 샘플 밸런스 검증', `- 시나리오: ${balance.scenarioLabel}`, `- 상태: ${balance.status}`, `- 최종 판정 생성: ${balance.finalCount}/${balance.teamCount}`, `- 기준 충족: ${balance.passedCount}/${balance.totalChecks}`, `- 요약: ${balance.summary}`, '', '### 기준별 확인'];
+  balance.checks.forEach(check => lines.push(`- [${check.status}] ${check.label}: ${check.detail} → ${check.action}`));
+  lines.push('', '## 팀별 점검');
+  health.teamRows.forEach(row => lines.push(`- ${row.teamName}: ${row.status} / KSA ${row.ksaStatus} / 참가자 ${row.playerCount} / 프로필 ${row.profileCount} / 계산 ${row.calculationCount}/${health.playableRounds.length} / 최종 ${row.finalStatus}`));
+  lines.push('', '## 확인 필요 항목');
+  if (health.issues.length) health.issues.forEach(issue => lines.push(`- [${issue.severity}] ${issue.teamName} · ${issue.area}: ${issue.message} → ${issue.action}`));
+  else lines.push('- 확인 필요 항목 없음');
+  return lines.join('\n');
+}
 
 export default function AdminOpsPage() {
   const { roomId } = useParams();
