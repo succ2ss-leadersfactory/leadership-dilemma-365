@@ -1,0 +1,27 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './pages/LandingPage.jsx';
+import HostCreatePage from './pages/HostCreatePage.jsx';
+import HostDashboardPage from './pages/HostDashboardPage.jsx';
+import JoinPage from './pages/JoinPage.jsx';
+import PlayerPage from './pages/PlayerPage.jsx';
+import TeamPage from './pages/TeamPage.jsx';
+import MultiTeamComparePage from './pages/MultiTeamComparePage.jsx';
+import ReportPage from './pages/ReportPage.jsx';
+import AdminOpsPage from './pages/AdminOpsPage.jsx';
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/host/create" element={<HostCreatePage />} />
+      <Route path="/host/:roomId" element={<HostDashboardPage />} />
+      <Route path="/join/:joinCode" element={<JoinPage />} />
+      <Route path="/player/:roomId/:playerId" element={<PlayerPage />} />
+      <Route path="/team/:roomId/:teamId" element={<TeamPage />} />
+      <Route path="/compare/:roomId" element={<MultiTeamComparePage />} />
+      <Route path="/report/:roomId" element={<ReportPage />} />
+      <Route path="/admin/:roomId" element={<AdminOpsPage />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+}

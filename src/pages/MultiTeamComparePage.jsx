@@ -1,0 +1,6 @@
+import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import Layout from '../components/Layout.jsx';
+import { subscribe, readDb } from '../services/storage';
+import { getJudgmentPattern } from '../utils/judgmentUtils';
+export default function MultiTeamComparePage(){ const {roomId}=useParams(); const [tick,setTick]=useState(0); useEffect(()=>subscribe(()=>setTick(x=>x+1)),[]); const db=readDb(); const room=db.rooms[roomId]; if(!room) return <Layout><div className="card">방 정보를 찾을 수 없습니다.</div></Layout>; const choices=db.gameContent.choices; return <Layout roomId={roomId}><section className="card"><h2>다팀 비교</h2><table><thead><tr><th>팀</th><th>최대 리스크</th><th>판단 패턴</th><th>최종 판정</th><th>진행</th></tr></thead><tbody>{Object.values(room.teams).map(t=>{const st=room.stateValues[t.teamId]; const decisions=Object.values(room.teamDecisions).filter(d=>d.teamId===t.teamId); const pattern=getJudgmentPattern(decisions,choices); const final=room.finalResults[t.teamId]; return <tr key={t.teamId}><td>{t.teamName}</td><td>{st.maxRiskLabel}</td><td>{pattern.label}</td><td>{final?.finalLevel||'미생성'}</td><td><Link to={`/team/${roomId}/${t.teamId}`}>열기</Link></td></tr>})}</tbody></table></section></Layout>}
