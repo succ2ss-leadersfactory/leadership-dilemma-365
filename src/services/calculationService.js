@@ -1,6 +1,6 @@
 import { readDb, updateDb } from './storage';
 import { clamp } from '../utils/clamp';
-import { getMaxRisk, getJudgmentPattern, calculateFinalLevel } from '../utils/judgmentUtils';
+import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalOutcome, calculateMissionOutcome } from '../utils/judgmentUtils';
 import { stateLabels } from '../utils/statusLabels';
 
 export function clampStateValue(value) { return clamp(value, 0, 3); }
@@ -74,16 +74,22 @@ export function generateFinalResults(roomId) {
       const decisions = Object.values(room.teamDecisions).filter(d => d.teamId === teamId);
       const pattern = getJudgmentPattern(decisions, choices);
       const level = calculateFinalLevel({ values, week11Quality:week11, secretMissionScore });
+      const survival = calculateSurvivalOutcome({ values, week11Quality: week11 });
+      const mission = calculateMissionOutcome(secretMissionScore);
       const risk = getMaxRisk(values);
       const riskName = stateLabels[risk.maxRiskKey] || '남은 부담';
       db2.rooms[roomId].finalResults[teamId] = {
         teamId,
         ...level,
+        ...survival,
+        ...mission,
         judgmentPattern: pattern.label,
         secretMissionScore,
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
           riskSentence(risk),
+          `${survival.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
+          `${mission.missionLabel} 상태입니다. 미션 달성도는 2차 기준으로 반영되었습니다.`,
           week11 === 'high' || week11 === 'veryHigh' ? '마지막 승부수의 산출물 품질이 높아 최종 판정에 긍정적으로 반영되었습니다.' : '마지막 승부수의 산출물 품질은 추가 보완 여지가 있어 최종 판정에 제한적으로 반영되었습니다.'
         ],
         strongestAsset: assetSentence(pattern.label).replace('확인되었습니다.', '').trim(),
