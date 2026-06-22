@@ -26,7 +26,21 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
   const finalState = applyOutputQualityModifier(afterChoice, submission.quality);
   const risk = getMaxRisk(finalState);
   updateDb(db2 => {
-    db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = { calculationId:`${roundId}_${teamId}`, roundId, teamId, choiceId:decision.finalChoiceId, baseEffects:choice?.baseEffects || {}, outputQuality:submission.quality, previousState, finalState, resultCardId:decision.finalChoiceId, calculatedAt:Date.now(), calculatedBy:'system' };
+    db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
+      calculationId:`${roundId}_${teamId}`,
+      roundId,
+      teamId,
+      choiceId:decision.finalChoiceId,
+      choiceText: choice?.choiceText || decision.finalChoiceId,
+      choiceInternalType: choice?.internalType || 'UNKNOWN',
+      baseEffects:choice?.baseEffects || {},
+      outputQuality:submission.quality,
+      previousState,
+      finalState,
+      resultCardId:decision.finalChoiceId,
+      calculatedAt:Date.now(),
+      calculatedBy:'system'
+    };
     db2.rooms[roomId].stateValues[teamId] = { teamId, values:finalState, ...risk, updatedAt:Date.now() };
   });
 }
