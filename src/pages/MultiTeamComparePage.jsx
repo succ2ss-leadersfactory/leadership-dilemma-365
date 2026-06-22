@@ -61,12 +61,14 @@ export default function MultiTeamComparePage() {
         <h3>팀별 비교표</h3>
         <table>
           <thead>
-            <tr><th>팀</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>최대 리스크</th><th>결정 수</th><th>성찰 수</th><th>진행</th></tr>
+            <tr><th>팀</th><th>비밀 미션</th><th>미션 점수</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>최대 리스크</th><th>결정 수</th><th>성찰 수</th><th>진행</th></tr>
           </thead>
           <tbody>
             {summaries.map(s => (
               <tr key={s.team.teamId}>
                 <td>{s.team.teamName}</td>
+                <td>{s.final?.secretMissionTitle || '미생성'}</td>
+                <td>{s.final?.secretMissionScore ?? '미생성'}/3</td>
                 <td>{resultLabel(s.final?.survivalLabel)}</td>
                 <td>{resultLabel(s.final?.missionLabel)}</td>
                 <td>{resultLabel(s.final?.finalLevel)}</td>
@@ -90,7 +92,9 @@ export default function MultiTeamComparePage() {
               <div><b>{resultLabel(s.final?.survivalLabel)}</b><span>조직개편 생존 판정</span></div>
               <div><b>{resultLabel(s.final?.missionLabel)}</b><span>미션 달성 판정</span></div>
               <div><b>{resultLabel(s.final?.finalLevel)}</b><span>종합 판정</span></div>
+              <div><b>{s.final?.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
             </div>
+            <p><b>비밀 미션:</b> {s.final?.secretMissionTitle || '미생성'}</p>
             <p><b>남은 부담:</b> {stateLabels[s.state.maxRiskKey] || s.state.maxRiskKey || '-'} · {s.state.maxRiskLabel || '-'}</p>
             <p><b>종합 점수:</b> {s.final?.baseScore ?? '미생성'}</p>
             <p><b>팀 선언문:</b> {s.declaration?.teamDeclaration || '미작성'}</p>
@@ -104,8 +108,8 @@ export default function MultiTeamComparePage() {
         <ol>
           <li>같은 상황에서 팀별 판단 패턴이 왜 달라졌습니까?</li>
           <li>조직개편 생존 판정과 미션 달성 판정이 엇갈린 팀은 어디입니까?</li>
+          <li>각 팀의 비밀 미션 기준 중 충족하지 못한 항목은 무엇입니까?</li>
           <li>성과를 높인 선택과 부담을 키운 선택은 각각 무엇입니까?</li>
-          <li>리스크가 높은 팀은 개인 문제가 아니라 어떤 구조 문제를 안고 있습니까?</li>
           <li>다른 팀의 선택 중 우리 팀이 현업에 가져갈 만한 기준은 무엇입니까?</li>
         </ol>
       </section>
