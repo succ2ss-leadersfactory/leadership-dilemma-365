@@ -32,6 +32,70 @@ function getTeamPlayers(room, teamId) {
   return Object.values(room.players || {}).filter(p => p.teamId === teamId);
 }
 
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function buildMarkdownReport(room, teams, summary) {
+  const lines = [];
+  lines.push('# 리더십 딜레마 365 교육 리포트');
+  lines.push('');
+  lines.push('## 전체 요약');
+  lines.push(`- 전체 팀: ${summary.totalTeams}`);
+  lines.push(`- 주의 이상 리스크 팀: ${summary.warningTeams}`);
+  lines.push(`- 유지 이상 판정 팀: ${summary.maintainTeams}`);
+  lines.push(`- 대표 판단 패턴: ${summary.topPattern}`);
+  lines.push(`- 개인 성찰 제출: ${summary.reflectionCount}`);
+  lines.push('');
+  lines.push('## 팀별 결과');
+
+  teams.forEach(t => {
+    const st = room.stateValues[t.teamId] || {};
+    const final = room.finalResults[t.teamId];
+    const dec = room.declarations[t.teamId];
+    const reflections = dec?.individualReflections || {};
+    const teamPlayers = getTeamPlayers(room, t.teamId);
+    lines.push(`### ${t.teamName}`);
+    lines.push(`- 최종 판정: ${final?.finalLevel || '미생성'}`);
+    lines.push(`- 판단 패턴: ${final?.judgmentPattern || '-'}`);
+    lines.push(`- 핵심 리스크: ${stateLabels[st?.maxRiskKey] || '-'} · ${st?.maxRiskLabel || '-'}`);
+    lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
+    lines.push(`- 팀 선언문: ${dec?.teamDeclaration || '미작성'}`);
+    if (final) {
+      lines.push('- 판정 근거:');
+      (final.evidenceLines || []).forEach(line => lines.push(`  - ${line}`));
+      lines.push(`- 가장 큰 자산: ${final.strongestAsset}`);
+      lines.push(`- 남은 부담: ${final.remainingBurden}`);
+      lines.push(`- 현업 적용 행동: ${final.nextAction}`);
+    }
+    lines.push('- 개인 성찰:');
+    if (teamPlayers.length) {
+      teamPlayers.forEach(p => {
+        const r = reflections[p.playerId];
+        lines.push(`  - ${p.displayName}`);
+        lines.push(`    - 반복한 판단 습관: ${r?.habit || '성찰 미작성'}`);
+        lines.push(`    - 다음 현업 행동: ${r?.nextBehavior || '-'}`);
+      });
+    } else {
+      lines.push('  - 참가자 없음');
+    }
+    lines.push('');
+  });
+
+  lines.push('## 공통 디브리핑 질문');
+  lines.push('1. 우리 팀은 위기 앞에서 속도, 기준, 균형, 조건 중 무엇을 반복했습니까?');
+  lines.push('2. 그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?');
+  lines.push('3. 가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?');
+  lines.push('4. 개인 성찰에 반복적으로 나타난 행동 변화 키워드는 무엇입니까?');
+  lines.push('5. 다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?');
+  return lines.join('\n');
+}
+
 export default function ReportPage() {
   const { roomId } = useParams();
   const [tick, setTick] = useState(0);
@@ -42,6 +106,7 @@ export default function ReportPage() {
 
   const teams = Object.values(room.teams);
   const summary = getReportSummary(teams, room);
+  const saveMarkdown = () => downloadText(`${roomId}_leadership_report.md`, buildMarkdownReport(room, teams, summary));
 
   return (
     <Layout roomId={roomId}>
@@ -56,7 +121,7 @@ export default function ReportPage() {
           <div><b>{summary.topPattern}</b><span>대표 판단 패턴</span></div>
           <div><b>{summary.reflectionCount}</b><span>개인 성찰 제출</span></div>
         </div>
-        <div className="actions"><button onClick={() => window.print()}>인쇄 / PDF 저장</button></div>
+        <div className="actions"><button onClick={() => window.print()}>인쇄 / PDF 저장</button><button className="secondary" onClick={saveMarkdown}>Markdown 다운로드</button></div>
       </section>
 
       <section className="card">
