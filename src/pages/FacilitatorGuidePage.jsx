@@ -5,6 +5,7 @@ import StrategicEventCard from '../components/StrategicEventCard.jsx';
 import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
+import { getFacilitatorInterventions } from '../utils/facilitatorInterventionUtils';
 
 const roundFocus = {
   week1: {
@@ -93,6 +94,7 @@ export default function FacilitatorGuidePage() {
   const focus = roundFocus[currentRoundId] || roundFocus.week12;
   const finalCount = Object.keys(room.finalResults || {}).length;
   const reflectionCount = Object.values(room.declarations || {}).reduce((sum, d) => sum + Object.keys(d.individualReflections || {}).length, 0);
+  const teamInterventions = getFacilitatorInterventions({ room, gameContent: db.gameContent, currentRoundId });
 
   return (
     <Layout roomId={roomId}>
@@ -128,6 +130,29 @@ export default function FacilitatorGuidePage() {
       </section>
 
       <section className="card debriefBox">
+        <h3>팀별 관찰·개입 가이드</h3>
+        {teamInterventions.map(team => (
+          <div className="reflectionItem" key={team.teamId}>
+            <h4>{team.teamName}</h4>
+            <p><b>인물 카드 구성:</b> {team.personaMix}</p>
+            <p><b>현재 선택:</b> {team.choiceText} <span className="muted">({team.choiceType})</span></p>
+            {team.interventions.length ? (
+              <ol>
+                {team.interventions.map((item, index) => (
+                  <li key={`${team.teamId}_${item.title}_${index}`}>
+                    <b>[{item.priority}] {item.title}</b>
+                    <p><b>관찰 신호:</b> {item.signal}</p>
+                    <p><b>개입 멘트:</b> {item.intervention}</p>
+                    <p><b>질문:</b> {item.question}</p>
+                  </li>
+                ))}
+              </ol>
+            ) : <p className="muted">아직 개입 신호가 없습니다. 팀 결정과 결과 계산 후 더 구체적인 질문이 표시됩니다.</p>}
+          </div>
+        ))}
+      </section>
+
+      <section className="card debriefBox">
         <h3>핵심 질문</h3>
         <ol>
           {focus.questions.map(q => <li key={q}>{q}</li>)}
@@ -140,7 +165,8 @@ export default function FacilitatorGuidePage() {
           <li>12주 타임라인에서 지난 사건 로그와 현재 플레이 라운드의 연결을 먼저 확인합니다.</li>
           <li>전략 이벤트 카드에서 압박, 숨은 대가, 전략적 기회를 읽습니다.</li>
           <li>각 팀이 왜 그 선택을 했는지 1분씩 말하게 합니다.</li>
-          <li>결과 카드에서 작은 진전과 남은 부담을 구분해 읽습니다.</li>
+          <li>팀별 관찰·개입 가이드에서 인물 카드 구성과 선택의 부작용을 확인합니다.</li>
+          <li>결과 카드에서 작은 진전, 남은 부담, 인물 카드 영향을 구분해 읽습니다.</li>
           <li>팀별 핵심 리스크가 개인 문제인지 구조 문제인지 묻습니다.</li>
           <li>개인 성찰을 바탕으로 다음 현업 행동을 한 문장으로 정리합니다.</li>
           <li>마지막에는 교육 리포트에서 팀 선언문과 최종 판정을 함께 확인합니다.</li>
