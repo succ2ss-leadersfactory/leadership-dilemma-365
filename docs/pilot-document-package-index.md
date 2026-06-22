@@ -44,6 +44,7 @@
 
 | 목적 | 문서 |
 |---|---|
+| 개발 안정화 최종 체크 | `docs/pilot-dev-stability-checklist.md` |
 | 전체 Week 밸런스 | `docs/all-week-balance-policy.md` |
 | LOG 후폭풍 중복 방지 | `docs/playable-week-log-policy.md` |
 | 리허설 샘플 검증 | `docs/rehearsal-scenario-balance-check.md` |
@@ -81,6 +82,7 @@ docs/pilot-final-qa-decision-table.md
 |---|---|
 | 리허설 동선이 막힘 | `docs/pilot-final-rehearsal-runbook.md` |
 | 운영 가능 여부가 애매함 | `docs/pilot-final-qa-decision-table.md` |
+| 개발 안정화 확인이 필요함 | `docs/pilot-dev-stability-checklist.md` |
 | 전문성 신호가 이상함 | `docs/evidence-review-keyword-policy.md` |
 | 비밀 미션 점수가 낮음 | `docs/secret-mission-expertise-evidence-policy.md` |
 | 결과 카드 문장이 어색함 | `docs/team-result-narrative-policy.md` |
