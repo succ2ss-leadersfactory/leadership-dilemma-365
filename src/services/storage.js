@@ -6,6 +6,7 @@ import { seedTeams } from '../data/seedTeams';
 import { seedKsaOptions } from '../data/seedKsaOptions';
 import { seedMissions } from '../data/seedMissions';
 import { seedStrategicEvents } from '../data/seedStrategicEvents';
+import { seedWeekLogs } from '../data/seedWeekLogs';
 
 const KEY = 'leadership_dilemma_365_react_mvp';
 const listeners = new Set();
@@ -19,7 +20,8 @@ function baseGameContent() {
     teams: seedTeams,
     ksaOptions: seedKsaOptions,
     secretMissions: seedMissions,
-    strategicEvents: seedStrategicEvents
+    strategicEvents: seedStrategicEvents,
+    weekLogs: seedWeekLogs
   };
 }
 
@@ -40,6 +42,13 @@ function migrateRounds(rounds = []) {
   }));
 }
 
+function mergeById(baseItems = [], parsedItems = [], idKey) {
+  const merged = new Map();
+  baseItems.forEach(item => merged.set(item[idKey], item));
+  (Array.isArray(parsedItems) ? parsedItems : []).forEach(item => merged.set(item[idKey], { ...(merged.get(item[idKey]) || {}), ...item }));
+  return Array.from(merged.values()).sort((a, b) => (a.week || 0) - (b.week || 0));
+}
+
 function mergeGameContent(parsedGameContent = {}) {
   const base = baseGameContent();
   return {
@@ -53,7 +62,8 @@ function mergeGameContent(parsedGameContent = {}) {
     strategicEvents: {
       ...base.strategicEvents,
       ...(parsedGameContent.strategicEvents || {})
-    }
+    },
+    weekLogs: mergeById(base.weekLogs, parsedGameContent.weekLogs, 'logId')
   };
 }
 
