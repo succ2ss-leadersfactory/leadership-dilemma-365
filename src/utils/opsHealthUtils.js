@@ -1,4 +1,4 @@
-const playableRounds = ['week1', 'week5', 'week8', 'week10', 'week11'];
+const playableRounds = ['week1', 'week2', 'week3', 'week4', 'week5', 'week6', 'week7', 'week8', 'week9', 'week10', 'week11'];
 
 function isKsaComplete(team) {
   const ksa = team?.selectedKSA || {};
@@ -70,16 +70,14 @@ export function buildOpsHealth(room, gameContent = {}) {
   });
 
   const contentChecks = [
-    { label: '전략 이벤트', ok: Object.keys(gameContent.strategicEvents || {}).length >= 5, note: `${Object.keys(gameContent.strategicEvents || {}).length}건` },
+    { label: '전략 이벤트', ok: Object.keys(gameContent.strategicEvents || {}).length >= playableRounds.length, note: `${Object.keys(gameContent.strategicEvents || {}).length}건` },
     { label: '중간 사건 로그', ok: (gameContent.weekLogs || []).length >= 6, note: `${(gameContent.weekLogs || []).length}건` },
     { label: '후폭풍 규칙', ok: Object.keys(gameContent.weekLogImpacts || {}).length >= 6, note: `${Object.keys(gameContent.weekLogImpacts || {}).length}건` },
     { label: '비밀 미션', ok: Object.keys(gameContent.secretMissions || {}).length >= teams.length, note: `${Object.keys(gameContent.secretMissions || {}).length}건` },
     { label: 'KSA 옵션', ok: Object.keys(gameContent.ksaOptions || {}).length >= teams.length, note: `${Object.keys(gameContent.ksaOptions || {}).length}개 팀` }
   ];
 
-  contentChecks.forEach(check => {
-    if (!check.ok) issues.push(makeIssue({ teamName: '전체', area: check.label, message: `${check.label} 데이터가 부족합니다.`, action: 'seed 데이터 또는 storage migration을 확인하세요.' }));
-  });
+  contentChecks.filter(check => !check.ok).forEach(check => issues.push(makeIssue({ severity: '확인 필요', area: '콘텐츠', message: `${check.label} 데이터 확인 필요 (${check.note})`, action: 'seed 데이터와 초기화 함수를 확인하세요.' })));
 
   const summary = {
     totalTeams: teams.length,
