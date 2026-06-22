@@ -1,4 +1,5 @@
 import { clamp } from './clamp';
+import { assignPlayerPersona } from './playerPersonaUtils';
 
 const levelLabels = {
   1: '입문',
@@ -67,9 +68,12 @@ export function generatePlayerCompetencyProfile({ player, team, selectedKSA }) {
   if (!player || !team || !isKsaComplete(selectedKSA)) return null;
   const seed = hashText(`${player.playerId}-${player.displayName}-${team.teamId}`);
   const archetype = archetypes[seed % archetypes.length];
+  const persona = assignPlayerPersona(player, team);
   const competencies = flattenKsa(selectedKSA).map((item, index) => {
     const itemNoise = (hashText(`${player.displayName}-${item.name}-${index}`) % 3) - 1;
-    const level = clamp(getBaseLevel(item.category, archetype) + itemNoise, 1, 5);
+    const personaBoost = item.category === persona.preferredGrowthCategory ? 1 : 0;
+    const personaPenalty = item.category === persona.vulnerableCategory ? -1 : 0;
+    const level = clamp(getBaseLevel(item.category, archetype) + itemNoise + personaBoost + personaPenalty, 1, 5);
     return {
       competencyId: `${item.category}_${item.name}`,
       category: item.category,
@@ -94,6 +98,13 @@ export function generatePlayerCompetencyProfile({ player, team, selectedKSA }) {
     archetypeCode: archetype.code,
     archetypeLabel: archetype.label,
     archetypeDescription: archetype.description,
+    personaId: persona.personaId,
+    personaLabel: persona.personaLabel,
+    personaCardTitle: persona.cardTitle,
+    personaSceneText: persona.sceneText,
+    personaStrengthText: persona.strengthText,
+    personaRiskText: persona.riskText,
+    personaDecisionHabit: persona.decisionHabit,
     initialAverageLevel: averageLevel,
     averageLevel,
     strengths,
