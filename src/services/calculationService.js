@@ -5,6 +5,7 @@ import { calculateWeekLogImpacts } from '../utils/weekLogImpactUtils';
 import { applyRoundCompetencyGrowth } from '../utils/competencyGrowthUtils';
 import { applyTeamPersonaInfluence } from '../utils/teamPersonaInfluenceUtils';
 import { applyExpertiseFinalAdjustment } from '../utils/expertiseFinalAdjustmentUtils';
+import { getTeamResultNarrative } from '../utils/teamResultNarrativeUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -48,6 +49,7 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       submission,
       risk
     });
+    const teamResultNarrative = getTeamResultNarrative({ teamId, choiceType: choice?.internalType });
     db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
       calculationId:`${roundId}_${teamId}`,
       roundId,
@@ -59,6 +61,7 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       outputQuality:submission.quality,
       outputQualityScore: submission.qualityScore,
       outputEvidenceReview: submission.evidenceReview || null,
+      teamResultNarrative,
       previousState,
       afterChoice,
       afterQuality,
