@@ -39,6 +39,7 @@ v1.0 Pilot은 교육장 리허설과 단일 브라우저 데모 운영을 위한
 - 리허설 샘플 시나리오
 - 파일럿 최종 동선 점검표
 - 모바일 참가자 화면 개선
+- GitHub Actions 빌드 검증 workflow
 
 ---
 
@@ -81,6 +82,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 6. `/guide/:roomId` 확인
 7. `/report/:roomId`에서 Markdown 다운로드 확인
 8. `docs/pilot-rehearsal-script.md`에 따라 20분 리허설 수행
+9. `docs/pilot-final-qa-decision-table.md` 기준으로 운영 가능 여부 판정
 
 ---
 
@@ -99,7 +101,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 - 현재 데이터 저장은 localStorage 기반입니다.
 - 여러 기기 간 실시간 공유는 후속 버전에서 다룹니다.
 - Firestore 전환은 별도 Sprint에서 진행합니다.
-- 자동 빌드 검증은 아직 미구성입니다.
+- GitHub Actions CI는 구성되어 있으나 실제 파일럿 전 실행 결과를 확인해야 합니다.
 - 의존성은 현재 `latest` 기반이며, 파일럿 빌드 검증 후 lock 파일과 버전 고정을 진행합니다.
 
 ---
@@ -108,6 +110,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 
 - `README.md`
 - `docs/pilot-operator-handoff.md`
+- `docs/pilot-final-qa-decision-table.md`
 - `docs/pilot-rehearsal-script.md`
 - `docs/firestore-migration-plan.md`
 - `docs/dependency-stability-policy.md`
