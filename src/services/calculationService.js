@@ -2,6 +2,9 @@ import { readDb, updateDb } from './storage';
 import { clamp } from '../utils/clamp';
 import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalOutcome, calculateMissionOutcome } from '../utils/judgmentUtils';
 import { stateLabels } from '../utils/statusLabels';
+import { seedMissions } from '../data/seedMissions';
+
+const qualityRank = { low: 0, medium: 1, high: 2, veryHigh: 3 };
 
 export function clampStateValue(value) { return clamp(value, 0, 3); }
 export function applyChoiceEffects(currentState, baseEffects) {
@@ -64,15 +67,84 @@ function assetSentence(patternLabel) {
   if (patternLabel.includes('조건')) return '상위 기대와 협업 조건을 맞추며 리스크를 줄이려는 힘이 확인되었습니다.';
   return '선택을 기록하고 끝까지 실행하려는 힘이 확인되었습니다.';
 }
+
+function getMissionForTeam(db, teamId) {
+  const contentMission = db.gameContent.secretMissions?.[teamId];
+  if (contentMission?.scoreRules?.length) return contentMission;
+  return seedMissions[teamId];
+}
+
+function getDecisionChoice(decisions, choices, roundId) {
+  const decision = decisions.find(d => d.roundId === roundId);
+  if (!decision) return null;
+  return choices.find(c => c.choiceId === decision.finalChoiceId) || null;
+}
+
+function evaluateMissionRule({ rule, values, submissions, decisions, choices }) {
+  if (rule.type === 'riskAtMost') {
+    const current = Number(values?.[rule.riskKey] ?? 0);
+    return {
+      ...rule,
+      passed: current <= rule.max,
+      detail: `${stateLabels[rule.riskKey] || rule.riskKey}: ${current} / 허용 ${rule.max}`
+    };
+  }
+
+  if (rule.type === 'roundChoiceTypeIn') {
+    const choice = getDecisionChoice(decisions, choices, rule.roundId);
+    return {
+      ...rule,
+      passed: Boolean(choice && rule.allowedTypes.includes(choice.internalType)),
+      detail: choice ? `${rule.roundId} 선택 유형: ${choice.internalType}` : `${rule.roundId} 팀 결정 없음`
+    };
+  }
+
+  if (rule.type === 'outputQualityAtLeast') {
+    const quality = submissions?.[`${rule.roundId}_${rule.teamId || ''}`]?.quality;
+    return {
+      ...rule,
+      passed: false,
+      detail: quality ? `${rule.roundId} 산출물 품질: ${quality}` : `${rule.roundId} 산출물 없음`
+    };
+  }
+
+  return { ...rule, passed: false, detail: '지원하지 않는 미션 기준입니다.' };
+}
+
+function evaluateOutputQualityRule({ rule, room, teamId }) {
+  const quality = room.submissions?.[`${rule.roundId}_${teamId}`]?.quality || 'low';
+  return {
+    ...rule,
+    passed: (qualityRank[quality] ?? 0) >= (qualityRank[rule.minQuality] ?? 0),
+    detail: `${rule.roundId} 산출물 품질: ${quality} / 기준 ${rule.minQuality}`
+  };
+}
+
+function calculateSecretMission({ db, room, teamId, values, decisions, choices }) {
+  const mission = getMissionForTeam(db, teamId);
+  const ruleResults = (mission?.scoreRules || []).map(rule => {
+    if (rule.type === 'outputQualityAtLeast') return evaluateOutputQualityRule({ rule, room, teamId });
+    return evaluateMissionRule({ rule, values, submissions: room.submissions, decisions, choices });
+  });
+  const secretMissionScore = clamp(ruleResults.filter(r => r.passed).length, 0, 3);
+  return {
+    mission,
+    secretMissionScore,
+    missionCriteriaResults: ruleResults,
+    missionEvidenceLines: ruleResults.map(r => `${r.passed ? '충족' : '미충족'} · ${r.label} (${r.detail})`)
+  };
+}
+
 export function generateFinalResults(roomId) {
   const db = readDb(); const room = db.rooms[roomId]; const choices = db.gameContent.choices;
   updateDb(db2 => {
     Object.keys(room.teams).forEach(teamId => {
       const values = room.stateValues[teamId]?.values || {};
       const week11 = room.submissions[`week11_${teamId}`]?.quality || 'medium';
-      const secretMissionScore = 2;
       const decisions = Object.values(room.teamDecisions).filter(d => d.teamId === teamId);
       const pattern = getJudgmentPattern(decisions, choices);
+      const missionEval = calculateSecretMission({ db, room, teamId, values, decisions, choices });
+      const secretMissionScore = missionEval.secretMissionScore;
       const level = calculateFinalLevel({ values, week11Quality:week11, secretMissionScore });
       const survival = calculateSurvivalOutcome({ values, week11Quality: week11 });
       const mission = calculateMissionOutcome(secretMissionScore);
@@ -85,11 +157,16 @@ export function generateFinalResults(roomId) {
         ...mission,
         judgmentPattern: pattern.label,
         secretMissionScore,
+        secretMissionTitle: missionEval.mission?.missionTitle || '팀별 비밀 미션',
+        secretMissionBrief: missionEval.mission?.missionBrief || '',
+        secretMissionCriteria: missionEval.mission?.criteria || [],
+        missionCriteriaResults: missionEval.missionCriteriaResults,
+        missionEvidenceLines: missionEval.missionEvidenceLines,
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
           riskSentence(risk),
           `${survival.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
-          `${mission.missionLabel} 상태입니다. 미션 달성도는 2차 기준으로 반영되었습니다.`,
+          `${mission.missionLabel} 상태입니다. 팀별 비밀 미션 '${missionEval.mission?.missionTitle || '미션'}'의 충족 기준 ${secretMissionScore}/3개가 반영되었습니다.`,
           week11 === 'high' || week11 === 'veryHigh' ? '마지막 승부수의 산출물 품질이 높아 최종 판정에 긍정적으로 반영되었습니다.' : '마지막 승부수의 산출물 품질은 추가 보완 여지가 있어 최종 판정에 제한적으로 반영되었습니다.'
         ],
         strongestAsset: assetSentence(pattern.label).replace('확인되었습니다.', '').trim(),
