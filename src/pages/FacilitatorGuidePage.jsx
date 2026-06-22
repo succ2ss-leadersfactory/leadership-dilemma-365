@@ -4,6 +4,7 @@ import Layout from '../components/Layout.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
 import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import PilotRunbookPanel from '../components/PilotRunbookPanel.jsx';
+import TeamExpertiseLensPanel from '../components/TeamExpertiseLensPanel.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
 import { getFacilitatorInterventions } from '../utils/facilitatorInterventionUtils';
@@ -19,6 +20,36 @@ const roundFocus = {
       '현업에서 위기 메시지를 줄 때 반드시 같이 말해야 할 것은 무엇입니까?'
     ]
   },
+  week2: {
+    title: 'Week 2 · 고객 반응 분기',
+    intent: '빠른 반응과 조심스러운 불안 신호를 구분하는 판단을 보게 합니다.',
+    questions: [
+      '우리 팀은 빠른 관심과 오래 남을 불안을 어떻게 구분했습니까?',
+      '이번 주 증거는 숫자입니까, 고객의 말입니까, 행동 변화입니까?',
+      '고객 반응을 하나의 평균으로 뭉개지는 않았습니까?',
+      '현업에서 반응군별 다음 행동을 어떻게 다르게 설계하겠습니까?'
+    ]
+  },
+  week3: {
+    title: 'Week 3 · 실무자 불만 확산',
+    intent: '불만을 태도 문제로만 볼지, 실행 기준과 부담 신호로 볼지 보게 합니다.',
+    questions: [
+      '팀원들의 불만은 저항입니까, 기준 부족 신호입니까?',
+      '우리 팀은 불편한 말을 줄였습니까, 다룰 수 있게 만들었습니까?',
+      '성과 압박이 특정 사람에게 몰리고 있지는 않습니까?',
+      '현업에서 불만을 생산적인 정보로 바꾸려면 무엇을 먼저 물어야 합니까?'
+    ]
+  },
+  week4: {
+    title: 'Week 4 · 상무 중간 점검',
+    intent: '성과를 말하는 방식이 실제 증거와 연결되어 있는지 보게 합니다.',
+    questions: [
+      '우리 팀은 보여주고 싶은 성과와 실제 증거를 구분했습니까?',
+      '상무가 믿을 수 있는 증거는 무엇이었습니까?',
+      '부족한 점을 감췄습니까, 다음 증거로 연결했습니까?',
+      '현업에서 중간 보고를 할 때 어떤 지표와 이야기를 함께 제시하겠습니까?'
+    ]
+  },
   week5: {
     title: 'Week 5 · 핵심 인재 부담',
     intent: '성과를 만드는 방식이 특정 사람에게 과도하게 의존하고 있지 않은지 보게 합니다.',
@@ -29,6 +60,26 @@ const roundFocus = {
       '다음 현업에서 부담을 나누기 위해 줄일 일 하나는 무엇입니까?'
     ]
   },
+  week6: {
+    title: 'Week 6 · 협업 병목',
+    intent: '타부서 지연을 불만으로만 볼지, 합의 조건과 병목으로 볼지 보게 합니다.',
+    questions: [
+      '우리 팀은 타부서 협조 지연의 원인을 확인했습니까?',
+      '병목은 사람 문제입니까, 기준과 순서 문제입니까?',
+      '협업 요청에 필요한 조건을 분명히 말했습니까?',
+      '현업에서 타부서와 다시 합의해야 할 최소 기준은 무엇입니까?'
+    ]
+  },
+  week7: {
+    title: 'Week 7 · TF 후보 거론',
+    intent: '성장 기회와 원팀 공백을 함께 설계하는 판단을 보게 합니다.',
+    questions: [
+      'TF 파견을 사람 선발 문제로 보았습니까, 공백 설계 문제로 보았습니까?',
+      '파견되는 사람의 성장 기회와 남는 팀의 부담을 함께 봤습니까?',
+      '상무에게 조건 없이 사람만 보낸 것은 아닙니까?',
+      '현업에서 핵심 인력 차출이 있을 때 어떤 보완 계획이 필요합니까?'
+    ]
+  },
   week8: {
     title: 'Week 8 · AI 자동화 TF',
     intent: '전사 기회와 원팀 공백을 동시에 관리하는 판단을 보게 합니다.',
@@ -37,6 +88,16 @@ const roundFocus = {
       '성장 기회와 실행 안정성 중 무엇을 더 크게 보았습니까?',
       '이 이벤트에서 우리 팀이 얻을 수 있는 전략적 기회는 무엇입니까?',
       '타부서 협업에서 미리 합의해야 할 조건은 무엇입니까?'
+    ]
+  },
+  week9: {
+    title: 'Week 9 · 경쟁팀 선보고',
+    intent: '비교 압박 앞에서 따라 할 것과 지킬 기준을 구분하는 판단을 보게 합니다.',
+    questions: [
+      '우리 팀은 경쟁팀 성과를 그대로 따라가려 했습니까, 기준을 다시 세웠습니까?',
+      '겉으로 좋아 보이는 성과 뒤에 숨은 비용이나 부담을 보았습니까?',
+      '상무에게 우리 팀만의 증거를 무엇으로 보여주려 했습니까?',
+      '현업에서 비교 압박이 올 때 버리지 말아야 할 기준은 무엇입니까?'
     ]
   },
   week10: {
@@ -131,6 +192,8 @@ export default function FacilitatorGuidePage() {
         </div>
       </section>
 
+      <TeamExpertiseLensPanel teams={room.teams} lenses={db.gameContent.teamExpertiseLenses} />
+
       <section className="card debriefBox">
         <h3>팀별 관찰·개입 가이드</h3>
         {teamInterventions.map(team => (
@@ -168,6 +231,7 @@ export default function FacilitatorGuidePage() {
           <li>12주 타임라인에서 지난 사건 로그와 현재 플레이 라운드의 연결을 먼저 확인합니다.</li>
           <li>전략 이벤트 카드에서 압박, 숨은 대가, 전략적 기회를 읽습니다.</li>
           <li>각 팀이 왜 그 선택을 했는지 1분씩 말하게 합니다.</li>
+          <li>팀별 전문지식 렌즈에서 각 팀이 놓치기 쉬운 판단 기준을 확인합니다.</li>
           <li>팀별 관찰·개입 가이드에서 인물 카드 구성과 선택의 부작용을 확인합니다.</li>
           <li>결과 카드에서 작은 진전, 남은 부담, 인물 카드 영향을 구분해 읽습니다.</li>
           <li>팀별 핵심 리스크가 개인 문제인지 구조 문제인지 묻습니다.</li>
