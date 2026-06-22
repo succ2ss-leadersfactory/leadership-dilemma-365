@@ -106,29 +106,17 @@ function getDecisionChoice(decisions, choices, roundId) {
 function evaluateMissionRule({ rule, values, submissions, decisions, choices }) {
   if (rule.type === 'riskAtMost') {
     const current = Number(values?.[rule.riskKey] ?? 0);
-    return {
-      ...rule,
-      passed: current <= rule.max,
-      detail: `${stateLabels[rule.riskKey] || rule.riskKey}: ${current} / 허용 ${rule.max}`
-    };
+    return { ...rule, passed: current <= rule.max, detail: `${stateLabels[rule.riskKey] || rule.riskKey}: ${current} / 허용 ${rule.max}` };
   }
 
   if (rule.type === 'roundChoiceTypeIn') {
     const choice = getDecisionChoice(decisions, choices, rule.roundId);
-    return {
-      ...rule,
-      passed: Boolean(choice && rule.allowedTypes.includes(choice.internalType)),
-      detail: choice ? `${rule.roundId} 선택 유형: ${choice.internalType}` : `${rule.roundId} 팀 결정 없음`
-    };
+    return { ...rule, passed: Boolean(choice && rule.allowedTypes.includes(choice.internalType)), detail: choice ? `${rule.roundId} 선택 유형: ${choice.internalType}` : `${rule.roundId} 팀 결정 없음` };
   }
 
   if (rule.type === 'outputQualityAtLeast') {
     const quality = submissions?.[`${rule.roundId}_${rule.teamId || ''}`]?.quality;
-    return {
-      ...rule,
-      passed: false,
-      detail: quality ? `${rule.roundId} 산출물 품질: ${quality}` : `${rule.roundId} 산출물 없음`
-    };
+    return { ...rule, passed: false, detail: quality ? `${rule.roundId} 산출물 품질: ${quality}` : `${rule.roundId} 산출물 없음` };
   }
 
   return { ...rule, passed: false, detail: '지원하지 않는 미션 기준입니다.' };
@@ -136,11 +124,7 @@ function evaluateMissionRule({ rule, values, submissions, decisions, choices }) 
 
 function evaluateOutputQualityRule({ rule, room, teamId }) {
   const quality = room.submissions?.[`${rule.roundId}_${teamId}`]?.quality || 'low';
-  return {
-    ...rule,
-    passed: (qualityRank[quality] ?? 0) >= (qualityRank[rule.minQuality] ?? 0),
-    detail: `${rule.roundId} 산출물 품질: ${quality} / 기준 ${rule.minQuality}`
-  };
+  return { ...rule, passed: (qualityRank[quality] ?? 0) >= (qualityRank[rule.minQuality] ?? 0), detail: `${rule.roundId} 산출물 품질: ${quality} / 기준 ${rule.minQuality}` };
 }
 
 function calculateSecretMission({ db, room, teamId, values, decisions, choices }) {
@@ -156,6 +140,12 @@ function calculateSecretMission({ db, room, teamId, values, decisions, choices }
     missionCriteriaResults: ruleResults,
     missionEvidenceLines: ruleResults.map(r => `${r.passed ? '충족' : '미충족'} · ${r.label} (${r.detail})`)
   };
+}
+
+function logImpactSentence(logImpact) {
+  if (logImpact.weekLogImpactCount > 0) return `중간 사건 로그 ${logImpact.weekLogImpactCount}건이 최종 심사에서 후폭풍으로 반영되었습니다.`;
+  if (logImpact.skippedPlayableLogCount > 0) return `중간 사건 ${logImpact.skippedPlayableLogCount}건은 플레이 라운드 선택과 산출물로 이미 반영되어 별도 LOG 후폭풍에서는 제외했습니다.`;
+  return '중간 사건 로그의 추가 후폭풍은 크지 않았습니다.';
 }
 
 export function generateFinalResults(roomId) {
@@ -197,6 +187,8 @@ export function generateFinalResults(roomId) {
         weekLogImpactCount: logImpact.weekLogImpactCount,
         weekLogImpacts: logImpact.weekLogImpacts,
         weekLogImpactLines: logImpact.weekLogImpactLines,
+        skippedPlayableLogCount: logImpact.skippedPlayableLogCount || 0,
+        skippedPlayableLogs: logImpact.skippedPlayableLogs || [],
         secretMissionScore,
         secretMissionTitle: missionEval.mission?.missionTitle || '팀별 비밀 미션',
         secretMissionBrief: missionEval.mission?.missionBrief || '',
@@ -205,7 +197,7 @@ export function generateFinalResults(roomId) {
         missionEvidenceLines: missionEval.missionEvidenceLines,
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
-          logImpact.weekLogImpactCount > 0 ? `중간 사건 로그 ${logImpact.weekLogImpactCount}건이 최종 심사에서 후폭풍으로 반영되었습니다.` : '중간 사건 로그의 추가 후폭풍은 크지 않았습니다.',
+          logImpactSentence(logImpact),
           riskSentence(risk),
           `${survival.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
           `${mission.missionLabel} 상태입니다. 팀별 비밀 미션 '${missionEval.mission?.missionTitle || '미션'}'의 충족 기준 ${secretMissionScore}/3개가 반영되었습니다.`,
