@@ -4,6 +4,7 @@ import Layout from '../components/Layout.jsx';
 import RoundCard from '../components/RoundCard.jsx';
 import ChoiceList from '../components/ChoiceList.jsx';
 import ResultCard from '../components/ResultCard.jsx';
+import CompetencyProfilePanel from '../components/CompetencyProfilePanel.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getPlayer } from '../services/playerService';
 import { getCurrentRound } from '../services/roundService';
@@ -35,6 +36,7 @@ export default function PlayerPage() {
   const resultCard = db.gameContent.resultCards[calculation?.resultCardId] || defaultResultCard;
   const declaration = room.declarations?.[player.teamId];
   const reflection = declaration?.individualReflections?.[playerId];
+  const competencyProfile = room.competencyProfiles?.[player.teamId]?.[playerId];
 
   const save = () => {
     try {
@@ -90,6 +92,7 @@ export default function PlayerPage() {
           </>
         ) : <p>KSA 선택은 팀 화면에서 진행합니다.</p>}
       </section>
+      <CompetencyProfilePanel profiles={competencyProfile ? { [playerId]: competencyProfile } : {}} title="나의 초기 역량 프로필" />
       {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} />}
     </Layout>
   );
