@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import RoundCard from '../components/RoundCard.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
+import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import ChoiceList from '../components/ChoiceList.jsx';
 import KsaSelector from '../components/KsaSelector.jsx';
 import OutputForm from '../components/OutputForm.jsx';
@@ -124,6 +125,7 @@ export default function TeamPage() {
     <Layout roomId={roomId}>
       <RoundCard round={round} />
       <StrategicEventCard event={strategicEvent} teamId={teamId} />
+      <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round.week} teamId={teamId} compact />
 
       <section className="card">
         <h2>{team.teamName}</h2>
