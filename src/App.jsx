@@ -9,6 +9,7 @@ import MultiTeamComparePage from './pages/MultiTeamComparePage.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import AdminOpsPage from './pages/AdminOpsPage.jsx';
 import FacilitatorGuidePage from './pages/FacilitatorGuidePage.jsx';
+import CompetencyProfilesPage from './pages/CompetencyProfilesPage.jsx';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
       <Route path="/join/:joinCode" element={<JoinPage />} />
       <Route path="/player/:roomId/:playerId" element={<PlayerPage />} />
       <Route path="/team/:roomId/:teamId" element={<TeamPage />} />
+      <Route path="/competencies/:roomId" element={<CompetencyProfilesPage />} />
       <Route path="/compare/:roomId" element={<MultiTeamComparePage />} />
       <Route path="/report/:roomId" element={<ReportPage />} />
       <Route path="/guide/:roomId" element={<FacilitatorGuidePage />} />
