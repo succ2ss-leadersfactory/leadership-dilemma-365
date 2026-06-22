@@ -32,21 +32,43 @@ function getRiskTheme(text = '') {
   return '기타 반복 부담';
 }
 
-function buildWarningSignals({ narratives = [], teamName, topChoiceType, topChoiceCount }) {
+function buildRiskCauseGroups(narratives = []) {
+  const grouped = narratives.reduce((acc, item) => {
+    const theme = getRiskTheme(item.risk || '');
+    if (!acc[theme]) acc[theme] = [];
+    acc[theme].push({
+      roundId: item.roundId,
+      choiceType: item.choiceType,
+      risk: item.risk,
+      question: item.question
+    });
+    return acc;
+  }, {});
+
+  return Object.entries(grouped)
+    .filter(([, items]) => items.length >= 3)
+    .map(([theme, items]) => ({
+      theme,
+      count: items.length,
+      rounds: items.map(item => ({
+        roundId: item.roundId,
+        choiceType: item.choiceType,
+        risk: item.risk,
+        question: item.question,
+        line: `${item.roundId}: ${item.risk}`
+      }))
+    }));
+}
+
+function buildWarningSignals({ narratives = [], teamName, topChoiceType, topChoiceCount, riskCauseGroups = [] }) {
   const warnings = [];
   if (narratives.length >= 4 && topChoiceCount >= 3) {
     warnings.push(`${teamName}은 ${topChoiceType} 선택이 반복되었습니다. 같은 방식의 선택이 강점으로 작동했는지, 아니면 다른 대안을 좁혔는지 확인하십시오.`);
   }
 
-  const themeCounts = narratives.reduce((acc, item) => {
-    const theme = getRiskTheme(item.risk || '');
-    acc[theme] = (acc[theme] || 0) + 1;
-    return acc;
-  }, {});
-  const repeatedTheme = Object.entries(themeCounts).sort((a, b) => b[1] - a[1])[0];
-  if (repeatedTheme && repeatedTheme[1] >= 3) {
-    warnings.push(`${teamName}은 ${repeatedTheme[0]}가 반복적으로 남았습니다. 다음 디브리핑에서는 “왜 이 대가를 계속 뒤로 미뤘는가”를 물어보십시오.`);
-  }
+  riskCauseGroups.forEach(group => {
+    warnings.push(`${teamName}은 ${group.theme}가 ${group.count}회 반복적으로 남았습니다. 다음 디브리핑에서는 “왜 이 대가를 계속 뒤로 미뤘는가”를 물어보십시오.`);
+  });
 
   return warnings;
 }
@@ -65,7 +87,8 @@ function buildNarrativePattern(calculations = [], teamName) {
       repeatedGains: [],
       repeatedRisks: [],
       narrativeQuestions: [],
-      warningSignals: []
+      warningSignals: [],
+      riskCauseGroups: []
     };
   }
 
@@ -80,7 +103,8 @@ function buildNarrativePattern(calculations = [], teamName) {
   const [topChoiceType, topChoiceCount] = Object.entries(choiceCounts).sort((a, b) => b[1] - a[1])[0] || ['UNKNOWN', 0];
   const firstGain = repeatedGains[0] || '기능 전문성에 맞는 진전 신호가 일부 나타났습니다.';
   const firstRisk = repeatedRisks[0] || '반복되는 대가는 아직 뚜렷하지 않습니다.';
-  const warningSignals = buildWarningSignals({ narratives, teamName, topChoiceType, topChoiceCount });
+  const riskCauseGroups = buildRiskCauseGroups(narratives);
+  const warningSignals = buildWarningSignals({ narratives, teamName, topChoiceType, topChoiceCount, riskCauseGroups });
 
   return {
     narrativeCount: narratives.length,
@@ -90,7 +114,8 @@ function buildNarrativePattern(calculations = [], teamName) {
     repeatedGains,
     repeatedRisks,
     narrativeQuestions,
-    warningSignals
+    warningSignals,
+    riskCauseGroups
   };
 }
 
