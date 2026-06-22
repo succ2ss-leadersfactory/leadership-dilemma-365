@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
-import { subscribe } from '../services/storage';
+import StrategicEventCard from '../components/StrategicEventCard.jsx';
+import { subscribe, readDb } from '../services/storage';
 import { getRoom, updateRoomProgress } from '../services/roomService';
 import { getCurrentRound, movePhase, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { calculateAllTeamResultsForRound, generateFinalResults } from '../services/calculationService';
@@ -22,10 +23,12 @@ export default function HostDashboardPage() {
   const [tick, setTick] = useState(0);
   useEffect(() => subscribe(() => setTick(x => x + 1)), []);
 
+  const db = readDb();
   const room = getRoom(roomId);
   if (!room) return <Layout><div className="card">방 정보를 찾을 수 없습니다.</div></Layout>;
 
   const round = getCurrentRound(roomId);
+  const strategicEvent = db.gameContent.strategicEvents?.[round?.strategicEventId];
   const progress = room.roomProgress;
   const teams = Object.values(room.teams);
   const players = Object.values(room.players);
@@ -51,6 +54,8 @@ export default function HostDashboardPage() {
         </div>
       </section>
 
+      <StrategicEventCard event={strategicEvent} />
+
       <section className="grid2">
         <div className="card">
           <h3>운영 현황</h3>
@@ -65,7 +70,8 @@ export default function HostDashboardPage() {
           <h3>진행 체크리스트</h3>
           <ol>
             <li>Round 0: 팀별 KSA 저장</li>
-            <li>Week 라운드: 개인 선택 저장</li>
+            <li>Week 라운드: 전략 이벤트 카드 확인</li>
+            <li>개인 선택 저장</li>
             <li>팀 최종 선택과 산출물 저장</li>
             <li>결과 계산 후 결과 카드 확인</li>
             <li>Week 12: 개인 성찰과 팀 선언문 저장</li>
