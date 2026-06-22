@@ -56,6 +56,8 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       choiceInternalType: choice?.internalType || 'UNKNOWN',
       baseEffects:choice?.baseEffects || {},
       outputQuality:submission.quality,
+      outputQualityScore: submission.qualityScore,
+      outputEvidenceReview: submission.evidenceReview || null,
       previousState,
       afterChoice,
       afterQuality,
