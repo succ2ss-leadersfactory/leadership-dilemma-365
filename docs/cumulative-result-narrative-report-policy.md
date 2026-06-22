@@ -34,6 +34,7 @@ repeatedRisks
 narrativeQuestions
 topChoiceType
 warningSignals
+riskCauseGroups
 ```
 
 `src/components/ReportExpertiseSummaryPanel.jsx`에서는 다음을 보여줍니다.
@@ -43,6 +44,7 @@ warningSignals
 - 반복된 진전
 - 반복된 대가
 - 강사용 경고 신호
+- 반복 대가 발생 라운드
 - 강사용 질문
 
 ## 강사용 경고 신호 기준
@@ -63,6 +65,24 @@ warningSignals
 속도·기회 부담
 ```
 
+## 반복 대가 발생 라운드
+
+같은 종류의 대가가 3회 이상 반복되면 `riskCauseGroups`에 Week별 원인을 저장합니다.
+
+예시 형식은 다음과 같습니다.
+
+```text
+신뢰·불안 신호 (3회)
+- week2 · 오래 거래한 고객의 불안은 아직 별도 행동으로 분리되지 않았을 수 있습니다.
+- week5 · 중요한 일이 특정 사람에게 몰리는 패턴을 점검해야 합니다.
+- week10 · 직원의 체감 불안이 남습니다.
+```
+
+## 현재 반영 상태
+
+- 화면 리포트 패널에는 반복 대가 발생 라운드가 표시됩니다.
+- Markdown 리포트 연결은 `ReportPage.jsx` 대형 수정이 안전 검사에 차단되어 보류되었습니다.
+
 ## 설계 원칙
 
 - 점수 계산에는 직접 반영하지 않습니다.
@@ -72,6 +92,6 @@ warningSignals
 
 ## 후속 개선 후보
 
-- Markdown 다운로드에 누적 결과 해석 추가
-- 누적 대가가 반복될 때 라운드별 원인까지 표시
+- Markdown 다운로드에 반복 대가 발생 라운드 추가
+- 누적 대가가 반복될 때 라운드별 원인 문장 보정
 - 실제 파일럿 후 어색한 문장 보정
