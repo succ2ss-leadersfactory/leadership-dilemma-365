@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
+import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { getRoom, updateRoomProgress } from '../services/roomService';
 import { getCurrentRound, movePhase, moveToNextRound, revealRoundResult } from '../services/roundService';
@@ -55,6 +56,7 @@ export default function HostDashboardPage() {
       </section>
 
       <StrategicEventCard event={strategicEvent} />
+      <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round?.week || 0} compact />
 
       <section className="grid2">
         <div className="card">
@@ -70,7 +72,7 @@ export default function HostDashboardPage() {
           <h3>진행 체크리스트</h3>
           <ol>
             <li>Round 0: 팀별 KSA 저장</li>
-            <li>Week 라운드: 전략 이벤트 카드 확인</li>
+            <li>Week 라운드: 전략 이벤트 카드와 12주 타임라인 확인</li>
             <li>개인 선택 저장</li>
             <li>팀 최종 선택과 산출물 저장</li>
             <li>결과 계산 후 결과 카드 확인</li>
