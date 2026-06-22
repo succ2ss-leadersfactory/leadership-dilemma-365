@@ -28,6 +28,7 @@ function buildDebriefQuestions(card, calculation) {
   return [
     `우리 팀은 왜 ${choice} 방향을 선택했습니까?`,
     '이 선택은 어떤 작은 진전을 만들었고, 어떤 부담을 남겼습니까?',
+    '이번 선택에서 팀 안의 인물 카드는 결과에 어떤 영향을 주었습니까?',
     '이번 선택은 팀원 역량에 어떤 성장 경험 또는 위축 신호를 남겼습니까?',
     '다음 라운드에서 이 부담을 줄이기 위해 무엇을 먼저 관리해야 합니까?'
   ];
@@ -38,6 +39,7 @@ export default function ResultCard({ card, calculation }) {
 
   const finalState = calculation?.finalState || {};
   const previousState = calculation?.previousState || {};
+  const personaLines = calculation?.personaInfluenceLines || [];
   const growthLines = calculation?.competencyGrowthLines || [];
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
@@ -88,6 +90,15 @@ export default function ResultCard({ card, calculation }) {
           ))}
         </div>
       </div>
+
+      {personaLines.length > 0 && (
+        <div className="sceneBox">
+          <h4>인물 카드 영향</h4>
+          <ul>
+            {personaLines.map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}
+          </ul>
+        </div>
+      )}
 
       {growthLines.length > 0 && (
         <div className="sceneBox">
