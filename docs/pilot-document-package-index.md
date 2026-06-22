@@ -9,10 +9,11 @@
 | 순서 | 문서 | 용도 |
 |---|---|---|
 | 1 | `README.md` | 전체 구조와 route 확인 |
-| 2 | `docs/pilot-final-rehearsal-runbook.md` | 파일럿 직전 최종 리허설 |
-| 3 | `docs/pilot-final-qa-decision-table.md` | 운영 가능 여부 판정 |
-| 4 | `docs/pilot-operator-handoff.md` | 운영자 인수인계 |
-| 5 | `docs/expertise-index.md` | 전문성 고도화 구조 확인 |
+| 2 | `docs/pilot-final-status-summary.md` | 파일럿 후보 상태와 남은 확인 항목 요약 |
+| 3 | `docs/pilot-final-rehearsal-runbook.md` | 파일럿 직전 최종 리허설 |
+| 4 | `docs/pilot-final-qa-decision-table.md` | 운영 가능 여부 판정 |
+| 5 | `docs/pilot-operator-handoff.md` | 운영자 인수인계 |
+| 6 | `docs/expertise-index.md` | 전문성 고도화 구조 확인 |
 
 ---
 
@@ -20,6 +21,7 @@
 
 | 목적 | 문서 |
 |---|---|
+| 최종 상태 요약 | `docs/pilot-final-status-summary.md` |
 | 운영 전체 흐름 | `docs/pilot-operator-handoff.md` |
 | 최종 리허설 | `docs/pilot-final-rehearsal-runbook.md` |
 | 운영 판정 | `docs/pilot-final-qa-decision-table.md` |
@@ -55,9 +57,10 @@
 
 ## 5. 파일럿 직전 10분 체크
 
-시간이 부족하면 아래 두 문서만 봅니다.
+시간이 부족하면 아래 세 문서만 봅니다.
 
 ```text
+docs/pilot-final-status-summary.md
 docs/pilot-final-rehearsal-runbook.md
 docs/pilot-final-qa-decision-table.md
 ```
@@ -65,7 +68,8 @@ docs/pilot-final-qa-decision-table.md
 확인 순서는 다음입니다.
 
 ```text
-방 생성
+최종 상태 요약 확인
+→ 방 생성
 → 리허설 샘플 생성
 → Admin QA 확인
 → 전문성 QA 확인
@@ -80,6 +84,7 @@ docs/pilot-final-qa-decision-table.md
 
 | 문제 | 볼 문서 |
 |---|---|
+| 현재 준비 상태를 빠르게 보고 싶음 | `docs/pilot-final-status-summary.md` |
 | 리허설 동선이 막힘 | `docs/pilot-final-rehearsal-runbook.md` |
 | 운영 가능 여부가 애매함 | `docs/pilot-final-qa-decision-table.md` |
 | 개발 안정화 확인이 필요함 | `docs/pilot-dev-stability-checklist.md` |
@@ -106,7 +111,7 @@ JSON 백업 파일
 
 ## 8. 관리 원칙
 
-- 운영자는 리허설 Runbook과 최종 QA 판정표를 우선 봅니다.
+- 운영자는 최종 상태 요약, 리허설 Runbook, 최종 QA 판정표를 우선 봅니다.
 - 강사는 전문성 인덱스와 리포트 관련 문서를 봅니다.
 - 개발자는 정책 문서와 QA 문서를 함께 봅니다.
 - 파일럿 전에는 새 기능 추가보다 저장, 계산, 리포트, 백업 안정성을 우선합니다.
