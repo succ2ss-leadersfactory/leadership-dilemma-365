@@ -53,16 +53,27 @@ function mergeById(baseItems = [], parsedItems = [], idKey) {
   return Array.from(merged.values()).sort((a, b) => (a.week || 0) - (b.week || 0));
 }
 
+function mergeSecretMissions(baseMissions = {}, parsedMissions = {}) {
+  return Object.fromEntries(Object.entries(baseMissions).map(([teamId, baseMission]) => {
+    const parsedMission = parsedMissions?.[teamId] || {};
+    const parsedRules = parsedMission.scoreRules || [];
+    const hasExpertiseRule = parsedRules.some(rule => rule.type === 'outputEvidenceAtLeast');
+    return [teamId, {
+      ...baseMission,
+      ...parsedMission,
+      criteria: hasExpertiseRule ? (parsedMission.criteria || baseMission.criteria) : baseMission.criteria,
+      scoreRules: hasExpertiseRule ? parsedRules : baseMission.scoreRules
+    }];
+  }));
+}
+
 function mergeGameContent(parsedGameContent = {}) {
   const base = baseGameContent();
   return {
     ...base,
     ...parsedGameContent,
     rounds: migrateRounds(parsedGameContent.rounds),
-    secretMissions: {
-      ...base.secretMissions,
-      ...(parsedGameContent.secretMissions || {})
-    },
+    secretMissions: mergeSecretMissions(base.secretMissions, parsedGameContent.secretMissions),
     strategicEvents: {
       ...base.strategicEvents,
       ...(parsedGameContent.strategicEvents || {})
