@@ -5,6 +5,7 @@ import { seedOutputRequirements } from '../data/seedOutputRequirements';
 import { seedTeams } from '../data/seedTeams';
 import { seedKsaOptions } from '../data/seedKsaOptions';
 import { seedMissions } from '../data/seedMissions';
+import { seedStrategicEvents } from '../data/seedStrategicEvents';
 
 const KEY = 'leadership_dilemma_365_react_mvp';
 const listeners = new Set();
@@ -18,7 +19,8 @@ function initialDb() {
       outputRequirements: seedOutputRequirements,
       teams: seedTeams,
       ksaOptions: seedKsaOptions,
-      secretMissions: seedMissions
+      secretMissions: seedMissions,
+      strategicEvents: seedStrategicEvents
     },
     rooms: {}
   };
