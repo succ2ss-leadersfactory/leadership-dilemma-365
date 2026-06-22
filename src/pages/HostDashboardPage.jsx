@@ -50,6 +50,7 @@ export default function HostDashboardPage() {
           <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '잠금 해제' : '화면 잠금'}</button>
           <button onClick={() => { calculateAllTeamResultsForRound(roomId, progress.currentRoundId); revealRoundResult(roomId); }}>계산 후 결과 공개</button>
           <button onClick={() => generateFinalResults(roomId)}>최종 판정 생성</button>
+          <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필</Link>
           <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드</Link>
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트</Link>
         </div>
@@ -71,7 +72,7 @@ export default function HostDashboardPage() {
         <div className="card">
           <h3>진행 체크리스트</h3>
           <ol>
-            <li>Round 0: 팀별 KSA 저장</li>
+            <li>Round 0: 팀별 KSA 저장 및 팀원 초기 역량 프로필 자동 등록</li>
             <li>Week 라운드: 전략 이벤트 카드와 12주 타임라인 확인</li>
             <li>개인 선택 저장</li>
             <li>팀 최종 선택과 산출물 저장</li>
