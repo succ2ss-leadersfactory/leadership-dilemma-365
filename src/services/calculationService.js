@@ -4,6 +4,7 @@ import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalO
 import { calculateWeekLogImpacts } from '../utils/weekLogImpactUtils';
 import { applyRoundCompetencyGrowth } from '../utils/competencyGrowthUtils';
 import { applyTeamPersonaInfluence } from '../utils/teamPersonaInfluenceUtils';
+import { applyExpertiseFinalAdjustment } from '../utils/expertiseFinalAdjustmentUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -167,7 +168,8 @@ export function generateFinalResults(roomId) {
         submissions: room.submissions,
         teamId
       });
-      const reviewValues = logImpact.reviewValues;
+      const expertiseAdjustment = applyExpertiseFinalAdjustment({ room, teamId, values: logImpact.reviewValues });
+      const reviewValues = expertiseAdjustment.reviewValues;
       const missionEval = calculateSecretMission({ db, room, teamId, values: reviewValues, decisions, choices });
       const secretMissionScore = missionEval.secretMissionScore;
       const level = calculateFinalLevel({ values: reviewValues, week11Quality:week11, secretMissionScore });
@@ -182,6 +184,7 @@ export function generateFinalResults(roomId) {
         ...mission,
         judgmentPattern: pattern.label,
         baseValues: values,
+        preExpertiseReviewValues: logImpact.reviewValues,
         reviewValues,
         reviewMaxRiskKey: risk.maxRiskKey,
         reviewMaxRiskValue: risk.maxRiskValue,
@@ -191,6 +194,8 @@ export function generateFinalResults(roomId) {
         weekLogImpactLines: logImpact.weekLogImpactLines,
         skippedPlayableLogCount: logImpact.skippedPlayableLogCount || 0,
         skippedPlayableLogs: logImpact.skippedPlayableLogs || [],
+        expertiseEvidenceAdjustment: expertiseAdjustment,
+        expertiseEvidenceLines: expertiseAdjustment.adjustmentLines,
         secretMissionScore,
         secretMissionTitle: missionEval.mission?.missionTitle || '팀별 비밀 미션',
         secretMissionBrief: missionEval.mission?.missionBrief || '',
@@ -200,6 +205,7 @@ export function generateFinalResults(roomId) {
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
           logImpactSentence(logImpact),
+          ...(expertiseAdjustment.adjustmentLines || []),
           riskSentence(risk),
           `${survival.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
           `${mission.missionLabel} 상태입니다. 팀별 비밀 미션 '${missionEval.mission?.missionTitle || '미션'}'의 충족 기준 ${secretMissionScore}/3개가 반영되었습니다.`,
