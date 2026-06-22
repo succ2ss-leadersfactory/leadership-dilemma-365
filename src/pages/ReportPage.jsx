@@ -15,6 +15,8 @@ function getKsaText(team) {
 function getReportSummary(teams, room) {
   const finalResults = Object.values(room.finalResults || {});
   const stateValues = Object.values(room.stateValues || {});
+  const declarations = Object.values(room.declarations || {});
+  const reflectionCount = declarations.reduce((sum, d) => sum + Object.keys(d.individualReflections || {}).length, 0);
   const warningTeams = stateValues.filter(s => (s.maxRiskValue ?? riskOrder[s.maxRiskLabel] ?? 0) >= 2).length;
   const maintainTeams = finalResults.filter(r => ['전략 유지·확대팀', '유지팀'].includes(r.finalLevel)).length;
   const patterns = finalResults.reduce((acc, r) => {
@@ -23,7 +25,11 @@ function getReportSummary(teams, room) {
     return acc;
   }, {});
   const topPattern = Object.entries(patterns).sort((a, b) => b[1] - a[1])[0]?.[0] || '아직 없음';
-  return { totalTeams: teams.length, warningTeams, maintainTeams, topPattern };
+  return { totalTeams: teams.length, warningTeams, maintainTeams, topPattern, reflectionCount };
+}
+
+function getTeamPlayers(room, teamId) {
+  return Object.values(room.players || {}).filter(p => p.teamId === teamId);
 }
 
 export default function ReportPage() {
@@ -48,6 +54,7 @@ export default function ReportPage() {
           <div><b>{summary.warningTeams}</b><span>주의 이상 리스크 팀</span></div>
           <div><b>{summary.maintainTeams}</b><span>유지 이상 판정 팀</span></div>
           <div><b>{summary.topPattern}</b><span>대표 판단 패턴</span></div>
+          <div><b>{summary.reflectionCount}</b><span>개인 성찰 제출</span></div>
         </div>
         <div className="actions"><button onClick={() => window.print()}>인쇄 / PDF 저장</button></div>
       </section>
@@ -79,6 +86,8 @@ export default function ReportPage() {
           const st = room.stateValues[t.teamId];
           const final = room.finalResults[t.teamId];
           const dec = room.declarations[t.teamId];
+          const reflections = dec?.individualReflections || {};
+          const teamPlayers = getTeamPlayers(room, t.teamId);
           return (
             <section className="card teamReportCard" key={t.teamId}>
               <p className="eyebrow">{t.teamName}</p>
@@ -98,6 +107,22 @@ export default function ReportPage() {
                 </>
               ) : <p className="muted">Week 12에서 최종 판정을 생성하면 근거와 다음 행동이 표시됩니다.</p>}
               <p><b>팀 선언문:</b> {dec?.teamDeclaration || '미작성'}</p>
+
+              <h4>개인 성찰</h4>
+              {teamPlayers.length ? teamPlayers.map(p => {
+                const r = reflections[p.playerId];
+                return (
+                  <div className="reflectionItem" key={p.playerId}>
+                    <b>{p.displayName}</b>
+                    {r ? (
+                      <>
+                        <p><span>반복한 판단 습관:</span> {r.habit || '-'}</p>
+                        <p><span>다음 현업 행동:</span> {r.nextBehavior || '-'}</p>
+                      </>
+                    ) : <p className="muted">성찰 미작성</p>}
+                  </div>
+                );
+              }) : <p className="muted">이 팀에 입장한 참가자가 없습니다.</p>}
             </section>
           );
         })}
@@ -109,6 +134,7 @@ export default function ReportPage() {
           <li>우리 팀은 위기 앞에서 속도, 기준, 균형, 조건 중 무엇을 반복했습니까?</li>
           <li>그 판단은 어떤 성과를 만들었고, 어떤 부담을 남겼습니까?</li>
           <li>가장 크게 남은 리스크는 개인의 문제입니까, 구조의 문제입니까?</li>
+          <li>개인 성찰에 반복적으로 나타난 행동 변화 키워드는 무엇입니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
