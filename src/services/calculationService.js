@@ -3,6 +3,7 @@ import { clamp } from '../utils/clamp';
 import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalOutcome, calculateMissionOutcome } from '../utils/judgmentUtils';
 import { calculateWeekLogImpacts } from '../utils/weekLogImpactUtils';
 import { applyRoundCompetencyGrowth } from '../utils/competencyGrowthUtils';
+import { applyTeamPersonaInfluence } from '../utils/teamPersonaInfluenceUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -29,9 +30,15 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
   const submission = room.submissions[`${roundId}_${teamId}`] || { quality:'low' };
   const previousState = room.stateValues[teamId].values;
   const afterChoice = applyChoiceEffects(previousState, choice?.baseEffects || {});
-  const finalState = applyOutputQualityModifier(afterChoice, submission.quality);
-  const risk = getMaxRisk(finalState);
+  const afterQuality = applyOutputQualityModifier(afterChoice, submission.quality);
   updateDb(db2 => {
+    const personaInfluence = applyTeamPersonaInfluence({
+      values: afterQuality,
+      profiles: db2.rooms[roomId].competencyProfiles?.[teamId] || {},
+      choice
+    });
+    const finalState = personaInfluence.values;
+    const risk = getMaxRisk(finalState);
     const growth = applyRoundCompetencyGrowth({
       room: db2.rooms[roomId],
       teamId,
@@ -50,7 +57,11 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       baseEffects:choice?.baseEffects || {},
       outputQuality:submission.quality,
       previousState,
+      afterChoice,
+      afterQuality,
       finalState,
+      personaInfluences: personaInfluence.personaInfluences,
+      personaInfluenceLines: personaInfluence.personaInfluenceLines,
       competencyGrowthLines: growth.growthLines,
       competencyGrowthEvents: growth.growthEvents,
       resultCardId:decision.finalChoiceId,
