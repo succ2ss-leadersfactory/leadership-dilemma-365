@@ -3,4 +3,95 @@ import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { getJudgmentPattern } from '../utils/judgmentUtils';
-export default function MultiTeamComparePage(){ const {roomId}=useParams(); const [tick,setTick]=useState(0); useEffect(()=>subscribe(()=>setTick(x=>x+1)),[]); const db=readDb(); const room=db.rooms[roomId]; if(!room) return <Layout><div className="card">방 정보를 찾을 수 없습니다.</div></Layout>; const choices=db.gameContent.choices; return <Layout roomId={roomId}><section className="card"><h2>다팀 비교</h2><table><thead><tr><th>팀</th><th>최대 리스크</th><th>판단 패턴</th><th>최종 판정</th><th>진행</th></tr></thead><tbody>{Object.values(room.teams).map(t=>{const st=room.stateValues[t.teamId]; const decisions=Object.values(room.teamDecisions).filter(d=>d.teamId===t.teamId); const pattern=getJudgmentPattern(decisions,choices); const final=room.finalResults[t.teamId]; return <tr key={t.teamId}><td>{t.teamName}</td><td>{st.maxRiskLabel}</td><td>{pattern.label}</td><td>{final?.finalLevel||'미생성'}</td><td><Link to={`/team/${roomId}/${t.teamId}`}>열기</Link></td></tr>})}</tbody></table></section></Layout>}
+import { stateLabels } from '../utils/statusLabels';
+
+const riskValue = { 안정: 0, 신호: 1, 주의: 2, 위험: 3 };
+
+function getTeamSummary(room, team, choices) {
+  const state = room.stateValues[team.teamId] || { values: {}, maxRiskLabel: '안정' };
+  const decisions = Object.values(room.teamDecisions || {}).filter(d => d.teamId === team.teamId);
+  const pattern = getJudgmentPattern(decisions, choices);
+  const final = room.finalResults?.[team.teamId];
+  const declaration = room.declarations?.[team.teamId];
+  const reflectionCount = Object.keys(declaration?.individualReflections || {}).length;
+  return { team, state, decisions, pattern, final, declaration, reflectionCount };
+}
+
+export default function MultiTeamComparePage() {
+  const { roomId } = useParams();
+  const [tick, setTick] = useState(0);
+  useEffect(() => subscribe(() => setTick(x => x + 1)), []);
+
+  const db = readDb();
+  const room = db.rooms[roomId];
+  if (!room) return <Layout><div className="card">방 정보를 찾을 수 없습니다.</div></Layout>;
+
+  const choices = db.gameContent.choices;
+  const summaries = Object.values(room.teams).map(t => getTeamSummary(room, t, choices));
+  const highestRisk = [...summaries].sort((a, b) => (riskValue[b.state.maxRiskLabel] || b.state.maxRiskValue || 0) - (riskValue[a.state.maxRiskLabel] || a.state.maxRiskValue || 0))[0];
+  const patternMap = summaries.reduce((acc, s) => {
+    acc[s.pattern.label] = (acc[s.pattern.label] || 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <Layout roomId={roomId}>
+      <section className="card hero">
+        <p className="eyebrow">다팀 비교</p>
+        <h2>팀별 판단 패턴과 남은 부담 비교</h2>
+        <p>같은 위기 상황에서도 팀마다 반복한 판단 기준과 남은 부담이 다르게 나타납니다.</p>
+        <div className="summaryCards">
+          <div><b>{summaries.length}</b><span>전체 팀</span></div>
+          <div><b>{highestRisk?.team.teamName || '-'}</b><span>리스크 우선 점검 팀</span></div>
+          <div><b>{Object.keys(room.finalResults || {}).length}</b><span>최종 판정 생성</span></div>
+          <div><b>{Object.values(patternMap).reduce((a, b) => Math.max(a, b), 0)}</b><span>최다 반복 패턴 수</span></div>
+        </div>
+      </section>
+
+      <section className="card">
+        <h3>팀별 비교표</h3>
+        <table>
+          <thead>
+            <tr><th>팀</th><th>판단 패턴</th><th>최대 리스크</th><th>결정 수</th><th>성찰 수</th><th>최종 판정</th><th>진행</th></tr>
+          </thead>
+          <tbody>
+            {summaries.map(s => (
+              <tr key={s.team.teamId}>
+                <td>{s.team.teamName}</td>
+                <td>{s.pattern.label}</td>
+                <td>{stateLabels[s.state.maxRiskKey] || s.state.maxRiskKey || '-'} · {s.state.maxRiskLabel || '-'}</td>
+                <td>{s.decisions.length}</td>
+                <td>{s.reflectionCount}</td>
+                <td>{s.final?.finalLevel || '미생성'}</td>
+                <td><Link to={`/team/${roomId}/${s.team.teamId}`}>열기</Link></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="grid2">
+        {summaries.map(s => (
+          <section className="card" key={s.team.teamId}>
+            <p className="eyebrow">{s.team.teamName}</p>
+            <h3>{s.pattern.label}</h3>
+            <p><b>남은 부담:</b> {stateLabels[s.state.maxRiskKey] || s.state.maxRiskKey || '-'} · {s.state.maxRiskLabel || '-'}</p>
+            <p><b>최종 판정:</b> {s.final?.finalLevel || '미생성'}</p>
+            <p><b>팀 선언문:</b> {s.declaration?.teamDeclaration || '미작성'}</p>
+            <div className="actions"><Link className="secondary" to={`/team/${roomId}/${s.team.teamId}`}>팀 화면</Link></div>
+          </section>
+        ))}
+      </section>
+
+      <section className="card debriefBox">
+        <h3>비교 디브리핑 질문</h3>
+        <ol>
+          <li>같은 상황에서 팀별 판단 패턴이 왜 달라졌습니까?</li>
+          <li>성과를 높인 선택과 부담을 키운 선택은 각각 무엇입니까?</li>
+          <li>리스크가 높은 팀은 개인 문제가 아니라 어떤 구조 문제를 안고 있습니까?</li>
+          <li>다른 팀의 선택 중 우리 팀이 현업에 가져갈 만한 기준은 무엇입니까?</li>
+        </ol>
+      </section>
+    </Layout>
+  );
+}
