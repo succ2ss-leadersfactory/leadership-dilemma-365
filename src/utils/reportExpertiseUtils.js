@@ -22,6 +22,35 @@ function uniqueTop(items = [], limit = 3) {
   return Array.from(new Set(items.filter(Boolean))).slice(0, limit);
 }
 
+function getRiskTheme(text = '') {
+  if (/고객|신뢰|불안|반응/.test(text)) return '신뢰·불안 신호';
+  if (/기술|검증|재작업|요구사항|부채/.test(text)) return '기술·검증 리스크';
+  if (/품질|현장|병목|납기|처리/.test(text)) return '운영·품질 부담';
+  if (/공정|직원|소통|원칙|루머/.test(text)) return '공정성·소통 부담';
+  if (/비용|절감|투자|장기|실행력/.test(text)) return '비용·실행력 부담';
+  if (/늦|지연|속도|기회/.test(text)) return '속도·기회 부담';
+  return '기타 반복 부담';
+}
+
+function buildWarningSignals({ narratives = [], teamName, topChoiceType, topChoiceCount }) {
+  const warnings = [];
+  if (narratives.length >= 4 && topChoiceCount >= 3) {
+    warnings.push(`${teamName}은 ${topChoiceType} 선택이 반복되었습니다. 같은 방식의 선택이 강점으로 작동했는지, 아니면 다른 대안을 좁혔는지 확인하십시오.`);
+  }
+
+  const themeCounts = narratives.reduce((acc, item) => {
+    const theme = getRiskTheme(item.risk || '');
+    acc[theme] = (acc[theme] || 0) + 1;
+    return acc;
+  }, {});
+  const repeatedTheme = Object.entries(themeCounts).sort((a, b) => b[1] - a[1])[0];
+  if (repeatedTheme && repeatedTheme[1] >= 3) {
+    warnings.push(`${teamName}은 ${repeatedTheme[0]}가 반복적으로 남았습니다. 다음 디브리핑에서는 “왜 이 대가를 계속 뒤로 미뤘는가”를 물어보십시오.`);
+  }
+
+  return warnings;
+}
+
 function buildNarrativePattern(calculations = [], teamName) {
   const narratives = calculations.map(calc => ({
     roundId: calc.roundId,
@@ -35,7 +64,8 @@ function buildNarrativePattern(calculations = [], teamName) {
       narrativeSummary: `${teamName}은 아직 팀별 결과 해석을 누적할 계산 결과가 충분하지 않습니다.`,
       repeatedGains: [],
       repeatedRisks: [],
-      narrativeQuestions: []
+      narrativeQuestions: [],
+      warningSignals: []
     };
   }
 
@@ -47,17 +77,20 @@ function buildNarrativePattern(calculations = [], teamName) {
     acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {});
-  const topChoiceType = Object.entries(choiceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'UNKNOWN';
+  const [topChoiceType, topChoiceCount] = Object.entries(choiceCounts).sort((a, b) => b[1] - a[1])[0] || ['UNKNOWN', 0];
   const firstGain = repeatedGains[0] || '기능 전문성에 맞는 진전 신호가 일부 나타났습니다.';
   const firstRisk = repeatedRisks[0] || '반복되는 대가는 아직 뚜렷하지 않습니다.';
+  const warningSignals = buildWarningSignals({ narratives, teamName, topChoiceType, topChoiceCount });
 
   return {
     narrativeCount: narratives.length,
     topChoiceType,
+    topChoiceCount,
     narrativeSummary: `${teamName}은 ${topChoiceType} 선택 흐름에서 ${firstGain} 그러나 ${firstRisk}`,
     repeatedGains,
     repeatedRisks,
-    narrativeQuestions
+    narrativeQuestions,
+    warningSignals
   };
 }
 
