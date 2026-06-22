@@ -1,0 +1,80 @@
+export const seedPlayerPersonas = [
+  {
+    personaId: 'ace_practitioner',
+    personaLabel: '에이스 실무자',
+    cardTitle: '중요한 일은 결국 내게 온다',
+    sceneText: '회의가 끝나면 자연스럽게 어려운 일이 이 사람에게 모인다. 본인도 해낼 자신은 있지만, 어느 순간부터 “이번에도 제가 해야 하죠?”라는 표정이 먼저 나온다.',
+    strengthText: '복잡한 상황에서도 빠르게 손을 대고 결과를 만들어내는 힘이 있다.',
+    riskText: '성과가 반복해서 몰리면 회복탄력성과 협업 여유가 먼저 흔들린다.',
+    decisionHabit: '불확실할수록 직접 처리해서 속도를 내려고 한다.',
+    preferredGrowthCategory: 'skill',
+    vulnerableCategory: 'attitude',
+    growthNote: '에이스 실무자는 실행 경험이 쌓일 때 기술 역량이 빠르게 선명해진다.',
+    shrinkNote: '에이스 실무자는 일이 몰릴수록 태도와 회복 여유에 위축 신호가 남기 쉽다.'
+  },
+  {
+    personaId: 'careful_newcomer',
+    personaLabel: '꼼꼼한 신입',
+    cardTitle: '틀리고 싶지 않아 한 번 더 묻는다',
+    sceneText: '자료는 성실하게 준비하지만 마지막 판단 앞에서 멈춘다. “이 방향이 맞을까요?”라는 질문에는 책임을 피하려는 마음보다 기준을 확인하고 싶은 마음이 더 크다.',
+    strengthText: '기준이 보이면 빠르게 흡수하고 실수를 줄이려는 학습 태도가 좋다.',
+    riskText: '압박이 커지면 실행 기술보다 자신감과 판단 속도가 먼저 위축된다.',
+    decisionHabit: '선택 전 성공 기준과 보고 방식을 확인하려고 한다.',
+    preferredGrowthCategory: 'knowledge',
+    vulnerableCategory: 'skill',
+    growthNote: '꼼꼼한 신입은 기준이 정리될수록 지식 역량이 빠르게 쌓인다.',
+    shrinkNote: '꼼꼼한 신입은 실행 압박이 커지면 기술 적용에 위축 신호가 남기 쉽다.'
+  },
+  {
+    personaId: 'relationship_connector',
+    personaLabel: '관계형 조율자',
+    cardTitle: '사람들 표정부터 먼저 본다',
+    sceneText: '회의에서 누가 불편해하는지, 누가 말을 삼키는지 빨리 알아챈다. 갈등을 줄이는 데 강하지만, 때로는 어려운 결정을 늦게 꺼낸다.',
+    strengthText: '협업 분위기와 이해관계자의 감정선을 읽고 연결하는 힘이 있다.',
+    riskText: '갈등을 피하려다 기준 설명이나 어려운 결정을 미룰 수 있다.',
+    decisionHabit: '사람들의 수용성과 관계 손상을 먼저 살핀다.',
+    preferredGrowthCategory: 'attitude',
+    vulnerableCategory: 'knowledge',
+    growthNote: '관계형 조율자는 균형 잡힌 선택을 경험할 때 태도 역량이 깊어진다.',
+    shrinkNote: '관계형 조율자는 신뢰가 흔들릴 때 기준·지식 정리가 약해지기 쉽다.'
+  },
+  {
+    personaId: 'silent_expert',
+    personaLabel: '침묵형 전문가',
+    cardTitle: '말은 적지만 기준은 분명하다',
+    sceneText: '평소에는 조용하지만, 자료를 보면 중요한 허점을 정확히 짚는다. 다만 먼저 말하지 않으면 팀은 그 사람이 무엇을 알고 있는지 놓치기 쉽다.',
+    strengthText: '기술적 기준과 리스크를 깊게 보고 조용히 품질을 지킨다.',
+    riskText: '침묵이 길어지면 협업 신호와 후배 성장 기회가 줄어든다.',
+    decisionHabit: '충분히 검토한 뒤 필요한 순간에 짧게 말한다.',
+    preferredGrowthCategory: 'knowledge',
+    vulnerableCategory: 'attitude',
+    growthNote: '침묵형 전문가는 기준과 검증 경험이 쌓일 때 지식 역량이 단단해진다.',
+    shrinkNote: '침묵형 전문가는 협업 압박이 커질 때 태도와 표현의 여유가 줄어들기 쉽다.'
+  },
+  {
+    personaId: 'challenge_driver',
+    personaLabel: '도전 추진자',
+    cardTitle: '일단 해보고 말하자고 한다',
+    sceneText: '새로운 시도 앞에서 가장 먼저 손을 든다. 팀에 활력을 주지만, 때로는 주변의 부담과 정렬 상태를 확인하기 전에 앞으로 나간다.',
+    strengthText: '기회가 보이면 빠르게 실험하고 실행 동력을 만든다.',
+    riskText: '속도가 앞서면 협업 부채와 마무리 부담이 남을 수 있다.',
+    decisionHabit: '가능성이 보이면 먼저 움직이고 나중에 보완하려고 한다.',
+    preferredGrowthCategory: 'skill',
+    vulnerableCategory: 'attitude',
+    growthNote: '도전 추진자는 실험과 실행 경험을 통해 기술 역량이 빠르게 오른다.',
+    shrinkNote: '도전 추진자는 협업 부채가 커질 때 태도와 조율 여유에 위축 신호가 남기 쉽다.'
+  },
+  {
+    personaId: 'standard_keeper',
+    personaLabel: '기준 수호자',
+    cardTitle: '이 기준은 지켜야 한다고 말한다',
+    sceneText: '급한 상황에서도 지켜야 할 기준을 놓치지 않는다. 팀의 안전판 역할을 하지만, 속도를 원하는 사람들에게 답답하게 보일 때가 있다.',
+    strengthText: '불확실한 상황에서 원칙, 기준, 품질선을 붙잡는 힘이 있다.',
+    riskText: '기준을 지키느라 실행 전환이 늦어지면 압박이 뒤로 밀릴 수 있다.',
+    decisionHabit: '결정 전에 기준, 예외, 책임선을 먼저 확인한다.',
+    preferredGrowthCategory: 'knowledge',
+    vulnerableCategory: 'skill',
+    growthNote: '기준 수호자는 구조화와 기준 정렬 경험을 통해 지식 역량이 강화된다.',
+    shrinkNote: '기준 수호자는 실행 압박이 커질 때 기술 적용 속도에 위축 신호가 남기 쉽다.'
+  }
+];
