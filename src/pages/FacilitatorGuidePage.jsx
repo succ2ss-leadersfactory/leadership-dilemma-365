@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
 import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
+import PilotRunbookPanel from '../components/PilotRunbookPanel.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
 import { getFacilitatorInterventions } from '../utils/facilitatorInterventionUtils';
@@ -108,6 +109,7 @@ export default function FacilitatorGuidePage() {
         </div>
       </section>
 
+      <PilotRunbookPanel round={currentRound} progress={room.roomProgress} />
       <StrategicEventCard event={strategicEvent} />
       <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={currentRound?.week || 0} />
 
@@ -162,6 +164,7 @@ export default function FacilitatorGuidePage() {
       <section className="card">
         <h3>진행 순서 제안</h3>
         <ol>
+          <li>파일럿 진행 체크리스트에서 현재 단계의 강사 멘트와 버튼 순서를 확인합니다.</li>
           <li>12주 타임라인에서 지난 사건 로그와 현재 플레이 라운드의 연결을 먼저 확인합니다.</li>
           <li>전략 이벤트 카드에서 압박, 숨은 대가, 전략적 기회를 읽습니다.</li>
           <li>각 팀이 왜 그 선택을 했는지 1분씩 말하게 합니다.</li>
