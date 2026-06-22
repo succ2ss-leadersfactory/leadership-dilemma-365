@@ -22,6 +22,10 @@ function isKsaComplete(selectedKSA) {
   );
 }
 
+function resultLabel(value) {
+  return value || '미생성';
+}
+
 export default function TeamPage() {
   const { roomId, teamId } = useParams();
   const navigate = useNavigate();
@@ -237,6 +241,11 @@ export default function TeamPage() {
             <section className="card result-card">
               <p className="eyebrow">최종 판정</p>
               <h3>{finalResult.finalLevel}</h3>
+              <div className="summaryCards">
+                <div><b>{resultLabel(finalResult.survivalLabel)}</b><span>1차 조직개편 생존 판정</span></div>
+                <div><b>{resultLabel(finalResult.missionLabel)}</b><span>2차 미션 달성 판정</span></div>
+                <div><b>{resultLabel(finalResult.finalLevel)}</b><span>종합 판정</span></div>
+              </div>
               <p><b>판단 패턴:</b> {finalResult.judgmentPattern}</p>
               <p><b>남은 부담:</b> {finalResult.remainingBurden}</p>
               <p><b>현업 적용 행동:</b> {finalResult.nextAction}</p>
