@@ -13,15 +13,24 @@ function getKsaText(team) {
   return items.length ? items.join(', ') : '미선택';
 }
 
+function getRiskText(final, state) {
+  const riskKey = final?.reviewMaxRiskKey || state?.maxRiskKey;
+  const riskLabel = final?.reviewMaxRiskLabel || state?.maxRiskLabel;
+  return `${stateLabels[riskKey] || riskKey || '-'} · ${riskLabel || '-'}`;
+}
+
 function getReportSummary(teams, room) {
   const finalResults = Object.values(room.finalResults || {});
   const stateValues = Object.values(room.stateValues || {});
   const declarations = Object.values(room.declarations || {});
   const reflectionCount = declarations.reduce((sum, d) => sum + Object.keys(d.individualReflections || {}).length, 0);
-  const warningTeams = stateValues.filter(s => (s.maxRiskValue ?? riskOrder[s.maxRiskLabel] ?? 0) >= 2).length;
+  const warningTeams = finalResults.length
+    ? finalResults.filter(r => (r.reviewMaxRiskValue ?? 0) >= 2).length
+    : stateValues.filter(s => (s.maxRiskValue ?? riskOrder[s.maxRiskLabel] ?? 0) >= 2).length;
   const maintainTeams = finalResults.filter(r => ['전략 유지·확대팀', '유지팀'].includes(r.finalLevel)).length;
   const survivalTeams = finalResults.filter(r => ['조직개편 생존', '조건부 생존'].includes(r.survivalLabel)).length;
   const missionPositiveTeams = finalResults.filter(r => ['미션 달성', '미션 부분 달성'].includes(r.missionLabel)).length;
+  const weekLogImpactCount = finalResults.reduce((sum, result) => sum + (result.weekLogImpactCount || 0), 0);
   const patterns = finalResults.reduce((acc, r) => {
     if (!r.judgmentPattern) return acc;
     acc[r.judgmentPattern] = (acc[r.judgmentPattern] || 0) + 1;
@@ -34,6 +43,7 @@ function getReportSummary(teams, room) {
     maintainTeams,
     survivalTeams,
     missionPositiveTeams,
+    weekLogImpactCount,
     topPattern,
     reflectionCount
   };
@@ -84,6 +94,7 @@ function buildMarkdownReport(room, teams, summary, gameContent) {
   lines.push(`- 주의 이상 리스크 팀: ${summary.warningTeams}`);
   lines.push(`- 조직개편 생존/조건부 생존 팀: ${summary.survivalTeams}`);
   lines.push(`- 미션 달성/부분 달성 팀: ${summary.missionPositiveTeams}`);
+  lines.push(`- 중간 사건 후폭풍: ${summary.weekLogImpactCount}건`);
   lines.push(`- 유지 이상 종합 판정 팀: ${summary.maintainTeams}`);
   lines.push(`- 대표 판단 패턴: ${summary.topPattern}`);
   lines.push(`- 개인 성찰 제출: ${summary.reflectionCount}`);
@@ -100,14 +111,17 @@ function buildMarkdownReport(room, teams, summary, gameContent) {
     lines.push(`### ${t.teamName}`);
     lines.push(`- 비밀 미션: ${final?.secretMissionTitle || '미생성'}`);
     lines.push(`- 비밀 미션 점수: ${final?.secretMissionScore ?? '미생성'}/3`);
+    lines.push(`- 중간 사건 후폭풍: ${final?.weekLogImpactCount ?? 0}건`);
     lines.push(`- 조직개편 생존 판정: ${resultLabel(final?.survivalLabel)}`);
     lines.push(`- 미션 달성 판정: ${resultLabel(final?.missionLabel)}`);
     lines.push(`- 종합 판정: ${resultLabel(final?.finalLevel)}`);
     lines.push(`- 판단 패턴: ${final?.judgmentPattern || '-'}`);
-    lines.push(`- 핵심 리스크: ${stateLabels[st?.maxRiskKey] || '-'} · ${st?.maxRiskLabel || '-'}`);
+    lines.push(`- 핵심 리스크: ${getRiskText(final, st)}`);
     lines.push(`- 선택한 KSA: ${getKsaText(t)}`);
     lines.push(`- 팀 선언문: ${dec?.teamDeclaration || '미작성'}`);
     if (final) {
+      lines.push('- 중간 사건 후폭풍 근거:');
+      (final.weekLogImpactLines || []).forEach(line => lines.push(`  - ${line}`));
       lines.push('- 비밀 미션 근거:');
       (final.missionEvidenceLines || []).forEach(line => lines.push(`  - ${line}`));
       lines.push('- 종합 판정 근거:');
@@ -164,6 +178,7 @@ export default function ReportPage() {
           <div><b>{summary.warningTeams}</b><span>주의 이상 리스크 팀</span></div>
           <div><b>{summary.survivalTeams}</b><span>생존/조건부 생존 팀</span></div>
           <div><b>{summary.missionPositiveTeams}</b><span>미션 달성/부분 달성 팀</span></div>
+          <div><b>{summary.weekLogImpactCount}</b><span>중간 사건 후폭풍</span></div>
           <div><b>{summary.maintainTeams}</b><span>유지 이상 종합 판정 팀</span></div>
           <div><b>{summary.topPattern}</b><span>대표 판단 패턴</span></div>
           <div><b>{summary.reflectionCount}</b><span>개인 성찰 제출</span></div>
@@ -176,7 +191,7 @@ export default function ReportPage() {
       <section className="card">
         <h3>팀별 요약표</h3>
         <table>
-          <thead><tr><th>팀</th><th>비밀 미션</th><th>미션 점수</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>핵심 리스크</th><th>다음 행동</th></tr></thead>
+          <thead><tr><th>팀</th><th>비밀 미션</th><th>미션 점수</th><th>후폭풍</th><th>조직개편 생존 판정</th><th>미션 달성 판정</th><th>종합 판정</th><th>판단 패턴</th><th>핵심 리스크</th><th>다음 행동</th></tr></thead>
           <tbody>
             {teams.map(t => {
               const st = room.stateValues?.[t.teamId];
@@ -186,11 +201,12 @@ export default function ReportPage() {
                   <td>{t.teamName}</td>
                   <td>{final?.secretMissionTitle || '미생성'}</td>
                   <td>{final?.secretMissionScore ?? '미생성'}/3</td>
+                  <td>{final?.weekLogImpactCount ?? 0}건</td>
                   <td>{resultLabel(final?.survivalLabel)}</td>
                   <td>{resultLabel(final?.missionLabel)}</td>
                   <td>{resultLabel(final?.finalLevel)}</td>
                   <td>{final?.judgmentPattern || '-'}</td>
-                  <td>{stateLabels[st?.maxRiskKey] || '-'} · {st?.maxRiskLabel || '-'}</td>
+                  <td>{getRiskText(final, st)}</td>
                   <td>{final?.nextAction || '최종 판정 생성 후 표시됩니다.'}</td>
                 </tr>
               );
@@ -215,14 +231,21 @@ export default function ReportPage() {
                 <div><b>{resultLabel(final?.missionLabel)}</b><span>미션 달성 판정</span></div>
                 <div><b>{resultLabel(final?.finalLevel)}</b><span>종합 판정</span></div>
                 <div><b>{final?.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
+                <div><b>{final?.weekLogImpactCount ?? 0}</b><span>중간 사건 후폭풍</span></div>
               </div>
               <p><b>비밀 미션:</b> {final?.secretMissionTitle || '미생성'}</p>
               {final?.secretMissionBrief && <p className="muted">{final.secretMissionBrief}</p>}
               <p><b>판단 패턴:</b> {final?.judgmentPattern || '아직 계산되지 않았습니다.'}</p>
-              <p><b>핵심 리스크:</b> {stateLabels[st?.maxRiskKey] || '-'} · {st?.maxRiskLabel || '-'}</p>
+              <p><b>핵심 리스크:</b> {getRiskText(final, st)}</p>
               <p><b>선택한 KSA:</b> {getKsaText(t)}</p>
               {final ? (
                 <>
+                  {final.weekLogImpactLines?.length > 0 && (
+                    <>
+                      <h4>중간 사건 후폭풍</h4>
+                      <ol>{final.weekLogImpactLines.map((line, i) => <li key={i}>{line}</li>)}</ol>
+                    </>
+                  )}
                   <h4>비밀 미션 근거</h4>
                   <ol>{final.missionEvidenceLines?.map((line, i) => <li key={i}>{line}</li>)}</ol>
                   <h4>종합 판정 근거</h4>
@@ -264,6 +287,7 @@ export default function ReportPage() {
           <li>조직개편 생존 판정과 미션 달성 판정이 서로 다르게 나온 이유는 무엇입니까?</li>
           <li>비밀 미션 기준 중 충족하지 못한 항목은 어떤 판단 습관에서 비롯되었습니까?</li>
           <li>중간 사건 로그 중 우리 팀의 선택을 가장 크게 흔든 주차는 언제였습니까?</li>
+          <li>후폭풍으로 남은 리스크는 다음 현업에서 어떻게 먼저 낮출 수 있습니까?</li>
           <li>다음 주 현업에서 바로 바꿀 행동 하나는 무엇입니까?</li>
         </ol>
       </section>
