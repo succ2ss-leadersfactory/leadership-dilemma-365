@@ -14,6 +14,7 @@
 | 전체 구조 파악 | `README.md` |
 | 파일럿 당일 운영 순서 | `docs/facilitator-pilot-runbook.md` |
 | UI/UX와 화면별 노출 기준 | `docs/pilot-ui-ux-qa-checklist.md` |
+| 파일럿 종료 후 회고 기록 | `docs/pilot-post-run-retrospective-template.md` |
 | 파일럿 최종 상태 요약 | `docs/pilot-final-status-summary.md` |
 | 이번 버전 요약 | `docs/release-notes-v1.0-pilot.md` |
 | 전문성 고도화 구조 파악 | `docs/expertise-index.md` |
@@ -174,7 +175,9 @@ Admin 화면에서 4개 샘플을 만들 수 있습니다.
 
 ## 9. 운영 종료 후 기록
 
-운영 종료 후 강사는 아래를 별도로 기록합니다.
+운영 종료 후에는 `docs/pilot-post-run-retrospective-template.md`를 복사해 회고 기록을 남깁니다.
+
+강사는 아래를 별도로 기록합니다.
 
 ```text
 가장 몰입이 높았던 라운드
