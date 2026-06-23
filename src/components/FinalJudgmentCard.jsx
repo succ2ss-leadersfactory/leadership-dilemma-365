@@ -27,13 +27,17 @@ export default function FinalJudgmentCard({ finalResult, audience = 'participant
 
   return (
     <section className="card result-card finalJudgmentCard">
-      <p className="eyebrow">최종 판정</p>
-      <h3>{resultLabel(finalResult.finalLevel)}</h3>
+      <div className="finalJudgmentHeader">
+        <p className="finalJudgmentHeader__eyebrow">FINAL REVIEW</p>
+        <h3>{resultLabel(finalResult.finalLevel)}</h3>
+        <p>12주 동안의 선택, 산출물, 팀 선언문을 함께 놓고 우리 팀의 판단 흐름을 돌아봅니다.</p>
+      </div>
 
       {!isFacilitator && (
         <>
-          <div className="notice">
-            <b>최종 판정 읽는 법:</b> 이 화면은 순위를 매기는 표가 아닙니다. 12주 동안 우리 팀이 어떤 기준을 반복했고, 조직개편 압박 속에서 무엇을 지켰는지 돌아보는 마무리 피드백입니다.
+          <div className="finalJudgmentReadingGuide">
+            <b>최종 판정 읽는 법</b>
+            <span>이 화면은 순위를 매기는 표가 아닙니다. 12주 동안 우리 팀이 어떤 기준을 반복했고, 조직개편 압박 속에서 무엇을 지켰는지 돌아보는 마무리 피드백입니다.</span>
           </div>
           <div className="finalJudgmentHero">
             <div>
