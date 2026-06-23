@@ -14,6 +14,23 @@ import { submitVote, getVote } from '../services/voteService';
 import { defaultResultCard } from '../data/seedResultCards';
 import '../styles/playerDecisionUx.css';
 
+const PLAYER_PHASE_LABELS = {
+  ksaSelection: 'KSA 선택',
+  playerVote: '개인 판단 입력',
+  teamDecision: '팀 토의와 최종 선택',
+  outputSubmission: '산출물 작성',
+  resultReview: '결과 카드 확인',
+  finalReflection: '개인 성찰',
+  teamDeclaration: '팀 선언문 작성',
+  finalResult: '최종 판정 확인',
+};
+
+function getRoundLabel(round) {
+  if (round.roundId === 'round0') return 'Round 0';
+  if (round.roundId === 'week12') return 'Week 12';
+  return `Week ${round.week}`;
+}
+
 export default function PlayerPage() {
   const { roomId, playerId } = useParams();
   const [tick, setTick] = useState(0);
@@ -41,6 +58,8 @@ export default function PlayerPage() {
   const declaration = room.declarations?.[player.teamId];
   const reflection = declaration?.individualReflections?.[playerId];
   const competencyProfile = room.competencyProfiles?.[player.teamId]?.[playerId];
+  const currentPhaseLabel = PLAYER_PHASE_LABELS[room.roomProgress.currentPhase] || room.roomProgress.currentPhase;
+  const roundLabel = getRoundLabel(round);
 
   const save = () => {
     try {
@@ -80,9 +99,24 @@ export default function PlayerPage() {
       )}
       <RoundCard round={round} />
       <ParticipantStepGuide mode="player" roundId={round.roundId} resultVisible={room.roomProgress.resultVisible} />
-      <section className="card">
-        <p>참가자: <b>{player.displayName}</b> · 팀: <Link to={`/team/${roomId}/${player.teamId}`}>{team.teamName}</Link></p>
-        <p className="muted">현재 단계: {room.roomProgress.currentPhase}</p>
+      <section className="card player-decision-card">
+        <div className="playerDecisionHeader">
+          <div>
+            <p className="playerDecisionHeader__eyebrow">PLAYER JOURNEY</p>
+            <h2>{player.displayName}</h2>
+            <p className="playerDecisionHeader__team">팀: <Link to={`/team/${roomId}/${player.teamId}`}>{team.teamName}</Link></p>
+          </div>
+          <div className="playerDecisionHeader__phase">
+            <span>현재 단계</span>
+            <strong>{currentPhaseLabel}</strong>
+            <small>{room.roomProgress.currentPhase}</small>
+          </div>
+        </div>
+        <div className="playerDecisionHeader__meta">
+          <span>{roundLabel}</span>
+          <span>{canVote ? '개인 판단 입력 가능' : '입력 대기 또는 잠금'}</span>
+          <span>{vote?.choiceId ? '저장한 판단 있음' : '아직 저장 전'}</span>
+        </div>
         {!showGuide && <button className="secondary" onClick={() => setShowGuide(true)}>참가 안내 다시 보기</button>}
         {msg && <div className="notice">{msg}</div>}
 
@@ -101,7 +135,7 @@ export default function PlayerPage() {
               </div>
             </div>
             <ChoiceList choices={choices} selectedChoiceId={choiceId || vote?.choiceId} onSelect={setChoiceId} disabled={!canVote} />
-            <label>선택 이유<textarea disabled={!canVote} value={reason || vote?.reason || ''} onChange={e => setReason(e.target.value)} placeholder="예: 고객 신뢰 회복이 먼저라고 보았습니다. 다만 내부 실행 부담은 커질 수 있습니다." /></label>
+            <label className="personalReasonField">선택 이유<textarea disabled={!canVote} value={reason || vote?.reason || ''} onChange={e => setReason(e.target.value)} placeholder="예: 고객 신뢰 회복이 먼저라고 보았습니다. 다만 내부 실행 부담은 커질 수 있습니다." /></label>
             <div className="personalReasonGuide">
               <b>선택 이유에는 이런 내용이 들어가면 좋습니다</b>
               <ul>
