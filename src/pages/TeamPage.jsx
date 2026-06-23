@@ -21,6 +21,23 @@ import { submitRoundOutput, getSubmission } from '../services/submissionService'
 import { calculateAllTeamResultsForRound, generateFinalResults } from '../services/calculationService';
 import { defaultResultCard } from '../data/seedResultCards';
 
+const PHASE_LABELS = {
+  ksaSelection: 'KSA 선택',
+  playerVote: '개인 판단 입력',
+  teamDecision: '팀 토의와 최종 선택',
+  outputSubmission: '산출물 작성',
+  resultReview: '결과 카드 확인',
+  finalReflection: '개인 성찰',
+  teamDeclaration: '팀 선언문 작성',
+  finalResult: '최종 판정 확인',
+};
+
+function getRoundLabel(round) {
+  if (round.roundId === 'round0') return 'Round 0';
+  if (round.roundId === 'week12') return 'Week 12';
+  return `Week ${round.week}`;
+}
+
 function isKsaComplete(selectedKSA) {
   return (
     selectedKSA?.knowledge?.length === 3 &&
@@ -64,6 +81,8 @@ export default function TeamPage() {
   const canEdit = !room.roomProgress.isScreenLocked;
   const ksaComplete = isKsaComplete(team.selectedKSA);
   const canRevealResult = Boolean(decision && submission);
+  const currentPhaseLabel = PHASE_LABELS[room.roomProgress.currentPhase] || room.roomProgress.currentPhase;
+  const roundLabel = getRoundLabel(round);
 
   function startWeek1PlayerVote() {
     updateDb(db2 => {
@@ -130,10 +149,24 @@ export default function TeamPage() {
       <StrategicEventCard event={strategicEvent} teamId={teamId} />
       <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round.week} teamId={teamId} compact />
 
-      <section className="card">
-        <h2>{team.teamName}</h2>
-        <p>{team.slogan}</p>
-        <p className="muted">현재 단계: {room.roomProgress.currentPhase}</p>
+      <section className="card team-status-card">
+        <div className="team-status-card__main">
+          <div>
+            <p className="team-status-card__eyebrow">TEAM JOURNEY</p>
+            <h2>{team.teamName}</h2>
+            <p className="team-status-card__slogan">{team.slogan}</p>
+          </div>
+          <div className="team-status-card__phase">
+            <span>현재 단계</span>
+            <strong>{currentPhaseLabel}</strong>
+            <small>{room.roomProgress.currentPhase}</small>
+          </div>
+        </div>
+        <div className="team-status-card__meta">
+          <span>{roundLabel}</span>
+          <span>{room.roomProgress.resultVisible ? '결과 확인 중' : '판단 진행 중'}</span>
+          <span>{canEdit ? '팀 입력 가능' : '화면 잠금'}</span>
+        </div>
         {msg && <div className="notice">{msg}</div>}
       </section>
 
