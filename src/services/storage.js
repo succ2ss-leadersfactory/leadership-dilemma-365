@@ -9,6 +9,7 @@ import { seedStrategicEvents } from '../data/seedStrategicEvents';
 import { seedWeekLogs } from '../data/seedWeekLogs';
 import { seedWeekLogImpacts } from '../data/seedWeekLogImpacts';
 import { seedTeamExpertiseLenses } from '../data/seedTeamExpertiseLenses';
+import { seedTeamSituationVariants } from '../data/seedTeamSituationVariants';
 
 const KEY = 'leadership_dilemma_365_react_mvp';
 const listeners = new Set();
@@ -25,7 +26,8 @@ function baseGameContent() {
     strategicEvents: seedStrategicEvents,
     weekLogs: seedWeekLogs,
     weekLogImpacts: seedWeekLogImpacts,
-    teamExpertiseLenses: seedTeamExpertiseLenses
+    teamExpertiseLenses: seedTeamExpertiseLenses,
+    teamSituationVariants: seedTeamSituationVariants
   };
 }
 
@@ -81,6 +83,10 @@ function mergeGameContent(parsedGameContent = {}) {
     teamExpertiseLenses: {
       ...base.teamExpertiseLenses,
       ...(parsedGameContent.teamExpertiseLenses || {})
+    },
+    teamSituationVariants: {
+      ...base.teamSituationVariants,
+      ...(parsedGameContent.teamSituationVariants || {})
     },
     weekLogs: mergeById(base.weekLogs, parsedGameContent.weekLogs, 'logId'),
     weekLogImpacts: {
