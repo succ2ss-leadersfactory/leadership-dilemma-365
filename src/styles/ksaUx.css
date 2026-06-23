@@ -1,1 +1,236 @@
-.ksaSelectorCard{border-color:#bfdbfe;background:linear-gradient(135deg,#fff,#f8fbff)}.ksaIntro{border:1px solid #bfdbfe;background:#eff6ff;border-radius:16px;padding:16px}.ksaIntro h3{margin:0 0 8px}.ksaIntro p{margin:0;line-height:1.6;color:#334155}.ksaProgress{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px}.ksaProgress div{background:white;border:1px solid #dbeafe;border-radius:14px;padding:12px}.ksaProgress b{display:block;color:#1d4ed8}.ksaProgress span{font-size:13px;color:#64748b}.ksaGroup{border:1px solid #e2e8f0;background:#fff;border-radius:16px;padding:16px}.ksaGroupHeader{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.ksaGroupHeader h4{margin:0}.ksaGroupHeader p{margin:4px 0 0;color:#64748b;font-size:14px;line-height:1.45}.ksaCount{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:6px 10px;font-weight:900;color:#334155;white-space:nowrap}.ksaCount.done{background:#dcfce7;border-color:#86efac;color:#166534}.ksaSaveGuide{border:1px solid #e2e8f0;border-radius:14px;padding:12px;background:#f8fafc}.ksaSaveGuide p{margin:0;line-height:1.55}@media(max-width:560px){.ksaGroupHeader{display:block}.ksaCount{display:inline-block;margin-top:8px}.ksaIntro,.ksaGroup{padding:14px}}
+.ksaSelectorCard {
+  border-color: rgba(36, 87, 214, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.1), transparent 20rem),
+    linear-gradient(135deg, #ffffff, #f8fbff);
+}
+
+.ksaIntro {
+  position: relative;
+  padding: 18px;
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(234, 241, 255, 0.92), rgba(255, 255, 255, 0.94));
+  overflow: hidden;
+}
+
+.ksaIntro::after {
+  content: "KSA";
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  color: rgba(36, 87, 214, 0.08);
+  font-size: 3.4rem;
+  font-weight: 950;
+  letter-spacing: -0.08em;
+  pointer-events: none;
+}
+
+.ksaIntro h3 {
+  margin: 0 0 8px;
+  letter-spacing: -0.04em;
+}
+
+.ksaIntro p {
+  max-width: 720px;
+  margin: 0;
+  color: #334155;
+  line-height: 1.62;
+}
+
+.ksaProgress {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ksaProgress div {
+  position: relative;
+  min-height: 92px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+}
+
+.ksaProgress div::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.ksaProgress div:nth-child(1)::before {
+  content: "K";
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.ksaProgress div:nth-child(2)::before {
+  content: "S";
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ksaProgress div:nth-child(3)::before {
+  content: "A";
+  background: #ffedd5;
+  color: #b45309;
+}
+
+.ksaProgress div:nth-child(4)::before {
+  content: "9";
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.ksaProgress b {
+  display: block;
+  color: #101828;
+  font-size: 1.18rem;
+  line-height: 1.1;
+}
+
+.ksaProgress span {
+  display: block;
+  margin-top: 4px;
+  color: #667085;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.ksaGroup {
+  position: relative;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+}
+
+.ksaGroup h4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+  letter-spacing: -0.035em;
+}
+
+.ksaGroup > p {
+  margin: 0 0 12px;
+  color: #667085;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.ksaCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 6px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.ksaCount.done {
+  background: #ecfdf3;
+  border-color: rgba(34, 197, 94, 0.28);
+  color: #15803d;
+}
+
+.ksaGroup .chips {
+  gap: 9px;
+}
+
+.ksaGroup .chip {
+  min-height: 40px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.ksaGroup .chip:hover {
+  background: #eef4ff;
+  border-color: rgba(36, 87, 214, 0.3);
+}
+
+.ksaGroup .chip.on {
+  background: linear-gradient(135deg, #2457d6, #1d4ed8);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(36, 87, 214, 0.22);
+}
+
+.ksaSaveGuide {
+  position: relative;
+  padding: 14px 14px 14px 48px;
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff, #eff6ff);
+}
+
+.ksaSaveGuide::before {
+  content: "→";
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2457d6;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.ksaSaveGuide p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.58;
+}
+
+@media (max-width: 560px) {
+  .ksaIntro,
+  .ksaGroup {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .ksaIntro::after {
+    font-size: 2.4rem;
+  }
+
+  .ksaGroup h4 {
+    align-items: flex-start;
+  }
+
+  .ksaProgress {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .ksaProgress {
+    grid-template-columns: 1fr;
+  }
+}
