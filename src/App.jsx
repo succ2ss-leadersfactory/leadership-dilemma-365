@@ -12,6 +12,7 @@ import FacilitatorGuidePage from './pages/FacilitatorGuidePage.jsx';
 import CompetencyProfilesPage from './pages/CompetencyProfilesPage.jsx';
 import './styles/visualDesignSystem.css';
 import './styles/responsivePolish.css';
+import './styles/facilitatorBoundary.css';
 
 export default function App() {
   return (
