@@ -9,6 +9,7 @@ import KsaSelector from '../components/KsaSelector.jsx';
 import OutputForm from '../components/OutputForm.jsx';
 import ResultCard from '../components/ResultCard.jsx';
 import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
+import FinalJudgmentCard from '../components/FinalJudgmentCard.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
@@ -23,10 +24,6 @@ function isKsaComplete(selectedKSA) {
     selectedKSA?.skill?.length === 3 &&
     selectedKSA?.attitude?.length === 3
   );
-}
-
-function resultLabel(value) {
-  return value || '미생성';
 }
 
 export default function TeamPage() {
@@ -251,22 +248,7 @@ export default function TeamPage() {
             <p className="muted">최종 리포트와 전체 비교는 강사가 별도로 안내합니다.</p>
           </section>
 
-          {finalResult && (
-            <section className="card result-card">
-              <p className="eyebrow">최종 판정</p>
-              <h3>{finalResult.finalLevel}</h3>
-              <div className="summaryCards">
-                <div><b>{resultLabel(finalResult.survivalLabel)}</b><span>1차 조직개편 생존 판정</span></div>
-                <div><b>{resultLabel(finalResult.missionLabel)}</b><span>2차 미션 달성 판정</span></div>
-                <div><b>{resultLabel(finalResult.finalLevel)}</b><span>종합 판정</span></div>
-                <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 반영</span></div>
-              </div>
-              <h4>판정 근거</h4>
-              <ul>
-                {(finalResult.evidenceLines || []).map(line => <li key={line}>{line}</li>)}
-              </ul>
-            </section>
-          )}
+          <FinalJudgmentCard finalResult={finalResult} audience="participant" />
         </>
       )}
     </Layout>
