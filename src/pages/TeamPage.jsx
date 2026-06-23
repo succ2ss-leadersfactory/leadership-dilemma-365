@@ -107,7 +107,7 @@ export default function TeamPage() {
         targetRoom.roundProgress.week1.phase = 'playerVote';
       }
     });
-    setMsg('Week 1 개인 선택 단계로 이동했습니다. 아래에서 선택지와 선택 이유를 입력하세요.');
+    setMsg('Week 1 개인 판단 단계가 열렸습니다. 먼저 개인 선택과 이유를 남겨 주세요.');
     navigate(`/team/${roomId}/${teamId}`);
   }
 
@@ -115,7 +115,7 @@ export default function TeamPage() {
     try {
       calculateAllTeamResultsForRound(roomId, round.roundId);
       revealRoundResult(roomId);
-      setMsg('결과를 공개했습니다. 결과 카드를 확인한 뒤 다음 라운드로 이동하세요.');
+      setMsg('결과 카드를 공개했습니다. 이번 선택의 피드백을 확인한 뒤 다음 라운드로 이동하세요.');
     } catch (e) {
       setMsg(e.message);
     }
@@ -126,7 +126,7 @@ export default function TeamPage() {
       moveToNextRound(roomId);
       setFinalChoiceId('');
       setSummary('');
-      setMsg('다음 라운드로 이동했습니다. 새 상황을 확인하고 선택을 이어가세요.');
+      setMsg('다음 라운드가 열렸습니다. 새 상황을 읽고 개인 판단부터 이어가세요.');
       navigate(`/team/${roomId}/${teamId}`);
     } catch (e) {
       setMsg(e.message);
@@ -142,7 +142,7 @@ export default function TeamPage() {
         targetRoom.roomProgress.finalResultVisible = true;
         Object.values(targetRoom.finalResults).forEach(result => { result.visible = true; });
       });
-      setMsg('최종 판정을 생성했습니다. 아래 요약을 확인하고 팀 선언문과 연결해 보세요.');
+      setMsg('최종 판정을 생성했습니다. 12주 판단 흐름과 팀 선언문을 함께 확인하세요.');
     } catch (e) {
       setMsg(e.message);
     }
@@ -185,18 +185,18 @@ export default function TeamPage() {
             onSubmit={(ksa) => {
               try {
                 saveTeamKSA(roomId, teamId, ksa);
-                setMsg('KSA를 저장했습니다. 이제 바로 Week 1 개인 선택 단계로 이동할 수 있습니다.');
+                setMsg('KSA가 저장되었습니다. 이제 Week 1 개인 판단을 시작할 수 있습니다.');
               } catch (e) {
                 setMsg(e.message);
               }
             }}
           />
           <section className="card next-step-card">
-            <h3>다음 행동</h3>
-            <p>KSA 저장을 마쳤다면 아래 버튼으로 바로 Week 1의 개인 선택 단계로 이동하세요.</p>
+            <h3>다음에 할 일</h3>
+            <p>KSA 저장을 마쳤다면 Week 1 개인 판단을 시작하세요.</p>
             {!ksaComplete && <StatusNoticeCard title="KSA 선택 대기" items={['지식 3개를 선택합니다.', '기술 3개를 선택합니다.', '태도 3개를 선택합니다.']}>세 영역이 모두 3개씩 선택되어야 Week 1로 이동할 수 있습니다.</StatusNoticeCard>}
             <div className="actions">
-              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>KSA 저장하고 Week 1 개인 선택으로 이동</button>
+              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>Week 1 개인 판단 시작하기</button>
             </div>
             <p className="muted">전체 진행과 리포트 관리는 강사 화면에서 별도로 운영됩니다.</p>
           </section>
@@ -226,9 +226,9 @@ export default function TeamPage() {
             <button className="primary" onClick={() => {
               try {
                 submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: summary || decision?.discussionSummary, submittedBy: 'team' });
-                setMsg('팀 결정을 저장했습니다. 이어서 산출물에 다음 행동과 남는 부담을 남겨 주세요.');
+                setMsg('팀 최종 선택을 저장했습니다. 이어서 산출물에 다음 행동과 남는 부담을 남겨 주세요.');
               } catch (e) { setMsg(e.message); }
-            }}>팀 결정 저장</button>
+            }}>팀 최종 선택 저장</button>
             <p>저장 후 산출물 입력에서 이 선택을 실제 행동 조건으로 바꿉니다.</p>
           </div>
         </section>
@@ -245,7 +245,7 @@ export default function TeamPage() {
             onSubmit={(answers) => {
               try {
                 submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
-                setMsg('산출물을 저장했습니다. 결과를 공개하면 산출물 피드백과 다음 행동을 확인할 수 있습니다.');
+                setMsg('산출물이 저장되었습니다. 결과 공개 후 산출물 피드백과 다음 행동을 확인하세요.');
               } catch (e) { setMsg(e.message); }
             }}
           />
@@ -254,11 +254,11 @@ export default function TeamPage() {
 
       {choices.length > 0 && !room.roomProgress.resultVisible && (
         <section className="card next-step-card">
-          <h3>다음 행동</h3>
-          <p>팀 결정과 산출물 저장을 마쳤다면 결과를 공개하고, 이번 선택이 남긴 피드백을 확인하세요.</p>
+          <h3>다음에 할 일</h3>
+          <p>팀 최종 선택과 산출물을 저장했다면 결과를 계산하고 피드백을 확인하세요.</p>
           {!canRevealResult && <StatusNoticeCard title="결과 공개 대기" items={resultReadinessItems}>결과 공개는 팀 최종 선택과 산출물이 모두 저장된 뒤 가능합니다.</StatusNoticeCard>}
           <div className="actions">
-            <button className="primary" disabled={!canRevealResult} onClick={calculateAndReveal}>결과 공개하고 피드백 확인</button>
+            <button className="primary" disabled={!canRevealResult} onClick={calculateAndReveal}>결과 계산하고 피드백 확인</button>
           </div>
         </section>
       )}
@@ -267,10 +267,10 @@ export default function TeamPage() {
         <>
           <ResultCard card={resultCard} calculation={calculation} audience="participant" />
           <section className="card next-step-card">
-            <h3>다음 행동</h3>
-            <p>결과를 확인했다면 다음 라운드로 이동해 같은 흐름을 이어가세요.</p>
+            <h3>다음에 할 일</h3>
+            <p>결과 피드백을 확인했다면 다음 라운드를 시작하세요.</p>
             <div className="actions">
-              <button className="primary" onClick={goNextRound}>다음 라운드로 이동</button>
+              <button className="primary" onClick={goNextRound}>다음 라운드 시작하기</button>
             </div>
             <p className="muted">강사용 리포트와 다팀 비교는 강사가 마무리 단계에서 안내합니다.</p>
           </section>
@@ -295,18 +295,18 @@ export default function TeamPage() {
                 updateDb(db2 => {
                   db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: summary || declaration?.teamDeclaration || '', submittedAt: Date.now() };
                 });
-                setMsg('팀 선언문을 저장했습니다. 이제 최종 판정을 생성하고 우리 팀의 판단 흐름을 확인하세요.');
-              }}>선언문 저장</button>
+                setMsg('팀 선언문이 저장되었습니다. 이제 최종 판정을 생성하고 우리 팀의 판단 흐름을 확인하세요.');
+              }}>팀 선언문 저장</button>
               <p>저장한 선언문은 최종 판정을 확인할 때 우리 팀의 판단 기준과 함께 돌아보는 문장으로 사용됩니다.</p>
             </div>
           </section>
 
           <section className="card next-step-card">
-            <h3>마지막 단계</h3>
+            <h3>마지막으로 할 일</h3>
             <p>팀 선언문을 저장했다면 최종 판정을 생성하고, 12주 동안 반복한 판단 습관을 확인하세요.</p>
             {!declaration?.teamDeclaration && <StatusNoticeCard title="팀 선언문 저장 대기">최종 판정은 생성할 수 있지만, 먼저 팀 선언문을 저장하면 결과를 우리 팀의 행동 약속과 함께 돌아볼 수 있습니다.</StatusNoticeCard>}
             <div className="actions">
-              <button className="primary" onClick={createFinalJudgment}>최종 판정 생성</button>
+              <button className="primary" onClick={createFinalJudgment}>최종 판정 생성하고 확인</button>
             </div>
             <p className="muted">최종 리포트와 전체 비교는 강사가 별도로 안내합니다.</p>
           </section>
