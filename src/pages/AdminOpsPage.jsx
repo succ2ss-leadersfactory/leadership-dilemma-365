@@ -107,7 +107,25 @@ export default function AdminOpsPage() {
   const health = buildOpsHealth(room, db.gameContent);
   const backup = () => downloadJson(`${roomId}_backup.json`, room);
   const exportQa = () => downloadText(`${roomId}_ops_qa.md`, buildOpsMarkdown(room, health));
-  const importJson = e => { const f = e.target.files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const data = JSON.parse(r.result); if (!data.teams || !data.roomProgress) throw new Error('형식 오류'); updateDb(db => { db.rooms[roomId] = { ...data, roomId }; }); setMsg('JSON 가져오기를 완료했습니다.'); } catch (err) { setMsg(`JSON 가져오기 실패: ${err.message}`); } e.target.value = ''; }; r.readAsText(f); };
+  const importJson = e => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!window.confirm('JSON 가져오기는 현재 방 데이터를 가져온 파일 내용으로 덮어씁니다. 먼저 백업을 다운로드했습니까?')) {
+      e.target.value = '';
+      return;
+    }
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const data = JSON.parse(r.result);
+        if (!data.teams || !data.roomProgress) throw new Error('형식 오류');
+        updateDb(db => { db.rooms[roomId] = { ...data, roomId }; });
+        setMsg('JSON 가져오기를 완료했습니다.');
+      } catch (err) { setMsg(`JSON 가져오기 실패: ${err.message}`); }
+      e.target.value = '';
+    };
+    r.readAsText(f);
+  };
 
   return (
     <Layout roomId={roomId}>
@@ -116,6 +134,7 @@ export default function AdminOpsPage() {
         <h2>운영 QA 점검판</h2>
         <p>현재 라운드: {room.roomProgress.currentRoundId} · 단계: {room.roomProgress.currentPhase}</p>
         <p>참가자: {Object.keys(room.players).length}명 · 팀: {Object.keys(room.teams).length}개</p>
+        <div className="facilitatorOnlyNotice"><b>강사용 운영 도구</b><p>JSON 가져오기와 리허설 샘플 생성은 현재 방 데이터를 변경합니다. 실행 전 JSON 백업을 먼저 다운로드하세요.</p></div>
         {msg && <div className="notice">{msg}</div>}
         <div className="summaryCards">
           <div><b>{health.summary.issueCount}</b><span>확인 항목</span></div>
@@ -130,7 +149,7 @@ export default function AdminOpsPage() {
         <div className="actions">
           <button onClick={backup}>JSON 백업 다운로드</button>
           <button onClick={exportQa}>QA 리포트 다운로드</button>
-          <label className="secondary">JSON 가져오기<input type="file" accept=".json" onChange={importJson} style={{ display: 'none' }} /></label>
+          <label className="danger">JSON 가져오기<input type="file" accept=".json" onChange={importJson} style={{ display: 'none' }} /></label>
           <button onClick={() => setMsg('운영 QA 점검 결과를 아래 표에서 확인하세요.')}>운영 QA 점검</button>
           <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필</Link>
           <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드</Link>
@@ -144,13 +163,18 @@ export default function AdminOpsPage() {
       <section className="card">
         <h3>리허설 샘플 시나리오 생성</h3>
         <p className="muted">버튼을 누르면 기존 리허설 데이터가 정리되고, 선택 패턴·산출물 품질·인물 카드 구성이 새로 생성됩니다.</p>
+        <div className="facilitatorOnlyNotice"><b>현재 데이터 초기화 주의</b><p>리허설 샘플을 생성하면 현재 참가자, 선택, 산출물, 계산 결과, 선언문 데이터가 새 샘플로 바뀝니다.</p></div>
         <div className="grid2">
           {Object.entries(scenarios).map(([key, scenario]) => (
             <div className="card" key={key}>
               <h4>{scenario.label}</h4>
               <p><b>인물 카드:</b> {scenario.personas.map(id => getPersonaById(id).personaLabel).join(' / ')}</p>
               <p><b>선택 패턴:</b> {scenario.choiceTypes.join(' → ')}</p>
-              <button className="primary" onClick={() => { makeScenario(roomId, key); setMsg(`${scenario.label} 데이터를 생성했습니다.`); }}>{scenario.label} 생성</button>
+              <button className="primary" onClick={() => {
+                if (!window.confirm(`${scenario.label} 데이터를 생성하면 현재 리허설 데이터가 새 샘플로 바뀝니다. 계속하시겠습니까?`)) return;
+                makeScenario(roomId, key);
+                setMsg(`${scenario.label} 데이터를 생성했습니다.`);
+              }}>{scenario.label} 생성</button>
             </div>
           ))}
         </div>
