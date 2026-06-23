@@ -1,31 +1,79 @@
 .stepGuide {
+  isolation: isolate;
   border-color: rgba(36, 87, 214, 0.2);
   background:
     radial-gradient(circle at top right, rgba(36, 87, 214, 0.1), transparent 20rem),
+    radial-gradient(circle at left bottom, rgba(20, 184, 166, 0.08), transparent 18rem),
     linear-gradient(135deg, #ffffff, #f8fbff);
+}
+
+.stepGuide::after {
+  content: "FLOW";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 0;
+  color: rgba(36, 87, 214, 0.045);
+  font-size: 54px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.stepGuide > * {
+  position: relative;
+  z-index: 1;
 }
 
 .stepGuideHeader {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+}
+
+.stepGuideHeader > div:first-child {
+  padding: 18px;
+  border: 1px solid rgba(36, 87, 214, 0.14);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.07), transparent 14rem),
+    rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.035);
+}
+
+.stepGuideHeader__eyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.88);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .stepGuideHeader h3 {
-  margin: 6px 0 8px;
+  margin: 0 0 8px;
+  font-size: clamp(21px, 2vw, 27px);
   letter-spacing: -0.04em;
 }
 
-.stepGuideHeader p {
+.stepGuideHeader__description {
   max-width: 780px;
   margin: 0;
   color: #334155;
+  font-weight: 610;
   line-height: 1.65;
 }
 
 .stepGuideNow {
   position: relative;
+  display: grid;
+  align-content: center;
+  min-height: 150px;
   padding: 18px;
   border-radius: 24px;
   background:
@@ -70,7 +118,8 @@
 
 .stepGuideNow span {
   position: relative;
-  display: block;
+  display: grid;
+  gap: 4px;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
@@ -78,6 +127,16 @@
   font-size: 0.86rem;
   line-height: 1.5;
   z-index: 1;
+}
+
+.stepGuideNow span strong {
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 900;
 }
 
 .stepGuideList {
@@ -151,6 +210,18 @@
   box-shadow: 0 8px 18px rgba(36, 87, 214, 0.24);
 }
 
+.stepGuide--reflection .stepGuideNow {
+  background:
+    radial-gradient(circle at top right, rgba(20, 184, 166, 0.22), transparent 7rem),
+    linear-gradient(135deg, #134e4a, #0f766e);
+}
+
+.stepGuide--result .stepGuideNow {
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.2), transparent 7rem),
+    linear-gradient(135deg, #14532d, #166534);
+}
+
 @media (max-width: 920px) {
   .stepGuideHeader {
     grid-template-columns: 1fr;
@@ -162,6 +233,18 @@
 }
 
 @media (max-width: 560px) {
+  .stepGuide::after {
+    top: 16px;
+    right: 16px;
+    font-size: 34px;
+  }
+
+  .stepGuideHeader > div:first-child,
+  .stepGuideNow {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
   .stepGuideList {
     grid-template-columns: 1fr 1fr;
   }
@@ -173,11 +256,6 @@
 
   .stepGuideList li b {
     white-space: normal;
-  }
-
-  .stepGuideNow {
-    padding: 16px;
-    border-radius: 20px;
   }
 
   .stepGuideNow b {
