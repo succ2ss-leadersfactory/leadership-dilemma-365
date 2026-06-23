@@ -22,13 +22,13 @@ export default function JoinPage() {
     <Layout>
       <ParticipantOnboardingPanel mode="join" />
       <section className="card">
-        <h2>참가자 입장</h2>
-        <p className="muted">이름과 팀을 입력하면 개인 선택 화면으로 이동합니다.</p>
+        <h2>확장 운영용 개인 입장</h2>
+        <p className="muted">기본 운영에서는 팀 화면 하나만 사용합니다. 온라인 운영이나 개인 성찰 수집처럼 개인별 입력이 필요할 때만 이름과 팀을 입력하세요.</p>
         {error && <div className="error">{error}</div>}
         <label>입장 코드<input value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())} /></label>
         <label>이름<input placeholder="김박사" value={displayName} onChange={e => setDisplayName(e.target.value)} /></label>
         <label>팀 선택<select value={teamId} onChange={e => setTeamId(e.target.value)}>{seedTeams.map(t => <option key={t.teamId} value={t.teamId}>{t.teamName}</option>)}</select></label>
-        <button className="primary" onClick={submit}>입장하기</button>
+        <button className="primary" onClick={submit}>확장 운영으로 입장하기</button>
       </section>
     </Layout>
   );
