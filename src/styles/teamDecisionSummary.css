@@ -1,1 +1,216 @@
-.teamDecisionSummary{border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;padding:16px;margin-bottom:18px}.teamDecisionSummaryHeader{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.teamDecisionSummaryHeader h3{margin:0 0 8px}.teamDecisionSummaryHeader p{margin:0;color:#334155;line-height:1.6}.decisionMeta{background:#0f172a;color:white;border-radius:16px;padding:14px;min-width:130px;text-align:center}.decisionMeta b{display:block;font-size:26px}.decisionMeta span{display:block;color:#cbd5e1;font-size:13px}.decisionEmptyBox,.decisionNotice{margin-top:14px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px;padding:12px;line-height:1.55}.decisionChoiceGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}.decisionChoiceCard{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:14px}.decisionChoiceCard.top{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}.decisionChoiceTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}.decisionChoiceTitle span{width:28px;height:28px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:inline-flex;align-items:center;justify-content:center;font-weight:900}.decisionChoiceTitle b{color:#0f172a}.decisionChoiceCard p{line-height:1.55}.decisionChoiceCard li{margin:7px 0;line-height:1.45}.decisionChoiceCard small{line-height:1.45}@media(max-width:560px){.teamDecisionSummaryHeader{display:block}.decisionMeta{margin-top:12px}.decisionChoiceGrid{grid-template-columns:1fr}}
+.teamDecisionSummary {
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.08), transparent 18rem),
+    linear-gradient(135deg, #ffffff, #f8fafc);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.055);
+}
+
+.teamDecisionSummaryHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.teamDecisionSummaryHeader h3 {
+  margin: 0 0 8px;
+  letter-spacing: -0.04em;
+}
+
+.teamDecisionSummaryHeader p {
+  max-width: 760px;
+  margin: 0;
+  color: #334155;
+  line-height: 1.62;
+}
+
+.decisionMeta {
+  position: relative;
+  min-width: 142px;
+  padding: 16px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  color: #ffffff;
+  text-align: center;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+.decisionMeta::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  top: -18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.decisionMeta b {
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.decisionMeta span {
+  display: block;
+  margin-top: 6px;
+  color: #dbeafe;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.decisionEmptyBox,
+.decisionNotice {
+  margin-top: 15px;
+  padding: 13px 14px;
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  border-radius: 18px;
+  background: rgba(234, 241, 255, 0.78);
+  color: #334155;
+  line-height: 1.58;
+}
+
+.decisionChoiceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.decisionChoiceCard {
+  position: relative;
+  min-height: 188px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+  overflow: hidden;
+}
+
+.decisionChoiceCard::after {
+  content: "";
+  position: absolute;
+  inset: auto 16px 0;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(90deg, rgba(36, 87, 214, 0.24), rgba(20, 184, 166, 0.18));
+}
+
+.decisionChoiceCard:has(ul) {
+  border-color: rgba(36, 87, 214, 0.28);
+  background: linear-gradient(145deg, #ffffff, #f8fbff);
+}
+
+.decisionChoiceCard.top {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.decisionChoiceTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.decisionChoiceTitle span {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 950;
+  box-shadow: inset 0 0 0 1px rgba(36, 87, 214, 0.12);
+}
+
+.decisionChoiceTitle b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.decisionChoiceTitle b::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.decisionChoiceCard:has(ul) .decisionChoiceTitle b {
+  background: #eaf1ff;
+  color: #1e3a8a;
+}
+
+.decisionChoiceCard:has(ul) .decisionChoiceTitle b::before {
+  background: #2457d6;
+}
+
+.decisionChoiceCard p {
+  margin: 12px 0;
+  color: #101828;
+  font-weight: 800;
+  line-height: 1.55;
+  letter-spacing: -0.025em;
+}
+
+.decisionChoiceCard ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+}
+
+.decisionChoiceCard li {
+  margin: 7px 0;
+  line-height: 1.48;
+}
+
+.decisionChoiceCard small {
+  display: block;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  color: #667085;
+  line-height: 1.45;
+}
+
+@media (max-width: 560px) {
+  .teamDecisionSummary {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .teamDecisionSummaryHeader {
+    display: block;
+  }
+
+  .decisionMeta {
+    margin-top: 12px;
+    min-width: auto;
+  }
+
+  .decisionChoiceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .decisionChoiceCard {
+    min-height: auto;
+    padding: 15px;
+  }
+}
