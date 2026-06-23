@@ -273,6 +273,117 @@
   line-height: 1.5;
 }
 
+.personalReflectionPanel {
+  position: relative;
+  margin: 18px 0;
+  padding: 22px;
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at right top, rgba(20, 184, 166, 0.12), transparent 17rem),
+    linear-gradient(135deg, #f0fdfa, #ffffff);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.055);
+}
+
+.personalReflectionPanel__eyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(204, 251, 241, 0.72);
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.personalReflectionPanel h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  letter-spacing: -0.045em;
+}
+
+.personalReflectionPanel p:not(.personalReflectionPanel__eyebrow) {
+  max-width: 820px;
+  margin: 0;
+  color: #344054;
+  font-weight: 620;
+  line-height: 1.64;
+}
+
+.personalReflectionChecklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.personalReflectionChecklist div {
+  padding: 15px;
+  border: 1px solid rgba(94, 234, 212, 0.42);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.personalReflectionChecklist b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #0f766e;
+}
+
+.personalReflectionChecklist b::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #14b8a6;
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+}
+
+.personalReflectionChecklist span {
+  display: block;
+  color: #344054;
+  font-size: 14px;
+  line-height: 1.52;
+}
+
+.personalReflectionField {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.personalReflectionField textarea {
+  min-height: 140px;
+  margin-top: 8px;
+  line-height: 1.62;
+}
+
+.personalReflectionActions {
+  padding-top: 16px;
+  border-top: 1px solid rgba(20, 184, 166, 0.14);
+}
+
+.personalReflectionAfterSave {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(20, 184, 166, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 720;
+  line-height: 1.5;
+}
+
 @media (max-width: 720px) {
   .player-decision-card {
     padding: 18px;
@@ -307,21 +418,25 @@
     border-radius: 14px;
   }
 
-  .personalDecisionChecklist {
+  .personalDecisionChecklist,
+  .personalReflectionChecklist {
     grid-template-columns: 1fr;
   }
 
-  .personalDecisionGuide {
+  .personalDecisionGuide,
+  .personalReflectionPanel {
     padding: 16px;
     border-radius: 18px;
   }
 
-  .personalReasonField {
+  .personalReasonField,
+  .personalReflectionField {
     padding: 14px;
     border-radius: 16px;
   }
 
-  .personalReasonField textarea {
+  .personalReasonField textarea,
+  .personalReflectionField textarea {
     min-height: 170px;
   }
 
@@ -329,7 +444,8 @@
     grid-template-columns: 1fr;
   }
 
-  .personalDecisionAfterSave {
+  .personalDecisionAfterSave,
+  .personalReflectionAfterSave {
     width: 100%;
     border-radius: 14px;
   }
