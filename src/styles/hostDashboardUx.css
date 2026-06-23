@@ -1,0 +1,204 @@
+.hostDashboardHero {
+  isolation: isolate;
+  border-color: rgba(36, 87, 214, 0.2);
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.12), transparent 22rem),
+    radial-gradient(circle at left bottom, rgba(20, 184, 166, 0.08), transparent 18rem),
+    linear-gradient(135deg, #ffffff, #f8fbff);
+}
+
+.hostDashboardHero::after {
+  content: "HOST";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 0;
+  color: rgba(36, 87, 214, 0.045);
+  font-size: 54px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.hostDashboardHero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hostDashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.hostDashboardEyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.88);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.hostDashboardHeader h2 {
+  margin: 0 0 8px;
+  letter-spacing: -0.05em;
+}
+
+.hostJoinCard {
+  min-width: 230px;
+  padding: 14px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.hostJoinCard small {
+  display: block;
+  color: #64748b;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.hostQuickStats,
+.hostOpsBoard,
+.hostTeamOpsGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.hostQuickStats {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin-top: 16px;
+}
+
+.hostQuickStats div,
+.hostTeamOpsCard {
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
+}
+
+.hostQuickStats b {
+  display: block;
+  color: #101828;
+  font-size: 1.2rem;
+}
+
+.hostQuickStats span,
+.hostTeamOpsCard small {
+  color: #64748b;
+  font-weight: 750;
+}
+
+.hostNextAction {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(245, 158, 11, 0.24);
+  border-left: 5px solid #f59e0b;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff7ed, #ffffff);
+  color: #344054;
+}
+
+.hostActionBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.hostOpsBoard {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.hostOpsCard h3,
+.hostTeamOpsCard h4 {
+  margin-top: 0;
+}
+
+.hostTeamOpsGrid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.hostTeamOpsCard {
+  display: grid;
+  gap: 10px;
+}
+
+.hostTeamOpsCard__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.hostTeamOpsCard__steps {
+  display: grid;
+  gap: 7px;
+}
+
+.hostStepLine {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.hostStepLine.done {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.hostBadge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.hostBadge.warning {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.hostBadge.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.hostLinksCard p {
+  margin: 8px 0;
+}
+
+@media (max-width: 720px) {
+  .hostDashboardHero::after {
+    top: 16px;
+    right: 16px;
+    font-size: 34px;
+  }
+
+  .hostDashboardHeader {
+    display: grid;
+  }
+
+  .hostJoinCard {
+    min-width: 0;
+  }
+}
