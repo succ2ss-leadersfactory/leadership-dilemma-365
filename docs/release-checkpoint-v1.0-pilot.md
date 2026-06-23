@@ -2,121 +2,72 @@
 
 이 문서는 **「리더십 딜레마 365: 위기의 12주」** v1.0 Pilot 릴리즈 후보 상태를 기록한 체크포인트입니다.
 
-체크포인트 기준 커밋:
+---
 
-```text
-b608e6c4f25f2c5930bea4fda26128a5a85bee66
-```
+## 1. 체크포인트 기준
 
-이 커밋은 90차까지 반영된 파일럿 후보 기준입니다.
+| 항목 | 값 |
+|---|---|
+| 90차 기준 커밋 | `b608e6c4f25f2c5930bea4fda26128a5a85bee66` |
+| 91차 목적 | v1.0 Pilot 릴리즈 후보 문서화 |
+| 92차 목적 | 로컬 빌드와 package-lock 안정화 준비 |
+| Git 태그 | 아직 미생성 |
+| 실제 파일럿 투입 | 로컬 `npm install` / `npm run pilot:verify` 확인 후 결정 |
 
 ---
 
-## 1. 릴리즈 후보 상태
+## 2. 릴리즈 후보 상태
 
-| 항목 | 상태 | 메모 |
+| 영역 | 상태 | 메모 |
 |---|---|---|
 | 앱 기능 | 후보 완료 | Round 0, Week 1~12, 결과 카드, 최종 판정 흐름 포함 |
 | 계산 모델 v2 | 후보 완료 | 토의 품질, 산출물 품질, 영향도 TOP 3, 누적 리스크, 최종 게이트 포함 |
 | 강사용 운영 기능 | 후보 완료 | Host, Guide, Admin, Report 화면 구성 완료 |
 | 리허설 샘플 | 후보 완료 | 4개 시나리오와 밸런스 검증 포함 |
 | 문서 패키지 | 후보 완료 | README, 운영자 패키지, 릴리즈 노트, 문서 인덱스 정리 |
-| Vercel 배포 | 확인 완료 | 두 Vercel 배포 모두 success 확인 |
-| 로컬 빌드 | 미확인 | 현재까지는 Vercel 원격 빌드 성공으로 확인. 실제 파일럿 전 `npm run build` 필요 |
-| Git 태그 | 미생성 | 현재 도구로 실제 Git tag 생성은 하지 않음. 이 문서가 체크포인트 역할을 함 |
+| Vercel 배포 | 확인 필요 | 최종 HEAD 기준 Vercel 상태 확인 필요 |
+| 로컬 빌드 | 미확인 | 파일럿 운영 PC에서 직접 확인 필요 |
+| package-lock | 미생성 | 운영 PC에서 `npm install` 후 생성·커밋 필요 |
 
 ---
 
-## 2. 포함된 핵심 화면
-
-| 화면 | 경로 | 파일럿 역할 |
-|---|---|---|
-| Host Create | `/host/create` | 방 생성 |
-| Host Dashboard | `/host/:roomId` | 진행 제어, 결과 계산 후 공개, 최종 판정 생성 |
-| Team Page | `/team/:roomId/:teamId` | 팀 입력, 산출물, 결과 카드, 선언문 |
-| Player Page | `/player/:roomId/:playerId` | 선택 운영용 개인 판단·성찰 |
-| Guide Page | `/guide/:roomId` | 최종 운영 가이드와 파일럿 동선 점검표 |
-| Admin Ops | `/admin/:roomId` | QA, 리허설, 보정, 재계산, 초기화 |
-| Report Page | `/report/:roomId` | 최종 교육 리포트와 Markdown 다운로드 |
-| Competencies | `/competencies/:roomId` | 역량 프로필과 인물 카드 |
-| Compare | `/compare/:roomId` | 팀별 비교 |
-
----
-
-## 3. 최종 포함 기능
-
-### 3.1 참가자·팀 진행
-
-- 팀당 1개 화면 기반 대면 운영
-- Round 0 KSA 선택
-- 팀원 역량 프로필 자동 생성
-- 팀원 인물 카드 자동 배정
-- Week 1~11 상황, 개인 생각, 팀 토의, 팀 결정, 산출물, 결과 카드
-- Week 12 개인 성찰, 팀 선언문, 최종 판정
-
-### 3.2 계산 모델 v2
-
-- 토의 요약 품질 리뷰
-- 산출물 증거성 리뷰
-- 산출물 품질 v2 계산
-- 라운드 영향도 TOP 3 로그
-- 표시 리스크와 누적 리스크 분리
-- 누적 리스크 흐름 저장
-- 최종 게이트 판정
-- 팀 선언문 품질 피드백
-- 개인 성찰 품질 피드백
-
-### 3.3 강사용·운영자 기능
-
-- Host Dashboard 진행 제어
-- 강사용 설명 패널
-- 파일럿 운영용 최종 사용 가이드
-- 파일럿 직전 기능 동선 점검표
-- 교육 리포트와 Markdown 다운로드
-- 운영 QA 점검판
-- 리허설 샘플 시나리오 4종
-- 리허설 밸런스 검증
-- 계산 모델 v2 데이터 보정
-- 전체 재계산 + 최종 판정 재생성
-- JSON 백업과 JSON 가져오기
-- 현재 방 진행 데이터 초기화
-
----
-
-## 4. 파일럿 전 필수 확인
+## 3. 파일럿 전 필수 확인
 
 실제 파일럿 직전에는 아래 순서로 확인합니다.
 
-```text
-1. npm install
-2. npm run build
-3. /host/create에서 새 방 생성
-4. /guide/:roomId에서 P1~P9 기능 동선 점검
-5. /admin/:roomId에서 리허설 샘플 1개 생성
-6. /admin/:roomId에서 리허설 밸런스 검증 확인
-7. /report/:roomId에서 Markdown 다운로드 확인
-8. /admin/:roomId에서 JSON 백업 다운로드
-9. 현재 방 진행 데이터 초기화
-10. 실제 참가자 팀으로 운영 시작
+```bash
+npm install
+npm run pilot:verify
+```
+
+`package-lock.json`이 생성된 뒤에는 다음 명령을 표준 설치 기준으로 전환합니다.
+
+```bash
+npm ci
+npm run pilot:verify
 ```
 
 ---
 
-## 5. 파일럿 중 참가자에게 말할 핵심 원칙
+## 4. 앱 동선 확인
 
-> 이 과정은 정답을 맞히는 게임이 아닙니다. 12주 동안 우리 팀이 위기 앞에서 어떤 기준을 반복했고, 그 선택이 어떤 부담을 남겼는지 확인하는 리더십 판단 여정입니다.
+`/guide/:roomId`의 **파일럿 직전 기능 동선 점검표**에서 한 팀 기준으로 P1~P9를 확인합니다.
 
-결과가 낮게 나온 팀에는 다음처럼 안내합니다.
-
-> 실패팀이라는 뜻이 아닙니다. 현업에서 먼저 낮춰야 할 부담이 드러났다고 보겠습니다.
-
-Week 12에서는 다음처럼 안내합니다.
-
-> 팀 선언문은 멋진 구호가 아니라 다음 회의에서 실제로 확인할 행동 약속입니다.
+```text
+P1 방 생성과 Host 진입
+P2 팀 화면과 KSA 저장
+P3 Week 이동과 상황 표시
+P4 팀 최종 선택 저장
+P5 산출물 저장
+P6 결과 계산 후 공개
+P7 Week 12 선언문과 최종 판정
+P8 교육 리포트 저장
+P9 Admin QA와 초기화
+```
 
 ---
 
-## 6. 참가자에게 노출하지 않을 정보
+## 5. 참가자에게 노출하지 않을 정보
 
 아래 정보는 참가자에게 산식처럼 설명하지 않습니다.
 
@@ -131,38 +82,26 @@ Week 12에서는 다음처럼 안내합니다.
 
 ---
 
-## 7. 남은 제한
+## 6. 관련 문서
 
-- localStorage 기반입니다.
-- 여러 기기 간 실시간 동기화는 아직 지원하지 않습니다.
-- Firestore adapter는 후속 Sprint입니다.
-- Host PIN/권한 구조는 후속 Sprint입니다.
-- 의존성 버전 고정과 `package-lock.json` 생성은 후속 안정화 항목입니다.
-- 실제 파일럿 전 로컬 `npm run build` 확인이 필요합니다.
-
----
-
-## 8. 후속 Sprint 권장 순서
-
-1. 로컬 빌드와 실제 브라우저 수동 테스트
-2. dependency lock 정리
-3. Git tag 또는 GitHub Release 생성
-4. Firestore adapter 설계
-5. Host 권한/PIN 구조
-6. 다중 기기 파일럿
-7. PDF/docx 리포트 출력 강화
+| 문서 | 용도 |
+|---|---|
+| `README.md` | 전체 구조와 실행 방법 |
+| `docs/pilot-document-package-index.md` | 운영 문서 인덱스 |
+| `docs/pilot-operator-package.md` | 파일럿 당일 운영 패키지 |
+| `docs/release-notes-v1.0-pilot.md` | 릴리즈 노트 |
+| `docs/local-build-lock-guide.md` | 로컬 빌드와 package-lock 안정화 기준 |
 
 ---
 
-## 9. 체크포인트 판정
+## 7. 후속 Sprint 권장 순서
 
-현재 상태는 **v1.0 Pilot Release Candidate**로 문서화할 수 있습니다.
-
-단, 실제 파일럿 투입 전에는 반드시 로컬 환경에서 다음 두 가지를 확인합니다.
-
-```bash
-npm install
-npm run build
-```
-
-Vercel 원격 빌드는 성공했지만, 현장 운영 PC에서의 로컬 실행과 브라우저 상태는 별도 확인이 필요합니다.
+1. 운영 PC에서 `npm install`과 `npm run pilot:verify` 실행
+2. 생성된 `package-lock.json` 커밋
+3. 이후 설치 기준을 `npm ci`로 전환
+4. 필요 시 dependency 버전 exact 고정
+5. Git tag 또는 GitHub Release 생성
+6. Firestore adapter 설계
+7. Host 권한/PIN 구조
+8. 다중 기기 파일럿
+9. PDF/docx 리포트 출력 강화
