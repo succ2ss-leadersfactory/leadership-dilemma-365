@@ -58,6 +58,7 @@ export default function MultiTeamComparePage() {
         <p className="eyebrow">다팀 비교</p>
         <h2>팀별 판단 패턴과 남은 부담 비교</h2>
         <p>같은 위기 상황에서도 팀마다 반복한 판단 기준과 남은 부담이 다르게 나타납니다.</p>
+        <div className="facilitatorOnlyNotice"><b>강사용 비교 화면</b><p>이 화면에는 팀별 비밀 미션, 미션 점수, 후폭풍 근거가 포함됩니다. 참가자에게는 강사가 필요한 부분만 선별해 안내해 주세요.</p></div>
         <div className="summaryCards">
           <div><b>{summaries.length}</b><span>전체 팀</span></div>
           <div><b>{highestRisk?.team.teamName || '-'}</b><span>리스크 우선 점검 팀</span></div>
