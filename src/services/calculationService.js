@@ -1,6 +1,6 @@
 import { readDb, updateDb } from './storage';
 import { clamp } from '../utils/clamp';
-import { getMaxRisk, getJudgmentPattern, calculateFinalLevel, calculateSurvivalOutcome, calculateMissionOutcome } from '../utils/judgmentUtils';
+import { getMaxRisk, getJudgmentPattern, calculateFinalGate, calculateMissionOutcome } from '../utils/judgmentUtils';
 import { calculateWeekLogImpacts } from '../utils/weekLogImpactUtils';
 import { applyRoundCompetencyGrowth } from '../utils/competencyGrowthUtils';
 import { applyTeamPersonaInfluence } from '../utils/teamPersonaInfluenceUtils';
@@ -244,15 +244,13 @@ export function generateFinalResults(roomId) {
       const reviewValues = expertiseAdjustment.reviewValues;
       const missionEval = calculateSecretMission({ db, room, teamId, values: reviewValues, decisions, choices });
       const secretMissionScore = missionEval.secretMissionScore;
-      const level = calculateFinalLevel({ values: reviewValues, week11Quality:week11, secretMissionScore });
-      const survival = calculateSurvivalOutcome({ values: reviewValues, week11Quality: week11 });
+      const finalGate = calculateFinalGate({ values: reviewValues, week11Quality: week11, secretMissionScore, riskTrendSummary });
       const mission = calculateMissionOutcome(secretMissionScore);
       const risk = getMaxRisk(reviewValues);
       const riskName = stateLabels[risk.maxRiskKey] || '남은 부담';
       db2.rooms[roomId].finalResults[teamId] = {
         teamId,
-        ...level,
-        ...survival,
+        ...finalGate,
         ...mission,
         judgmentPattern: pattern.label,
         baseValues: values,
@@ -282,11 +280,12 @@ export function generateFinalResults(roomId) {
         missionEvidenceLines: missionEval.missionEvidenceLines,
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
+          ...(finalGate.gateEvidenceLines || []),
           cumulativeRiskSentence(riskTrendSummary),
           logImpactSentence(logImpact),
           ...(expertiseAdjustment.adjustmentLines || []),
           riskSentence(risk),
-          `${survival.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
+          `${finalGate.survivalLabel} 판정입니다. 조직개편 생존이 1차 기준으로 반영되었습니다.`,
           `${mission.missionLabel} 상태입니다. 팀별 비밀 미션 '${missionEval.mission?.missionTitle || '미션'}'의 충족 기준 ${secretMissionScore}/3개가 반영되었습니다.`,
           week11 === 'high' || week11 === 'veryHigh' ? '마지막 승부수의 산출물 품질이 높아 최종 판정에 긍정적으로 반영되었습니다.' : '마지막 승부수의 산출물 품질은 추가 보완 여지가 있어 최종 판정에 제한적으로 반영되었습니다.'
         ],
