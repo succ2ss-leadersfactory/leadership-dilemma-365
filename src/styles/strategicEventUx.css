@@ -1,1 +1,301 @@
-.strategicEventCard{border-color:#fed7aa;background:linear-gradient(135deg,#fff,#fff7ed)}.strategicEventHeader{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.strategicEventHeader h3{margin:6px 0 0}.eventTypeBadge{background:#9a3412;color:#ffedd5;border-radius:999px;padding:8px 12px;font-weight:900;white-space:nowrap}.eventTriggerBox{border:1px solid #fed7aa;background:#fff7ed;border-radius:16px;padding:16px;margin:16px 0}.eventTriggerBox h4{margin:0 0 8px}.eventTriggerBox p{margin:0;line-height:1.65;color:#334155}.eventSignalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.eventSignalGrid>div{background:#fff;border:1px solid #fed7aa;border-radius:16px;padding:14px}.eventSignalGrid b{display:block;color:#9a3412;margin-bottom:6px}.eventSignalGrid p{margin:0;line-height:1.6;color:#334155}.eventLensBox{border:1px solid #bfdbfe;background:#eff6ff;border-radius:16px;padding:14px;margin-top:14px}.eventLensBox b{display:block;color:#1d4ed8;margin-bottom:6px}.eventLensBox p{margin:0;line-height:1.6}.eventFacilitatorPrompt{border:1px dashed #f59e0b;background:#fffbeb;border-radius:14px;padding:12px;margin-top:14px}.eventParticipantHint{margin-top:12px;color:#64748b;font-size:14px;line-height:1.55}@media(max-width:560px){.strategicEventHeader{display:block}.eventTypeBadge{display:inline-block;margin-top:10px}.eventTriggerBox,.eventSignalGrid>div,.eventLensBox{padding:14px}}
+.strategicEventCard {
+  border-color: rgba(245, 158, 11, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 20rem),
+    linear-gradient(135deg, #ffffff, #fff7ed);
+}
+
+.strategic-event-opportunity.strategicEventCard {
+  border-color: rgba(34, 197, 94, 0.22);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.1), transparent 20rem),
+    linear-gradient(135deg, #ffffff, #f0fdf4);
+}
+
+.strategic-event-crisis.strategicEventCard {
+  border-color: rgba(248, 113, 113, 0.22);
+  background:
+    radial-gradient(circle at top right, rgba(248, 113, 113, 0.1), transparent 20rem),
+    linear-gradient(135deg, #ffffff, #fff7ed);
+}
+
+.strategic-event-mixed.strategicEventCard {
+  border-color: rgba(36, 87, 214, 0.18);
+  background:
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.1), transparent 20rem),
+    linear-gradient(135deg, #ffffff, #f8fbff);
+}
+
+.strategicEventHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.strategicEventHeader h3 {
+  margin: 6px 0 0;
+  letter-spacing: -0.04em;
+  line-height: 1.25;
+}
+
+.eventTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #9a3412;
+  color: #ffedd5;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(154, 52, 18, 0.14);
+}
+
+.eventTypeBadge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fed7aa;
+}
+
+.strategic-event-opportunity .eventTypeBadge {
+  background: #166534;
+  color: #dcfce7;
+}
+
+.strategic-event-opportunity .eventTypeBadge::before {
+  background: #86efac;
+}
+
+.strategic-event-crisis .eventTypeBadge {
+  background: #991b1b;
+  color: #fee2e2;
+}
+
+.strategic-event-crisis .eventTypeBadge::before {
+  background: #fecaca;
+}
+
+.strategic-event-mixed .eventTypeBadge {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+.strategic-event-mixed .eventTypeBadge::before {
+  background: #93c5fd;
+}
+
+.eventTriggerBox {
+  position: relative;
+  margin: 18px 0;
+  padding: 18px 18px 18px 56px;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #ffffff, #fff7ed);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+}
+
+.eventTriggerBox::before {
+  content: "!";
+  position: absolute;
+  left: 18px;
+  top: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #ffffff;
+  font-weight: 950;
+}
+
+.strategic-event-opportunity .eventTriggerBox {
+  border-color: rgba(34, 197, 94, 0.22);
+  background: linear-gradient(135deg, #ffffff, #f0fdf4);
+}
+
+.strategic-event-opportunity .eventTriggerBox::before {
+  content: "↗";
+  background: #16a34a;
+}
+
+.strategic-event-crisis .eventTriggerBox::before {
+  background: #dc2626;
+}
+
+.strategic-event-mixed .eventTriggerBox {
+  border-color: rgba(36, 87, 214, 0.18);
+  background: linear-gradient(135deg, #ffffff, #eff6ff);
+}
+
+.strategic-event-mixed .eventTriggerBox::before {
+  content: "?";
+  background: #2457d6;
+}
+
+.eventTriggerBox h4 {
+  margin: 0 0 8px;
+  color: #101828;
+  letter-spacing: -0.03em;
+}
+
+.eventTriggerBox p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.68;
+}
+
+.eventSignalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.eventSignalGrid > div {
+  position: relative;
+  min-height: 146px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+}
+
+.eventSignalGrid > div::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.eventSignalGrid > div:nth-child(1)::before {
+  content: "압";
+  background: #ffedd5;
+  color: #b45309;
+}
+
+.eventSignalGrid > div:nth-child(2)::before {
+  content: "대";
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.eventSignalGrid > div:nth-child(3)::before {
+  content: "기";
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.eventSignalGrid b {
+  display: block;
+  margin-bottom: 6px;
+  color: #101828;
+  letter-spacing: -0.02em;
+}
+
+.eventSignalGrid p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.eventLensBox {
+  position: relative;
+  margin-top: 15px;
+  padding: 16px 16px 16px 52px;
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+}
+
+.eventLensBox::before {
+  content: "→";
+  position: absolute;
+  left: 16px;
+  top: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2457d6;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.eventLensBox b {
+  display: block;
+  margin-bottom: 6px;
+  color: #1e3a8a;
+}
+
+.eventLensBox p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.62;
+}
+
+.eventFacilitatorPrompt {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px dashed rgba(245, 158, 11, 0.6);
+  border-radius: 16px;
+  background: #fffbeb;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.eventParticipantHint {
+  margin-top: 13px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.9);
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 560px) {
+  .strategicEventHeader {
+    display: block;
+  }
+
+  .eventTypeBadge {
+    margin-top: 10px;
+  }
+
+  .eventTriggerBox {
+    padding: 15px 15px 15px 50px;
+    border-radius: 20px;
+  }
+
+  .eventTriggerBox::before {
+    left: 15px;
+    top: 16px;
+  }
+
+  .eventSignalGrid > div,
+  .eventLensBox {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .eventLensBox {
+    padding-left: 48px;
+  }
+
+  .eventLensBox::before {
+    left: 15px;
+    top: 15px;
+  }
+}
