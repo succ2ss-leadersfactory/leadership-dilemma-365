@@ -1,4 +1,4 @@
-import '../styles/finalJudgmentCard.css';
+import '../styles/finalJudgmentUx.css';
 
 function resultLabel(value) {
   return value || '미생성';
