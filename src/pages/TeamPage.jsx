@@ -53,7 +53,8 @@ export default function TeamPage() {
   const navigate = useNavigate();
   const [tick, setTick] = useState(0);
   const [finalChoiceId, setFinalChoiceId] = useState('');
-  const [summary, setSummary] = useState('');
+  const [discussionSummaryDraft, setDiscussionSummaryDraft] = useState(null);
+  const [teamDeclarationDraft, setTeamDeclarationDraft] = useState(null);
   const [msg, setMsg] = useState('');
 
   useEffect(() => subscribe(() => setTick(x => x + 1)), []);
@@ -125,7 +126,8 @@ export default function TeamPage() {
     try {
       moveToNextRound(roomId);
       setFinalChoiceId('');
-      setSummary('');
+      setDiscussionSummaryDraft(null);
+      setTeamDeclarationDraft(null);
       setMsg('다음 라운드가 열렸습니다. 새 상황을 읽고 개인 판단부터 이어가세요.');
       navigate(`/team/${roomId}/${teamId}`);
     } catch (e) {
@@ -220,12 +222,12 @@ export default function TeamPage() {
           <TeamDiscussionGuide />
           <label className="team-decision-summary-field">토론 요약
             <small>합의한 기준, 갈린 의견, 감수할 부담, 다음 확인 시점을 짧게 남겨 주세요.</small>
-            <textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} placeholder="예: 고객 신뢰 회복을 우선 기준으로 삼고 B안을 선택했다. 단, 내부 일정 지연 부담이 남아 다음 회의에서 담당자와 확인 시점을 정한다." />
+            <textarea value={discussionSummaryDraft ?? decision?.discussionSummary ?? ''} onChange={e => setDiscussionSummaryDraft(e.target.value)} placeholder="예: 고객 신뢰 회복을 우선 기준으로 삼고 B안을 선택했다. 단, 내부 일정 지연 부담이 남아 다음 회의에서 담당자와 확인 시점을 정한다." />
           </label>
           <div className="team-decision-save-bar">
             <button className="primary" onClick={() => {
               try {
-                submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: summary || decision?.discussionSummary, submittedBy: 'team' });
+                submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: discussionSummaryDraft ?? decision?.discussionSummary ?? '', submittedBy: 'team' });
                 setMsg('팀 최종 선택을 저장했습니다. 이어서 산출물에 다음 행동과 남는 부담을 남겨 주세요.');
               } catch (e) { setMsg(e.message); }
             }}>팀 최종 선택 저장</button>
@@ -288,12 +290,12 @@ export default function TeamPage() {
             <TeamDeclarationGuide />
             <label className="team-declaration-field">우리 팀 선언문
               <small>판정 결과를 맞히기 위한 문장이 아니라, 현업으로 돌아가서 함께 지킬 기준을 적어 주세요.</small>
-              <textarea defaultValue={declaration?.teamDeclaration || ''} placeholder="예: 우리는 빠른 결정보다, 고객과 팀원에게 남는 부담을 먼저 확인하는 팀이 되겠습니다." onChange={e => setSummary(e.target.value)} />
+              <textarea value={teamDeclarationDraft ?? declaration?.teamDeclaration ?? ''} placeholder="예: 우리는 빠른 결정보다, 고객과 팀원에게 남는 부담을 먼저 확인하는 팀이 되겠습니다." onChange={e => setTeamDeclarationDraft(e.target.value)} />
             </label>
             <div className="team-declaration-save-bar">
               <button className="primary" onClick={() => {
                 updateDb(db2 => {
-                  db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: summary || declaration?.teamDeclaration || '', submittedAt: Date.now() };
+                  db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: teamDeclarationDraft ?? declaration?.teamDeclaration ?? '', submittedAt: Date.now() };
                 });
                 setMsg('팀 선언문이 저장되었습니다. 이제 최종 판정을 생성하고 우리 팀의 판단 흐름을 확인하세요.');
               }}>팀 선언문 저장</button>
