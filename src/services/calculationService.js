@@ -52,14 +52,18 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
     const teamResultNarrative = getTeamResultNarrative({ teamId, choiceType: choice?.internalType, roundId });
     db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
       calculationId:`${roundId}_${teamId}`,
+      calculationModelVersion: 'round-v2.0-quality-foundation',
       roundId,
       teamId,
       choiceId:decision.finalChoiceId,
       choiceText: choice?.choiceText || decision.finalChoiceId,
       choiceInternalType: choice?.internalType || 'UNKNOWN',
       baseEffects:choice?.baseEffects || {},
+      discussionSummary: decision.discussionSummary || '',
+      discussionQualityReview: decision.discussionQualityReview || submission.discussionQualityReview || null,
       outputQuality:submission.quality,
       outputQualityScore: submission.qualityScore,
+      outputQualityBreakdown: submission.qualityBreakdown || null,
       outputEvidenceReview: submission.evidenceReview || null,
       teamResultNarrative,
       previousState,
