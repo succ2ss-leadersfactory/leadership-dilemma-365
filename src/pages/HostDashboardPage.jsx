@@ -4,11 +4,13 @@ import Layout from '../components/Layout.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
 import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import PilotRunbookPanel from '../components/PilotRunbookPanel.jsx';
+import RuntimeSafetyNotice from '../components/RuntimeSafetyNotice.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { getRoom, updateRoomProgress } from '../services/roomService';
 import { getCurrentRound, movePhase, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { calculateAllTeamResultsForRound, generateFinalResults } from '../services/calculationService';
 import { stateLabels } from '../utils/statusLabels';
+import { formatStateValueList, getSafeStateRecord } from '../utils/runtimeSafetyUtils';
 import '../styles/hostDashboardUx.css';
 
 const phaseLabels = {
@@ -84,7 +86,7 @@ function buildTeamFacilitatorInsight({ room, team, currentRoundId }) {
   const reflectionCount = Object.keys(declaration.individualReflections || {}).length;
   const declarationReview = finalResult?.declarationQualityReview || declaration.declarationQualityReview;
   const reflectionSummary = finalResult?.reflectionSummary;
-  const state = room.stateValues?.[team.teamId] || {};
+  const state = getSafeStateRecord(room, team.teamId);
   const calculation = latestTeamCalculation(room, team.teamId, currentRoundId);
   const trend = finalResult?.riskTrendSummary || state.riskTrendSummary;
   const topRisk = trend?.maxRawRiskLabel || state.maxRawRiskLabel || stateLabels[state.maxRiskKey] || '아직 없음';
@@ -132,8 +134,8 @@ export default function HostDashboardPage() {
   const round = getCurrentRound(roomId);
   const strategicEvent = db.gameContent.strategicEvents?.[round?.strategicEventId];
   const progress = room.roomProgress;
-  const teams = Object.values(room.teams);
-  const players = Object.values(room.players);
+  const teams = Object.values(room.teams || {});
+  const players = Object.values(room.players || {});
   const finalCount = Object.keys(room.finalResults || {}).length;
   const reflectionCount = Object.values(room.declarations || {}).reduce((sum, d) => sum + Object.keys(d.individualReflections || {}).length, 0);
   const phaseLabel = phaseLabels[progress.currentPhase] || progress.currentPhase;
@@ -195,6 +197,8 @@ export default function HostDashboardPage() {
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
         </div>
       </section>
+
+      <RuntimeSafetyNotice room={room} roomId={roomId} />
 
       <section className="hostOpsBoard">
         <div className="card hostOpsCard">
@@ -289,7 +293,7 @@ export default function HostDashboardPage() {
         <div className="hostTeamOpsGrid">
           {teams.map(team => {
             const steps = teamRoundStatus({ room, round, team, players });
-            const risk = room.stateValues[team.teamId];
+            const risk = getSafeStateRecord(room, team.teamId);
             return (
               <div className="hostTeamOpsCard" key={team.teamId}>
                 <div className="hostTeamOpsCard__top">
@@ -302,7 +306,7 @@ export default function HostDashboardPage() {
                 <div className="hostTeamOpsCard__steps">
                   {steps.map(step => <div className={step.done ? 'hostStepLine done' : 'hostStepLine'} key={step.label}><b>{step.label}</b><span>{step.text}</span></div>)}
                 </div>
-                {risk && <p><b>최대 리스크:</b> {stateLabels[risk.maxRiskKey] || risk.maxRiskKey} · {risk.maxRiskLabel}</p>}
+                <p><b>최대 리스크:</b> {stateLabels[risk.maxRiskKey] || risk.maxRiskKey} · {risk.maxRiskLabel}{risk.isFallback ? ' · 기본값 표시' : ''}</p>
                 <p><Link to={`/team/${roomId}/${team.teamId}`}>{team.teamName} 진행 화면 열기</Link></p>
               </div>
             );
@@ -319,7 +323,7 @@ export default function HostDashboardPage() {
           <h3>팀별 상태값</h3>
           <table>
             <thead><tr><th>팀</th><th>최대 리스크</th><th>상태값</th></tr></thead>
-            <tbody>{teams.map(t => { const s = room.stateValues[t.teamId]; return <tr key={t.teamId}><td>{t.teamName}</td><td>{stateLabels[s.maxRiskKey] || s.maxRiskKey} · {s.maxRiskLabel}</td><td>{Object.values(s.values).join(' / ')}</td></tr>; })}</tbody>
+            <tbody>{teams.map(t => { const s = getSafeStateRecord(room, t.teamId); return <tr key={t.teamId}><td>{t.teamName}</td><td>{stateLabels[s.maxRiskKey] || s.maxRiskKey} · {s.maxRiskLabel}{s.isFallback ? ' · 기본값' : ''}</td><td>{formatStateValueList(s)}</td></tr>; })}</tbody>
           </table>
         </div>
       </section>
