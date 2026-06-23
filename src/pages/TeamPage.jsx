@@ -48,6 +48,14 @@ function isKsaComplete(selectedKSA) {
   );
 }
 
+function buildTeamChoices(choices, teamVariant) {
+  const overrides = teamVariant?.choiceTextOverrides || {};
+  return choices.map(choice => ({
+    ...choice,
+    choiceText: overrides[choice.choiceId] || choice.choiceText
+  }));
+}
+
 export default function TeamPage() {
   const { roomId, teamId } = useParams();
   const navigate = useNavigate();
@@ -69,10 +77,12 @@ export default function TeamPage() {
 
   const team = room.teams[teamId];
   const expertiseLens = db.gameContent.teamExpertiseLenses?.[teamId];
+  const teamVariant = db.gameContent.teamSituationVariants?.[round.roundId]?.[teamId];
   const strategicEvent = db.gameContent.strategicEvents?.[round.strategicEventId];
   const choices = db.gameContent.choices
     .filter(c => round.choiceIds.includes(c.choiceId))
     .sort((a, b) => a.displayOrder - b.displayOrder);
+  const teamChoices = buildTeamChoices(choices, teamVariant);
   const votes = getTeamVotes(roomId, round.roundId, teamId);
   const decision = getTeamDecision(roomId, round.roundId, teamId);
   const outputRequirement = db.gameContent.outputRequirements[round.outputRequirementId];
@@ -152,7 +162,7 @@ export default function TeamPage() {
 
   return (
     <Layout roomId={roomId}>
-      <RoundCard round={round} />
+      <RoundCard round={round} teamVariant={teamVariant} />
       <ParticipantStepGuide mode="team" roundId={round.roundId} resultVisible={room.roomProgress.resultVisible} />
       <StrategicEventCard event={strategicEvent} teamId={teamId} />
       <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round.week} teamId={teamId} compact />
@@ -214,9 +224,9 @@ export default function TeamPage() {
         </>
       )}
 
-      {choices.length > 0 && (
+      {teamChoices.length > 0 && (
         <section className="card team-decision-workshop-card">
-          <TeamDecisionSummary choices={choices} opinions={votes} />
+          <TeamDecisionSummary choices={teamChoices} opinions={votes} />
           <div className="team-decision-workshop-card__header">
             <p className="team-decision-workshop-card__eyebrow">TEAM AGREEMENT</p>
             <h3>팀 최종 선택</h3>
@@ -227,7 +237,7 @@ export default function TeamPage() {
             <span>가장 먼저 떠오른 선택을 그대로 따르기보다, 팀이 책임질 수 있는 기준과 부담을 함께 확인하세요.</span>
           </div>
           {!canEdit && <StatusNoticeCard type="locked" title="팀 결정 입력 대기">현재는 강사가 화면을 잠근 상태입니다. 화면이 열리면 최종 선택과 토론 요약을 저장할 수 있습니다.</StatusNoticeCard>}
-          <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
+          <ChoiceList choices={teamChoices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
           <TeamDiscussionGuide />
           <label className="team-decision-summary-field">토론 요약
             <small>합의한 기준, 갈린 의견, 감수할 부담, 다음 확인 시점을 짧게 남겨 주세요.</small>
@@ -245,7 +255,7 @@ export default function TeamPage() {
         </section>
       )}
 
-      {choices.length > 0 && (
+      {teamChoices.length > 0 && (
         <section className="card">
           <h3>산출물 입력</h3>
           <OutputForm
@@ -263,7 +273,7 @@ export default function TeamPage() {
         </section>
       )}
 
-      {choices.length > 0 && !room.roomProgress.resultVisible && (
+      {teamChoices.length > 0 && !room.roomProgress.resultVisible && (
         <section className="card next-step-card">
           <h3>다음에 할 일</h3>
           <p>팀 최종 선택과 산출물을 저장했다면 결과를 계산하고 피드백을 확인하세요.</p>
