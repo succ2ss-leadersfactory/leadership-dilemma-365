@@ -1,0 +1,100 @@
+.statusNoticeCard {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 16px 16px 16px 54px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.07), transparent 12rem),
+    linear-gradient(135deg, #ffffff, #f8fbff);
+  color: #334155;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
+}
+
+.statusNoticeCard::before {
+  content: "i";
+  position: absolute;
+  left: 16px;
+  top: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #2457d6;
+  color: #ffffff;
+  font-weight: 950;
+}
+
+.statusNoticeCard--locked {
+  border-color: rgba(245, 158, 11, 0.24);
+  background: linear-gradient(135deg, #fff7ed, #ffffff);
+}
+
+.statusNoticeCard--locked::before {
+  content: "!";
+  background: #f59e0b;
+}
+
+.statusNoticeCard--ready {
+  border-color: rgba(34, 197, 94, 0.22);
+  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+.statusNoticeCard--ready::before {
+  content: "✓";
+  background: #16a34a;
+}
+
+.statusNoticeCard h4 {
+  margin: 0;
+  color: #101828;
+  letter-spacing: -0.03em;
+}
+
+.statusNoticeCard p {
+  margin: 0;
+  line-height: 1.62;
+}
+
+.statusNoticeCard ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.statusNoticeCard li {
+  line-height: 1.5;
+}
+
+.statusNoticeCard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.statusNoticeCard__meta span {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+@media (max-width: 560px) {
+  .statusNoticeCard {
+    padding: 15px 15px 15px 48px;
+    border-radius: 18px;
+  }
+
+  .statusNoticeCard::before {
+    left: 15px;
+    top: 16px;
+  }
+}
