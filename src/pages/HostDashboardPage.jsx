@@ -223,6 +223,11 @@ export default function HostDashboardPage() {
         </div>
         <div className="card hostOpsCard hostLinksCard">
           <h3>운영 링크</h3>
+          <p className="muted">PC 기본 운영에서는 아래 팀별 Team 화면을 새 탭으로 열어 사용합니다.</p>
+          {teams.map(team => (
+            <p key={team.teamId}><Link to={`/team/${roomId}/${team.teamId}`}>{team.teamName} 팀 화면 열기</Link></p>
+          ))}
+          <hr />
           <p><Link to={`/compare/${roomId}`}>다팀 비교 화면 열기</Link></p>
           <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면 열기</Link></p>
           <p><Link to={`/guide/${roomId}`}>강사 가이드 열기</Link></p>
@@ -284,48 +289,40 @@ export default function HostDashboardPage() {
         </div>
       </section>
 
+      {strategicEvent && <StrategicEventCard event={strategicEvent} />}
+      <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round?.week || 0} />
       <PilotRunbookPanel round={round} progress={progress} />
-      <StrategicEventCard event={strategicEvent} audience="facilitator" />
-      <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round?.week || 0} audience="facilitator" />
 
       <section className="card">
-        <h3>팀별 진행 보드</h3>
+        <h3>팀별 운영 보드</h3>
         <div className="hostTeamOpsGrid">
           {teams.map(team => {
-            const steps = teamRoundStatus({ room, round, team, players });
+            const statuses = teamRoundStatus({ room, round, team, players });
             const risk = getSafeStateRecord(room, team.teamId);
             return (
               <div className="hostTeamOpsCard" key={team.teamId}>
                 <div className="hostTeamOpsCard__top">
                   <div>
                     <h4>{team.teamName}</h4>
-                    <small>{team.slogan}</small>
+                    <small>팀 화면에서 대표 입력 중심으로 운영</small>
                   </div>
-                  <span className={steps.every(step => step.done) ? 'hostBadge success' : 'hostBadge warning'}>{steps.every(step => step.done) ? '준비 완료' : '확인 필요'}</span>
+                  <Link className="secondary" to={`/team/${roomId}/${team.teamId}`}>팀 화면</Link>
                 </div>
-                <div className="hostTeamOpsCard__steps">
-                  {steps.map(step => <div className={step.done ? 'hostStepLine done' : 'hostStepLine'} key={step.label}><b>{step.label}</b><span>{step.text}</span></div>)}
+                <div className="hostStatusPills">
+                  {statuses.map(s => <span key={s.label} className={s.done ? 'done' : 'todo'}>{s.label}: {s.text}</span>)}
                 </div>
                 <p><b>최대 리스크:</b> {stateLabels[risk.maxRiskKey] || risk.maxRiskKey} · {risk.maxRiskLabel}{risk.isFallback ? ' · 기본값 표시' : ''}</p>
-                <p><Link to={`/team/${roomId}/${team.teamId}`}>{team.teamName} 진행 화면 열기</Link></p>
               </div>
             );
           })}
         </div>
       </section>
 
-      <section className="grid2">
-        <div className="card">
-          <h3>개인 입장 현황</h3>
-          {players.length ? players.map(p => <p key={p.playerId}>{p.displayName} · {room.teams[p.teamId]?.teamName}</p>) : <p className="muted">기본 운영에서는 개인별 입장자가 없어도 진행할 수 있습니다.</p>}
-        </div>
-        <div className="card">
-          <h3>팀별 상태값</h3>
-          <table>
-            <thead><tr><th>팀</th><th>최대 리스크</th><th>상태값</th></tr></thead>
-            <tbody>{teams.map(t => { const s = getSafeStateRecord(room, t.teamId); return <tr key={t.teamId}><td>{t.teamName}</td><td>{stateLabels[s.maxRiskKey] || s.maxRiskKey} · {s.maxRiskLabel}{s.isFallback ? ' · 기본값' : ''}</td><td>{formatStateValueList(s)}</td></tr>; })}</tbody>
-          </table>
-        </div>
+      <section className="card">
+        <h3>팀별 상태값</h3>
+        <table><thead><tr><th>팀</th><th>최대 리스크</th><th>상태값</th></tr></thead>
+          <tbody>{teams.map(t => { const s = getSafeStateRecord(room, t.teamId); return <tr key={t.teamId}><td>{t.teamName}</td><td>{stateLabels[s.maxRiskKey] || s.maxRiskKey} · {s.maxRiskLabel}{s.isFallback ? ' · 기본값' : ''}</td><td>{formatStateValueList(s)}</td></tr>; })}</tbody>
+        </table>
       </section>
     </Layout>
   );
