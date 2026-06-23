@@ -26,12 +26,24 @@
   pointer-events: none;
 }
 
+.ksaIntroEyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.88);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
 .ksaIntro h3 {
   margin: 0 0 8px;
   letter-spacing: -0.04em;
 }
 
-.ksaIntro p {
+.ksaIntro p:not(.ksaIntroEyebrow) {
   max-width: 720px;
   margin: 0;
   color: #334155;
@@ -68,29 +80,10 @@
   font-weight: 900;
 }
 
-.ksaProgress div:nth-child(1)::before {
-  content: "K";
-  background: #dbeafe;
-  color: #1e3a8a;
-}
-
-.ksaProgress div:nth-child(2)::before {
-  content: "S";
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.ksaProgress div:nth-child(3)::before {
-  content: "A";
-  background: #ffedd5;
-  color: #b45309;
-}
-
-.ksaProgress div:nth-child(4)::before {
-  content: "9";
-  background: #ede9fe;
-  color: #5b21b6;
-}
+.ksaProgress div:nth-child(1)::before { content: "K"; background: #dbeafe; color: #1e3a8a; }
+.ksaProgress div:nth-child(2)::before { content: "S"; background: #dcfce7; color: #15803d; }
+.ksaProgress div:nth-child(3)::before { content: "A"; background: #ffedd5; color: #b45309; }
+.ksaProgress div:nth-child(4)::before { content: "9"; background: #ede9fe; color: #5b21b6; }
 
 .ksaProgress b {
   display: block;
@@ -116,17 +109,21 @@
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
 }
 
-.ksaGroup h4 {
+.ksaGroupHeader {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 13px;
+}
+
+.ksaGroupHeader h4 {
   margin: 0 0 6px;
   letter-spacing: -0.035em;
 }
 
-.ksaGroup > p {
-  margin: 0 0 12px;
+.ksaGroupHeader p {
+  margin: 0;
   color: #667085;
   font-size: 0.92rem;
   line-height: 1.5;
@@ -153,7 +150,8 @@
   color: #15803d;
 }
 
-.ksaGroup .chips {
+.ksaGroup .chips,
+.ksaChipList {
   gap: 9px;
 }
 
@@ -178,6 +176,10 @@
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(36, 87, 214, 0.22);
 }
+
+.ksaGroup--knowledge { border-top-color: rgba(36, 87, 214, 0.42); }
+.ksaGroup--skill { border-top-color: rgba(34, 197, 94, 0.42); }
+.ksaGroup--attitude { border-top-color: rgba(245, 158, 11, 0.42); }
 
 .ksaSaveGuide {
   position: relative;
@@ -220,8 +222,13 @@
     font-size: 2.4rem;
   }
 
-  .ksaGroup h4 {
-    align-items: flex-start;
+  .ksaGroupHeader {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .ksaCount {
+    width: fit-content;
   }
 
   .ksaProgress {
