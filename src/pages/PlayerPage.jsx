@@ -85,6 +85,9 @@ export default function PlayerPage() {
 
         {choices.length > 0 ? (
           <>
+            <div className="notice">
+              <b>지금 할 일:</b> 팀 토의 전에 먼저 혼자 판단을 남기는 단계입니다. 정답을 맞히기보다 왜 그렇게 판단했는지 짧게 적어 주세요.
+            </div>
             <ChoiceList choices={choices} selectedChoiceId={choiceId || vote?.choiceId} onSelect={setChoiceId} disabled={!canVote} />
             <label>선택 이유<textarea disabled={!canVote} value={reason || vote?.reason || ''} onChange={e => setReason(e.target.value)} placeholder="왜 이 선택을 하셨습니까?" /></label>
             <div className="actions">
