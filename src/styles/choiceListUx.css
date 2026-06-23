@@ -1,1 +1,153 @@
-.choiceGrid.choiceCardGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.choiceCard{position:relative;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:18px;padding:16px;min-height:150px;display:flex;flex-direction:column;gap:10px;transition:.15s ease;cursor:pointer}.choiceCard:hover:not(:disabled){border-color:#93c5fd;box-shadow:0 8px 24px rgba(15,23,42,.08);transform:translateY(-1px)}.choiceCard.selected{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}.choiceCard:disabled{cursor:not-allowed;opacity:.78}.choiceCardTop{display:flex;justify-content:space-between;align-items:center;gap:10px}.choiceNumber{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;color:#334155;font-weight:900}.choiceCard.selected .choiceNumber{background:#2563eb;color:white}.choiceStatus{font-size:12px;font-weight:900;color:#2563eb}.choiceText{display:block;line-height:1.62;color:#0f172a}.choiceHint{margin-top:auto;border-top:1px solid #e2e8f0;padding-top:9px;color:#64748b;font-size:13px;line-height:1.45}.choiceCard.selected .choiceHint{color:#1d4ed8}@media(max-width:560px){.choiceGrid.choiceCardGrid{grid-template-columns:1fr}.choiceCard{padding:14px;min-height:auto}}
+.choiceGrid.choiceCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.choiceCard {
+  position: relative;
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.06), transparent 10rem),
+    #ffffff;
+  color: #101828;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.choiceCard::after {
+  content: "";
+  position: absolute;
+  inset: auto 18px 0;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(90deg, rgba(36, 87, 214, 0.3), rgba(20, 184, 166, 0.24));
+}
+
+.choiceCard:hover:not(:disabled) {
+  border-color: rgba(36, 87, 214, 0.42);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.choiceCard.selected {
+  border-color: rgba(36, 87, 214, 0.72);
+  background:
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.14), transparent 12rem),
+    linear-gradient(145deg, #ffffff, #eff6ff);
+  box-shadow: 0 0 0 4px rgba(36, 87, 214, 0.12), 0 16px 34px rgba(15, 23, 42, 0.08);
+}
+
+.choiceCard.selected::after {
+  background: linear-gradient(90deg, #2457d6, #14b8a6);
+}
+
+.choiceCard:disabled {
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+
+.choiceCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.choiceNumber {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.96rem;
+  font-weight: 950;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
+}
+
+.choiceCard.selected .choiceNumber {
+  background: linear-gradient(135deg, #2457d6, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(36, 87, 214, 0.24);
+}
+
+.choiceStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.choiceStatus::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.choiceCard.selected .choiceStatus {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.choiceCard.selected .choiceStatus::before {
+  background: #2457d6;
+}
+
+.choiceText {
+  display: block;
+  color: #101828;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.58;
+  letter-spacing: -0.025em;
+}
+
+.choiceHint {
+  margin-top: auto;
+  padding-top: 11px;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.choiceCard.selected .choiceHint {
+  color: #1d4ed8;
+  border-top-color: rgba(36, 87, 214, 0.22);
+}
+
+@media (max-width: 560px) {
+  .choiceGrid.choiceCardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .choiceCard {
+    min-height: auto;
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .choiceText {
+    font-size: 0.98rem;
+  }
+}
