@@ -79,22 +79,22 @@ export default function ParticipantStepGuide({ mode = 'player', roundId, resultV
   const active = activeStepId(guideMode);
 
   return (
-    <section className="card stepGuide">
+    <section className={`card stepGuide stepGuide--${guideMode}`}>
       <div className="stepGuideHeader">
         <div>
-          <p className="eyebrow">{copy.eyebrow}</p>
+          <p className="stepGuideHeader__eyebrow">{copy.eyebrow}</p>
           <h3>{copy.title}</h3>
-          <p>{copy.description}</p>
+          <p className="stepGuideHeader__description">{copy.description}</p>
         </div>
         <div className="stepGuideNow">
           <small>{copy.currentLabel}</small>
           <b>{copy.currentText}</b>
-          <span>{copy.nextLabel}: {copy.nextText}</span>
+          <span><strong>{copy.nextLabel}</strong>{copy.nextText}</span>
         </div>
       </div>
       <ol className="stepGuideList" aria-label="참여자 진행 단계">
         {baseSteps.map((step, index) => (
-          <li className={step.id === active ? 'active' : ''} key={step.id}>
+          <li className={step.id === active ? 'active' : ''} aria-current={step.id === active ? 'step' : undefined} key={step.id}>
             <span>{index + 1}</span>
             <b>{step.label}</b>
           </li>
