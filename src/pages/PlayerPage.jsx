@@ -43,9 +43,9 @@ export default function PlayerPage() {
   const { roomId, playerId } = useParams();
   const [tick, setTick] = useState(0);
   const [choiceId, setChoiceId] = useState('');
-  const [reason, setReason] = useState('');
-  const [habit, setHabit] = useState('');
-  const [nextBehavior, setNextBehavior] = useState('');
+  const [reasonDraft, setReasonDraft] = useState(null);
+  const [habitDraft, setHabitDraft] = useState(null);
+  const [nextBehaviorDraft, setNextBehaviorDraft] = useState(null);
   const [msg, setMsg] = useState('');
   const [showGuide, setShowGuide] = useState(() => localStorage.getItem(`participantGuide_${playerId}`) !== 'hidden');
 
@@ -72,7 +72,7 @@ export default function PlayerPage() {
 
   const save = () => {
     try {
-      submitVote({ roomId, roundId: round.roundId, teamId: player.teamId, playerId, choiceId: choiceId || vote?.choiceId, reason: reason || vote?.reason });
+      submitVote({ roomId, roundId: round.roundId, teamId: player.teamId, playerId, choiceId: choiceId || vote?.choiceId, reason: reasonDraft ?? vote?.reason ?? '' });
       setMsg('개인 판단이 저장되었습니다. 팀 화면에서 선택 차이와 최종 결정을 확인하세요.');
     } catch (e) { setMsg(e.message); }
   };
@@ -83,8 +83,8 @@ export default function PlayerPage() {
       d.individualReflections = {
         ...(d.individualReflections || {}),
         [playerId]: {
-          habit: habit || reflection?.habit || '',
-          nextBehavior: nextBehavior || reflection?.nextBehavior || '',
+          habit: habitDraft ?? reflection?.habit ?? '',
+          nextBehavior: nextBehaviorDraft ?? reflection?.nextBehavior ?? '',
           submittedAt: Date.now()
         }
       };
@@ -145,7 +145,7 @@ export default function PlayerPage() {
               </div>
             </div>
             <ChoiceList choices={choices} selectedChoiceId={choiceId || vote?.choiceId} onSelect={setChoiceId} disabled={!canVote} />
-            <label className="personalReasonField">선택 이유<textarea disabled={!canVote} value={reason || vote?.reason || ''} onChange={e => setReason(e.target.value)} placeholder="예: 고객 신뢰 회복이 먼저라고 보았습니다. 다만 내부 실행 부담은 커질 수 있습니다." /></label>
+            <label className="personalReasonField">선택 이유<textarea disabled={!canVote} value={reasonDraft ?? vote?.reason ?? ''} onChange={e => setReasonDraft(e.target.value)} placeholder="예: 고객 신뢰 회복이 먼저라고 보았습니다. 다만 내부 실행 부담은 커질 수 있습니다." /></label>
             <div className="personalReasonGuide">
               <b>선택 이유에는 이런 내용이 들어가면 좋습니다</b>
               <ul>
@@ -172,8 +172,8 @@ export default function PlayerPage() {
                 <div><b>바꿀 행동</b><span>다음 회의나 1on1에서 바로 바꿔볼 작은 행동을 정합니다.</span></div>
               </div>
             </div>
-            <label className="personalReflectionField">내가 반복한 판단 습관<textarea defaultValue={reflection?.habit || ''} onChange={e => setHabit(e.target.value)} placeholder="예: 불확실하면 속도를 먼저 선택했다 / 기준을 세우느라 실행을 늦췄다" /></label>
-            <label className="personalReflectionField">다음 현업에서 바꿀 행동<textarea defaultValue={reflection?.nextBehavior || ''} onChange={e => setNextBehavior(e.target.value)} placeholder="예: 선택 전에 부담이 누구에게 몰리는지 먼저 확인하겠다" /></label>
+            <label className="personalReflectionField">내가 반복한 판단 습관<textarea value={habitDraft ?? reflection?.habit ?? ''} onChange={e => setHabitDraft(e.target.value)} placeholder="예: 불확실하면 속도를 먼저 선택했다 / 기준을 세우느라 실행을 늦췄다" /></label>
+            <label className="personalReflectionField">다음 현업에서 바꿀 행동<textarea value={nextBehaviorDraft ?? reflection?.nextBehavior ?? ''} onChange={e => setNextBehaviorDraft(e.target.value)} placeholder="예: 선택 전에 부담이 누구에게 몰리는지 먼저 확인하겠다" /></label>
             <div className="actions personalReflectionActions">
               <button className="primary" onClick={saveReflection}>개인 성찰 저장하기</button>
               <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 선언문 작성하기</Link>
