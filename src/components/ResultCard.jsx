@@ -75,6 +75,7 @@ export default function ResultCard({ card, calculation, audience = 'participant'
   const discussionSummary = buildDiscussionSummary(discussionReview);
   const qualityBreakdown = calculation?.outputQualityBreakdown;
   const roundImpactSummary = calculation?.roundImpactSummary;
+  const riskTrendSnapshot = calculation?.riskTrendSnapshot;
   const teamNarrative = calculation?.teamResultNarrative || getTeamResultNarrative({ teamId: calculation?.teamId, choiceType: calculation?.choiceInternalType, roundId: calculation?.roundId });
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
@@ -144,6 +145,19 @@ export default function ResultCard({ card, calculation, audience = 'participant'
             </ol>
           ) : (
             <p>{roundImpactSummary.participantSummary}</p>
+          )}
+        </div>
+      )}
+
+      {riskTrendSnapshot && (
+        <div className="sceneBox">
+          <h4>{isFacilitator ? '누적 리스크 흐름' : '누적 부담 흐름'}</h4>
+          <p>{riskTrendSnapshot.participantSummary}</p>
+          {isFacilitator && (
+            <>
+              <p><b>표시 리스크와 별도로 본 누적 부담:</b> {riskTrendSnapshot.riskLoad}점</p>
+              <ul>{(riskTrendSnapshot.facilitatorLines || []).map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul>
+            </>
           )}
         </div>
       )}
