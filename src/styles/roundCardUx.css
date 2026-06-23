@@ -1,18 +1,41 @@
 .roundHero {
+  isolation: isolate;
   border-color: rgba(36, 87, 214, 0.2);
   background:
     radial-gradient(circle at top right, rgba(36, 87, 214, 0.12), transparent 22rem),
+    radial-gradient(circle at left bottom, rgba(20, 184, 166, 0.08), transparent 18rem),
     linear-gradient(135deg, #ffffff, #f8fbff);
 }
 
-.roundHero > .eyebrow {
-  margin-bottom: 10px;
+.roundHero::after {
+  content: "DILEMMA";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 0;
+  color: rgba(36, 87, 214, 0.045);
+  font-size: 54px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
 }
 
-.roundHero > h2 {
-  margin: 8px 0 14px;
-  letter-spacing: -0.045em;
-  line-height: 1.2;
+.roundHero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.roundHeroEyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.88);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .roundHeroTop {
@@ -20,10 +43,18 @@
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
+  padding: 18px;
+  border: 1px solid rgba(36, 87, 214, 0.14);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.035);
 }
 
 .roundHeroTop h2 {
-  margin: 6px 0 0;
+  margin: 0;
+  font-size: clamp(25px, 3vw, 36px);
+  letter-spacing: -0.052em;
+  line-height: 1.2;
 }
 
 .roundWeekBadge {
@@ -36,6 +67,7 @@
   color: #e2e8f0;
   font-weight: 900;
   white-space: nowrap;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.16);
 }
 
 .roundWeekBadge::before {
@@ -52,10 +84,9 @@
   padding: 18px 18px 18px 58px;
   border: 1px solid rgba(36, 87, 214, 0.2);
   border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(36, 87, 214, 0.12), transparent 12rem),
-    linear-gradient(135deg, #eff6ff, #ffffff);
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
   overflow: hidden;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
 }
 
 .roundQuestionBox::before {
@@ -86,6 +117,36 @@
   color: #101828;
   line-height: 1.45;
   letter-spacing: -0.035em;
+}
+
+.roundReadHint {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.roundReadHint div {
+  min-height: 112px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
+}
+
+.roundReadHint b {
+  display: block;
+  margin-bottom: 4px;
+  color: #1d4ed8;
+  letter-spacing: -0.02em;
+}
+
+.roundReadHint span {
+  display: block;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .roundSituationBox,
@@ -126,14 +187,8 @@
   box-shadow: 0 0 0 4px rgba(36, 87, 214, 0.1);
 }
 
-.roundSituationBox h4::before {
-  background: #2457d6;
-}
-
-.roundSignalBox h4::before {
-  background: #f59e0b;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.13);
-}
+.roundSituationBox h4::before { background: #2457d6; }
+.roundSignalBox h4::before { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.13); }
 
 .roundSituationBox p,
 .roundSignalBox p {
@@ -142,55 +197,14 @@
   line-height: 1.72;
 }
 
-.roundReadHint {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.roundReadHint div {
-  padding: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 14px;
-  background: #f8fafc;
-}
-
-.roundReadHint b {
-  display: block;
-  margin-bottom: 4px;
-  color: #1d4ed8;
-}
-
-.roundReadHint span {
-  display: block;
-  color: #475569;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
 @media (max-width: 560px) {
-  .roundHeroTop {
-    display: block;
-  }
-
-  .roundWeekBadge {
-    margin-top: 10px;
-  }
-
-  .roundQuestionBox {
-    padding: 15px 15px 15px 50px;
-    border-radius: 20px;
-  }
-
-  .roundQuestionBox::before {
-    left: 15px;
-    top: 17px;
-  }
-
+  .roundHero::after { top: 16px; right: 16px; font-size: 34px; }
+  .roundHeroTop { display: block; padding: 15px; border-radius: 20px; }
+  .roundWeekBadge { margin-top: 10px; }
+  .roundQuestionBox { padding: 15px 15px 15px 50px; border-radius: 20px; }
+  .roundQuestionBox::before { left: 15px; top: 17px; }
+  .roundReadHint { grid-template-columns: 1fr; }
+  .roundReadHint div,
   .roundSituationBox,
-  .roundSignalBox {
-    padding: 15px;
-    border-radius: 20px;
-  }
+  .roundSignalBox { min-height: auto; padding: 15px; border-radius: 20px; }
 }
