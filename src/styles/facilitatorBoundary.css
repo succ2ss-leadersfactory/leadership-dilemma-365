@@ -39,6 +39,23 @@
   line-height: 1.55;
 }
 
+.top nav.participantNav {
+  justify-content: flex-end;
+}
+
+.top nav.participantNav span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid rgba(219, 234, 254, 0.28);
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.12);
+  color: #dbeafe;
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
 .reportHero .eyebrow::after {
   content: "강사용 상세 자료";
   display: inline-flex;
@@ -61,6 +78,10 @@
   .facilitatorOnlyNotice::before {
     left: 12px;
     top: 13px;
+  }
+
+  .top nav.participantNav {
+    overflow-x: visible;
   }
 
   .reportHero .eyebrow::after {
