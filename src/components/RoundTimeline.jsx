@@ -9,8 +9,8 @@ const phaseLabels = {
   setup: '준비',
   briefing: '상황 확인',
   ksaSelection: 'KSA 선택',
-  playerVote: '개인 판단',
-  teamDecision: '팀 토의',
+  playerVote: '개인 생각',
+  teamDecision: '팀 토의·결정',
   output: '산출물',
   outputSubmission: '산출물 작성',
   result: '결과 확인',
@@ -49,7 +49,7 @@ export default function RoundTimeline({ roomId }) {
             <Link to={`/report/${roomId}`}>리포트</Link>
           </div>
         ) : (
-          <div className="timelineParticipantNote">현재 라운드 흐름만 확인하세요</div>
+          <div className="timelineParticipantNote">팀 화면 하나로 현재 라운드 흐름을 확인하세요</div>
         )}
       </div>
       <div className="timelineSteps">
