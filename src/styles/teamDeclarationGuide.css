@@ -43,7 +43,8 @@
 }
 
 .team-declaration-guide__header p,
-.team-declaration-guide__example {
+.team-declaration-guide__example,
+.team-declaration-guide__poor-example {
   margin: 0;
   color: #475569;
   line-height: 1.58;
@@ -51,7 +52,7 @@
 
 .team-declaration-guide__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
@@ -72,36 +73,44 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
+  min-width: 30px;
   height: 30px;
+  width: fit-content;
+  padding: 0 8px;
   margin-bottom: 8px;
-  border-radius: 50%;
+  border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 900;
 }
 
 .team-declaration-guide__item:nth-child(1)::before {
-  content: "기";
+  content: "기준";
   background: #dbeafe;
   color: #1e3a8a;
 }
 
 .team-declaration-guide__item:nth-child(2)::before {
-  content: "멈";
+  content: "멈춤";
   background: #ffedd5;
   color: #b45309;
 }
 
 .team-declaration-guide__item:nth-child(3)::before {
-  content: "행";
+  content: "행동";
   background: #dcfce7;
   color: #15803d;
 }
 
 .team-declaration-guide__item:nth-child(4)::before {
-  content: "확";
+  content: "확인";
   background: #ede9fe;
   color: #5b21b6;
+}
+
+.team-declaration-guide__item:nth-child(5)::before {
+  content: "부담";
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .team-declaration-guide__item b {
@@ -116,31 +125,71 @@
   line-height: 1.5;
 }
 
-.team-declaration-guide__example {
+.team-declaration-guide__example,
+.team-declaration-guide__poor-example {
   position: relative;
   margin-top: 14px;
-  padding: 13px 14px 13px 48px;
-  border: 1px solid rgba(36, 87, 214, 0.18);
+  padding: 13px 14px 13px 54px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #eff6ff, #ffffff);
   font-size: 0.92rem;
 }
 
-.team-declaration-guide__example::before {
-  content: "예";
+.team-declaration-guide__example {
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+}
+
+.team-declaration-guide__poor-example {
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: linear-gradient(135deg, #fff7ed, #ffffff);
+}
+
+.team-declaration-guide__example::before,
+.team-declaration-guide__poor-example::before {
   position: absolute;
   left: 14px;
   top: 13px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 28px;
   height: 24px;
-  border-radius: 50%;
-  background: #2457d6;
+  border-radius: 999px;
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 900;
+}
+
+.team-declaration-guide__example::before {
+  content: "좋음";
+  background: #2457d6;
+}
+
+.team-declaration-guide__poor-example::before {
+  content: "부족";
+  background: #b45309;
+}
+
+.team-declaration-feedback {
+  margin: 14px 0;
+  padding: 16px;
+  border: 1px solid rgba(20, 184, 166, 0.22);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0fdfa, #ffffff);
+}
+
+.team-declaration-feedback h4 {
+  margin: 0 0 8px;
+}
+
+.team-declaration-feedback ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.team-declaration-feedback li {
+  margin: 5px 0;
+  color: #475569;
 }
 
 @media (max-width: 900px) {
