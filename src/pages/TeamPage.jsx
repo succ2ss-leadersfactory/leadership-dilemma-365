@@ -215,7 +215,7 @@ export default function TeamPage() {
 
       {room.roomProgress.resultVisible && calculation && (
         <>
-          <ResultCard card={resultCard} calculation={calculation} />
+          <ResultCard card={resultCard} calculation={calculation} audience="participant" />
           <section className="card next-step-card">
             <h3>다음 행동</h3>
             <p>결과를 확인했다면 다음 라운드로 이동해 같은 흐름을 이어가세요.</p>
