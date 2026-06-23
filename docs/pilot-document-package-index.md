@@ -12,8 +12,9 @@
 |---|---|---|
 | 1 | `README.md` | 전체 구조, 주요 route, 기본 실행 방법 |
 | 2 | `docs/pilot-operator-package.md` | 파일럿 운영자가 당일 바로 따라갈 최종 운영 패키지 |
-| 3 | `docs/release-notes-v1.0-pilot.md` | 이번 파일럿 버전의 포함 기능, 제한, 운영 메모 |
-| 4 | `docs/release-checkpoint-v1.0-pilot.md` | v1.0 Pilot 릴리즈 후보 기준 커밋과 최종 확인 항목 |
+| 3 | `docs/local-build-lock-guide.md` | 운영 PC에서 로컬 빌드와 package-lock 생성 기준 확인 |
+| 4 | `docs/release-notes-v1.0-pilot.md` | 이번 파일럿 버전의 포함 기능, 제한, 운영 메모 |
+| 5 | `docs/release-checkpoint-v1.0-pilot.md` | v1.0 Pilot 릴리즈 후보 기준 커밋과 최종 확인 항목 |
 
 ---
 
@@ -34,14 +35,15 @@
 ## 3. 파일럿 전 20분 점검 순서
 
 1. `/host/create`에서 새 방을 만든다.
-2. `/guide/:roomId`에서 **파일럿 운영용 최종 사용 가이드**를 확인한다.
-3. `/guide/:roomId`의 **파일럿 직전 기능 동선 점검표**에서 P1~P9를 한 팀 기준으로 점검한다.
-4. `/admin/:roomId`에서 리허설 샘플 4종 중 하나를 생성한다.
-5. `/admin/:roomId`의 리허설 밸런스 검증에서 판정 분포를 확인한다.
-6. `/report/:roomId`에서 리포트와 Markdown 다운로드가 정상 작동하는지 확인한다.
-7. `/admin/:roomId`에서 JSON 백업을 다운로드한다.
-8. 실제 운영 전에는 **현재 방 진행 데이터 초기화**를 실행한다.
-9. 실제 배포 기준은 `docs/release-checkpoint-v1.0-pilot.md`의 체크포인트와 로컬 `npm run build` 결과를 함께 확인한다.
+2. `docs/local-build-lock-guide.md` 기준으로 운영 PC에서 `npm install`과 `npm run pilot:verify`를 실행한다.
+3. `/guide/:roomId`에서 **파일럿 운영용 최종 사용 가이드**를 확인한다.
+4. `/guide/:roomId`의 **파일럿 직전 기능 동선 점검표**에서 P1~P9를 한 팀 기준으로 점검한다.
+5. `/admin/:roomId`에서 리허설 샘플 4종 중 하나를 생성한다.
+6. `/admin/:roomId`의 리허설 밸런스 검증에서 판정 분포를 확인한다.
+7. `/report/:roomId`에서 리포트와 Markdown 다운로드가 정상 작동하는지 확인한다.
+8. `/admin/:roomId`에서 JSON 백업을 다운로드한다.
+9. 실제 운영 전에는 **현재 방 진행 데이터 초기화**를 실행한다.
+10. 실제 배포 기준은 `docs/release-checkpoint-v1.0-pilot.md`의 체크포인트와 로컬 `npm run pilot:verify` 결과를 함께 확인한다.
 
 ---
 
