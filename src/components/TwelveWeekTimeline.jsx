@@ -45,10 +45,11 @@ function getCompactItems(items, currentWeek) {
   return slice;
 }
 
-export default function TwelveWeekTimeline({ rounds = [], weekLogs = [], currentWeek = 0, teamId, compact = false, audience = 'participant' }) {
+export default function TwelveWeekTimeline({ rounds = [], weekLogs = [], currentWeek = 0, teamId, compact = false, audience }) {
   const items = buildTimelineItems(rounds, weekLogs);
   const visibleItems = compact ? getCompactItems(items, currentWeek) : items;
-  const isFacilitator = audience === 'facilitator';
+  const resolvedAudience = audience || (compact ? 'participant' : 'facilitator');
+  const isFacilitator = resolvedAudience === 'facilitator';
   return (
     <section className="card twelve-week-timeline">
       <div className="timelineHeader">
