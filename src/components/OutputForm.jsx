@@ -7,6 +7,10 @@ export default function OutputForm({ outputRequirement, initialAnswers = {}, onS
 
   return (
     <form className="stack" onSubmit={(e) => { e.preventDefault(); onSubmit(answers); }}>
+      <div className="notice">
+        <b>산출물 작성 기준:</b> 길게 쓰지 않아도 됩니다. 다음 행동, 책임자, 확인 시점, 남는 리스크가 보이게 남겨 주세요.
+      </div>
+
       {expertiseLens && (
         <div className="notice">
           <b>{expertiseLens.title}</b>
