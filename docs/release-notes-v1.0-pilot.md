@@ -42,6 +42,7 @@ v1.0 Pilot은 교육장 리허설과 단일 브라우저 데모 운영을 위한
 - 운영 문서 패키지 인덱스
 - 파일럿 운영자 런북
 - 파일럿 UI/UX QA 체크리스트
+- 파일럿 종료 후 회고 기록 템플릿
 - 모바일 참가자 화면 개선
 - GitHub Actions 빌드 검증 workflow
 
@@ -154,6 +155,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 - 인물 카드는 평가가 아니라 토의용 역할 렌즈로 다룹니다.
 - 마지막에는 개인 성찰과 팀 선언문을 남깁니다.
 - 파일럿 전에는 새 기능을 추가하지 않고 문구 보정과 명백한 오류 수정만 허용합니다.
+- 파일럿 종료 후에는 `docs/pilot-post-run-retrospective-template.md`로 개선 항목을 기록합니다.
 
 ---
 
@@ -173,6 +175,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 - `docs/pilot-document-package-index.md`
 - `docs/facilitator-pilot-runbook.md`
 - `docs/pilot-ui-ux-qa-checklist.md`
+- `docs/pilot-post-run-retrospective-template.md`
 - `docs/pilot-final-status-summary.md`
 - `docs/pilot-operator-handoff.md`
 - `docs/pilot-final-qa-decision-table.md`
