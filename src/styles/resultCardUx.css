@@ -1,14 +1,65 @@
 .result-card {
+  isolation: isolate;
+  border-color: rgba(36, 87, 214, 0.2);
   background:
-    radial-gradient(circle at top right, rgba(36, 87, 214, 0.09), transparent 18rem),
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.11), transparent 20rem),
+    radial-gradient(circle at left bottom, rgba(20, 184, 166, 0.08), transparent 18rem),
     rgba(255, 255, 255, 0.96);
+}
+
+.result-card::after {
+  content: "RESULT";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 0;
+  color: rgba(36, 87, 214, 0.045);
+  font-size: 54px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.result-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.result-card__header {
+  margin-bottom: 14px;
+  padding: 18px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.08), transparent 15rem),
+    rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.result-card__eyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.88);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.result-card__header h3 {
+  margin: 0 0 8px;
+  font-size: clamp(22px, 2.2vw, 28px);
+  letter-spacing: -0.045em;
 }
 
 .result-card .resultLine {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0 8px;
+  margin: 4px 0 0;
   padding: 8px 12px;
   border-radius: 999px;
   background: rgba(234, 241, 255, 0.88);
@@ -21,6 +72,27 @@
   content: "●";
   color: #2457d6;
   font-size: 0.72rem;
+}
+
+.resultReadingGuide {
+  display: grid;
+  gap: 5px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-left: 5px solid #2457d6;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  color: #344054;
+}
+
+.resultReadingGuide b {
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+}
+
+.resultReadingGuide span {
+  line-height: 1.58;
 }
 
 .participantResultHero {
@@ -174,6 +246,20 @@
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
+.stateSummary__lead {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(36, 87, 214, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #475467;
+  font-size: 14px;
+  font-weight: 720;
+  line-height: 1.5;
+}
+
 .stateList {
   gap: 9px;
 }
@@ -212,6 +298,24 @@
 }
 
 @media (max-width: 560px) {
+  .result-card::after {
+    top: 16px;
+    right: 16px;
+    font-size: 34px;
+  }
+
+  .result-card__header,
+  .resultReadingGuide {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .result-card .resultLine,
+  .stateSummary__lead {
+    width: 100%;
+    border-radius: 14px;
+  }
+
   .participantResultHero {
     grid-template-columns: 1fr;
   }
