@@ -2,5 +2,37 @@ import '../styles/roundCardUx.css';
 
 export default function RoundCard({ round }) {
   if (!round) return null;
-  return <section className="card hero roundHero"><span className="eyebrow">이번 라운드 · Week {round.week}</span><h2>{round.title}</h2><div className="roundQuestionBox"><small>오늘의 판단 질문</small><h3>{round.coreQuestion}</h3></div><div className="roundSituationBox"><h4>지금 벌어진 일</h4><p>{round.situationText}</p></div><div className="roundSignalBox"><h4>팀 안에서 보이는 신호</h4><p>{round.teamSignalText}</p></div></section>;
+
+  return (
+    <section className="card hero roundHero">
+      <div className="roundHeroTop">
+        <div>
+          <p className="roundHeroEyebrow">이번 라운드</p>
+          <h2>{round.title}</h2>
+        </div>
+        <span className="roundWeekBadge">Week {round.week}</span>
+      </div>
+
+      <div className="roundQuestionBox">
+        <small>오늘의 판단 질문</small>
+        <h3>{round.coreQuestion}</h3>
+      </div>
+
+      <div className="roundReadHint" aria-label="상황 읽기 기준">
+        <div><b>무엇이 흔들렸나</b><span>상황 속에서 깨진 기대와 압박을 먼저 봅니다.</span></div>
+        <div><b>누가 부담을 안는가</b><span>선택 이후 부담이 몰릴 사람과 팀을 확인합니다.</span></div>
+        <div><b>무엇을 뒤로 미루는가</b><span>선택하지 않는 것의 대가를 함께 생각합니다.</span></div>
+      </div>
+
+      <div className="roundSituationBox">
+        <h4>지금 벌어진 일</h4>
+        <p>{round.situationText}</p>
+      </div>
+
+      <div className="roundSignalBox">
+        <h4>팀 안에서 보이는 신호</h4>
+        <p>{round.teamSignalText}</p>
+      </div>
+    </section>
+  );
 }
