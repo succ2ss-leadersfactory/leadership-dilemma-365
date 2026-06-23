@@ -1,6 +1,8 @@
 # 파일럿 운영 문서 패키지 인덱스
 
-이 문서는 `리더십 딜레마 365: 위기의 12주` v1.0 파일럿 운영에 필요한 문서를 빠르게 찾기 위한 인덱스입니다.
+이 문서는 **「리더십 딜레마 365: 위기의 12주」** v1.0 Pilot 운영에 필요한 문서와 앱 화면을 빠르게 찾기 위한 인덱스입니다.
+
+앱의 핵심은 정답 경쟁이 아니라, 팀의 리더십 판단 기준·선택의 대가·산출물 품질·성찰을 다루는 교육용 Decision Journey입니다.
 
 ---
 
@@ -8,103 +10,79 @@
 
 | 순서 | 문서 | 용도 |
 |---|---|---|
-| 1 | `README.md` | 전체 구조, 주요 route, 기본 운영 흐름 확인 |
-| 2 | `docs/facilitator-pilot-runbook.md` | 파일럿 당일 강사용 진행 순서 확인 |
-| 3 | `docs/pilot-ui-ux-qa-checklist.md` | 교육생 화면과 강사용 화면 노출 기준 확인 |
-| 4 | `docs/pilot-final-status-summary.md` | 현재 v1.0 파일럿 운영 가능 상태 확인 |
-| 5 | `docs/release-notes-v1.0-pilot.md` | 이번 배포본 포함 기능과 제한 사항 확인 |
-| 6 | `docs/pilot-operator-handoff.md` | 운영자 인수인계 기준 확인 |
+| 1 | `README.md` | 전체 구조, 주요 route, 기본 실행 방법 |
+| 2 | `docs/pilot-operator-package.md` | 파일럿 운영자가 당일 바로 따라갈 최종 운영 패키지 |
+| 3 | `docs/release-notes-v1.0-pilot.md` | 이번 파일럿 버전의 포함 기능, 제한, 운영 메모 |
 
 ---
 
-## 2. 파일럿 당일 운영 문서
+## 2. 앱 안에서 바로 볼 운영 화면
 
-| 필요 상황 | 문서 |
-|---|---|
-| 당일 운영 순서가 필요함 | `docs/facilitator-pilot-runbook.md` |
-| 강사 멘트와 디브리핑 질문이 필요함 | `docs/facilitator-pilot-runbook.md` |
-| 운영자에게 전체 흐름을 넘겨야 함 | `docs/pilot-operator-handoff.md` |
-| 전체 route와 기능을 확인해야 함 | `README.md` |
-
----
-
-## 3. 파일럿 전 점검 문서
-
-| 필요 상황 | 문서 |
-|---|---|
-| UI/UX와 화면별 노출 기준 확인 | `docs/pilot-ui-ux-qa-checklist.md` |
-| 20분 리허설 진행 | `docs/pilot-rehearsal-script.md` |
-| 최종 운영 여부 판정 | `docs/pilot-final-qa-decision-table.md` |
-| 리허설 샘플 밸런스 확인 | `docs/rehearsal-scenario-balance-check.md` |
-| 현재 최종 상태 확인 | `docs/pilot-final-status-summary.md` |
+| 화면 | 경로 | 역할 |
+|---|---|---|
+| Host | `/host/:roomId` | 단계 제어, 팀별 입력 상태, 결과 계산 후 공개, 강사용 설명 패널 |
+| Team | `/team/:roomId/:teamId` | Round 0 KSA, 팀 최종 선택, 산출물, 결과 카드, 팀 선언문 |
+| Guide | `/guide/:roomId` | 최종 운영 가이드, 파일럿 직전 기능 동선 점검표, 라운드별 질문 |
+| Admin | `/admin/:roomId` | QA 점검, 리허설 샘플, v2 데이터 보정, 전체 재계산, 초기화 |
+| Report | `/report/:roomId` | 교육 리포트, Markdown 다운로드, 인쇄/PDF 저장 |
+| Competencies | `/competencies/:roomId` | 팀원 역량 프로필, 인물 카드 구성 |
+| Compare | `/compare/:roomId` | 팀별 판단 패턴과 리스크 비교 |
 
 ---
 
-## 4. 강사용 디브리핑 문서
+## 3. 파일럿 전 20분 점검 순서
 
-| 필요 상황 | 문서 또는 화면 |
-|---|---|
-| 팀별 관찰과 개입 질문 확인 | `/guide/:roomId` |
-| 최종 리포트 확인 | `/report/:roomId` |
-| 팀별 판단 패턴 비교 | `/compare/:roomId` |
-| 전문성 렌즈 구조 확인 | `docs/expertise-index.md` |
-| 교육생/강사용 정보 분리 기준 확인 | `docs/pilot-ui-ux-qa-checklist.md` |
-| 운영 직후 회고 기록 작성 | `docs/pilot-post-run-retrospective-template.md` |
-
----
-
-## 5. 전문성·판정 정책 문서
-
-| 목적 | 문서 |
-|---|---|
-| 전문성 전체 구조 | `docs/expertise-index.md` |
-| 산출물 증거 수준 | `docs/evidence-review-keyword-policy.md` |
-| 비밀 미션 전문성 기준 | `docs/secret-mission-expertise-evidence-policy.md` |
-| 팀별 결과 카드 문장 | `docs/team-result-narrative-policy.md` |
-| 누적 결과 해석 | `docs/cumulative-result-narrative-report-policy.md` |
-| 전체 Week 밸런스 | `docs/all-week-balance-policy.md` |
-| PLAY Week와 LOG 정책 | `docs/playable-week-log-policy.md` |
+1. `/host/create`에서 새 방을 만든다.
+2. `/guide/:roomId`에서 **파일럿 운영용 최종 사용 가이드**를 확인한다.
+3. `/guide/:roomId`의 **파일럿 직전 기능 동선 점검표**에서 P1~P9를 한 팀 기준으로 점검한다.
+4. `/admin/:roomId`에서 리허설 샘플 4종 중 하나를 생성한다.
+5. `/admin/:roomId`의 리허설 밸런스 검증에서 판정 분포를 확인한다.
+6. `/report/:roomId`에서 리포트와 Markdown 다운로드가 정상 작동하는지 확인한다.
+7. `/admin/:roomId`에서 JSON 백업을 다운로드한다.
+8. 실제 운영 전에는 **현재 방 진행 데이터 초기화**를 실행한다.
 
 ---
 
-## 6. 개발·운영 안정화 문서
+## 4. 운영 중 가장 자주 쓰는 버튼
 
-| 목적 | 문서 |
-|---|---|
-| 의존성 안정화 | `docs/dependency-stability-policy.md` |
-| 의존성 변경 절차 | `docs/dependency-update-checklist.md` |
-| Firestore 전환 계획 | `docs/firestore-migration-plan.md` |
-| 개발 안정화 체크 | `docs/pilot-dev-stability-checklist.md` |
-
----
-
-## 7. 파일럿 전 최종 확인 순서
-
-```text
-README.md
-→ docs/facilitator-pilot-runbook.md
-→ docs/pilot-ui-ux-qa-checklist.md
-→ docs/pilot-rehearsal-script.md
-→ docs/pilot-final-qa-decision-table.md
-→ docs/pilot-final-status-summary.md
-```
+| 위치 | 버튼 | 사용 시점 |
+|---|---|---|
+| Host | 현재 라운드 다음 단계 | 상황 읽기 → 개인 생각 → 팀 토의 → 산출물 작성 단계 이동 |
+| Host | 다음 Week 열기 | 결과 카드 확인 후 다음 Week로 넘어갈 때 |
+| Host | 결과 계산 후 공개 | 팀 최종 선택과 산출물 저장 후 결과 카드를 공개할 때 |
+| Host | 최종 판정 생성 | Week 12 팀 선언문 저장 후 최종 판정을 만들 때 |
+| Admin | 계산 모델 v2 데이터 보정 | 오래된 데이터나 가져온 JSON에 품질·성찰 리뷰가 없을 때 |
+| Admin | 전체 재계산 + 최종 판정 재생성 | 영향도 TOP 3, 누적 리스크, 최종 게이트를 다시 만들 때 |
+| Admin | 현재 방 진행 데이터 초기화 | 리허설 후 실제 운영 전 |
 
 ---
 
-## 8. 파일럿 종료 후 확인 문서
+## 5. 참가자에게 노출하지 않을 정보
 
-| 필요 상황 | 문서 |
-|---|---|
-| 운영 직후 회고를 남겨야 함 | `docs/pilot-post-run-retrospective-template.md` |
-| 다음 파일럿 전 고칠 점을 정리해야 함 | `docs/pilot-post-run-retrospective-template.md` |
-| 판정 밸런스 조정 근거가 필요함 | `docs/pilot-post-run-retrospective-template.md`, `docs/all-week-balance-policy.md` |
+아래 정보는 참가자에게 산식이나 기준표처럼 설명하지 않습니다.
+
+- 팀별 비밀 미션 세부 기준
+- 최종 게이트 내부 판단 기준
+- 산출물 품질 계산 비중
+- 누적 리스크 원점수
+- 인물 카드별 리스크 보정 방식
+- 라운드 영향도 TOP 3 계산 기준
+
+강사는 이 정보를 설명 공식으로 말하기보다 다음 질문으로 바꿉니다.
+
+- 우리 팀은 어떤 기준을 반복했습니까?
+- 이 선택은 무엇을 얻고 무엇을 남겼습니까?
+- 다음 현업에서 먼저 낮춰야 할 부담은 무엇입니까?
+- 팀 선언문은 다음 회의 행동으로 이어질 만큼 구체적입니까?
 
 ---
 
-## 9. 관리 원칙
+## 6. 파일럿 종료 후 남길 것
 
-- 운영자는 README, 파일럿 운영자 런북, UI/UX QA 체크리스트를 우선 봅니다.
-- 강사는 운영자 런북, 강사 가이드, 교육 리포트, 전문성 인덱스를 함께 봅니다.
-- 개발자는 정책 문서와 QA 문서를 함께 봅니다.
-- 파일럿 종료 후에는 회고 템플릿을 기준으로 다음 개선 항목을 남깁니다.
-- 파일럿 전에는 새 기능 추가보다 저장, 계산, 리포트, 백업 안정성을 우선합니다.
+- 교육 리포트 PDF 또는 인쇄본
+- Report Markdown 다운로드 파일
+- Admin QA 리포트
+- JSON 백업
+- 강사 회고 메모
+
+초기화 전에는 반드시 JSON 백업을 먼저 다운로드합니다.
