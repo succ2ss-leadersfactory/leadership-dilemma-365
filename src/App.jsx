@@ -11,6 +11,7 @@ import AdminOpsPage from './pages/AdminOpsPage.jsx';
 import FacilitatorGuidePage from './pages/FacilitatorGuidePage.jsx';
 import CompetencyProfilesPage from './pages/CompetencyProfilesPage.jsx';
 import './styles/visualDesignSystem.css';
+import './styles/responsivePolish.css';
 
 export default function App() {
   return (
