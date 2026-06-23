@@ -20,6 +20,7 @@ import { saveTeamKSA, submitTeamDecision, getTeamDecision } from '../services/te
 import { submitRoundOutput, getSubmission } from '../services/submissionService';
 import { calculateAllTeamResultsForRound, generateFinalResults } from '../services/calculationService';
 import { defaultResultCard } from '../data/seedResultCards';
+import '../styles/teamDecisionWorkshop.css';
 
 const PHASE_LABELS = {
   ksaSelection: 'KSA 선택',
@@ -197,21 +198,32 @@ export default function TeamPage() {
       )}
 
       {choices.length > 0 && (
-        <section className="card">
+        <section className="card team-decision-workshop-card">
           <TeamDecisionSummary choices={choices} opinions={votes} />
-          <h3>팀 최종 선택</h3>
-          <div className="notice">
-            <b>지금 할 일:</b> 개인 선택을 참고하되, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.
+          <div className="team-decision-workshop-card__header">
+            <p className="team-decision-workshop-card__eyebrow">TEAM AGREEMENT</p>
+            <h3>팀 최종 선택</h3>
+            <p>개인 선택을 참고하되, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.</p>
+          </div>
+          <div className="team-decision-workshop-card__notice">
+            <b>지금 할 일</b>
+            <span>가장 많이 나온 선택을 그대로 따르기보다, 팀이 책임질 수 있는 기준과 부담을 함께 확인하세요.</span>
           </div>
           <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
           <TeamDiscussionGuide />
-          <label>토론 요약<textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} /></label>
-          <button className="primary" onClick={() => {
-            try {
-              submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: summary || decision?.discussionSummary, submittedBy: 'team' });
-              setMsg('팀 결정을 저장했습니다. 이어서 산출물에 다음 행동과 남는 부담을 남겨 주세요.');
-            } catch (e) { setMsg(e.message); }
-          }}>팀 결정 저장</button>
+          <label className="team-decision-summary-field">토론 요약
+            <small>합의한 기준, 갈린 의견, 감수할 부담, 다음 확인 시점을 짧게 남겨 주세요.</small>
+            <textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} placeholder="예: 고객 신뢰 회복을 우선 기준으로 삼고 B안을 선택했다. 단, 내부 일정 지연 부담이 남아 다음 회의에서 담당자와 확인 시점을 정한다." />
+          </label>
+          <div className="team-decision-save-bar">
+            <button className="primary" onClick={() => {
+              try {
+                submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: summary || decision?.discussionSummary, submittedBy: 'team' });
+                setMsg('팀 결정을 저장했습니다. 이어서 산출물에 다음 행동과 남는 부담을 남겨 주세요.');
+              } catch (e) { setMsg(e.message); }
+            }}>팀 결정 저장</button>
+            <p>저장 후 산출물 입력에서 이 선택을 실제 행동 조건으로 바꿉니다.</p>
+          </div>
         </section>
       )}
 
