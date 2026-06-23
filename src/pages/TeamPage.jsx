@@ -272,17 +272,26 @@ export default function TeamPage() {
 
       {round.roundId === 'week12' && (
         <>
-          <section className="card">
-            <h3>팀 선언문</h3>
-            <p className="muted">12주 동안 우리 팀이 지키려 했던 기준과, 현업으로 가져갈 행동을 한 문장으로 남깁니다.</p>
+          <section className="card team-declaration-workshop-card">
+            <div className="team-declaration-workshop-card__header">
+              <p className="team-declaration-workshop-card__eyebrow">WEEK 12 DECLARATION</p>
+              <h3>팀 선언문</h3>
+              <p>12주 동안 우리 팀이 지키려 했던 기준과, 현업으로 가져갈 행동을 한 문장으로 남깁니다.</p>
+            </div>
             <TeamDeclarationGuide />
-            <textarea defaultValue={declaration?.teamDeclaration || ''} placeholder="우리는 12주 동안..." onChange={e => setSummary(e.target.value)} />
-            <button className="primary" onClick={() => {
-              updateDb(db2 => {
-                db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: summary || declaration?.teamDeclaration || '', submittedAt: Date.now() };
-              });
-              setMsg('팀 선언문을 저장했습니다. 이제 최종 판정을 생성하고 우리 팀의 판단 흐름을 확인하세요.');
-            }}>선언문 저장</button>
+            <label className="team-declaration-field">우리 팀 선언문
+              <small>판정 결과를 맞히기 위한 문장이 아니라, 현업으로 돌아가서 함께 지킬 기준을 적어 주세요.</small>
+              <textarea defaultValue={declaration?.teamDeclaration || ''} placeholder="예: 우리는 빠른 결정보다, 고객과 팀원에게 남는 부담을 먼저 확인하는 팀이 되겠습니다." onChange={e => setSummary(e.target.value)} />
+            </label>
+            <div className="team-declaration-save-bar">
+              <button className="primary" onClick={() => {
+                updateDb(db2 => {
+                  db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: summary || declaration?.teamDeclaration || '', submittedAt: Date.now() };
+                });
+                setMsg('팀 선언문을 저장했습니다. 이제 최종 판정을 생성하고 우리 팀의 판단 흐름을 확인하세요.');
+              }}>선언문 저장</button>
+              <p>저장한 선언문은 최종 판정을 확인할 때 우리 팀의 판단 기준과 함께 돌아보는 문장으로 사용됩니다.</p>
+            </div>
           </section>
 
           <section className="card next-step-card">
