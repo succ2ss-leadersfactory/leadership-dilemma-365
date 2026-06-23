@@ -1,6 +1,6 @@
 import '../styles/roundCardUx.css';
 
-export default function RoundCard({ round }) {
+export default function RoundCard({ round, teamVariant = null }) {
   if (!round) return null;
 
   return (
@@ -25,12 +25,19 @@ export default function RoundCard({ round }) {
       </div>
 
       <div className="roundSituationBox">
-        <h4>지금 벌어진 일</h4>
+        <h4>전사 공통 상황</h4>
         <p>{round.situationText}</p>
       </div>
 
+      {teamVariant?.signalText && (
+        <div className="roundSignalBox">
+          <h4>우리 팀에 들어온 신호</h4>
+          <p>{teamVariant.signalText}</p>
+        </div>
+      )}
+
       <div className="roundSignalBox">
-        <h4>팀 안에서 보이는 신호</h4>
+        <h4>팀 안에서 보이는 공통 신호</h4>
         <p>{round.teamSignalText}</p>
       </div>
     </section>
