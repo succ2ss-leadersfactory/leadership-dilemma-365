@@ -12,6 +12,7 @@ import { subscribe, readDb, updateDb } from '../services/storage';
 import { getPlayer } from '../services/playerService';
 import { getCurrentRound } from '../services/roundService';
 import { submitVote, getVote } from '../services/voteService';
+import { analyzePersonalReflection } from '../utils/reflectionQualityUtils';
 import { defaultResultCard } from '../data/seedResultCards';
 import '../styles/playerDecisionUx.css';
 
@@ -75,6 +76,7 @@ export default function PlayerPage() {
   const resultCard = db.gameContent.resultCards[calculation?.resultCardId] || defaultResultCard;
   const declaration = room.declarations?.[player.teamId];
   const reflection = declaration?.individualReflections?.[playerId];
+  const reflectionReview = reflection?.reflectionQualityReview;
   const competencyProfile = room.competencyProfiles?.[player.teamId]?.[playerId];
   const currentPhaseLabel = PLAYER_PHASE_LABELS[room.roomProgress.currentPhase] || room.roomProgress.currentPhase;
   const roundLabel = getRoundLabel(round);
@@ -88,19 +90,23 @@ export default function PlayerPage() {
   };
 
   const saveReflection = () => {
+    const habit = habitDraft ?? reflection?.habit ?? '';
+    const nextBehavior = nextBehaviorDraft ?? reflection?.nextBehavior ?? '';
+    const reflectionQualityReview = analyzePersonalReflection({ habit, nextBehavior });
     updateDb(db2 => {
       const d = db2.rooms[roomId].declarations[player.teamId] || { teamId: player.teamId, individualReflections: {} };
       d.individualReflections = {
         ...(d.individualReflections || {}),
         [playerId]: {
-          habit: habitDraft ?? reflection?.habit ?? '',
-          nextBehavior: nextBehaviorDraft ?? reflection?.nextBehavior ?? '',
+          habit,
+          nextBehavior,
+          reflectionQualityReview,
           submittedAt: Date.now()
         }
       };
       db2.rooms[roomId].declarations[player.teamId] = d;
     });
-    setMsg('개인 성찰이 저장되었습니다. 팀 선언문 작성으로 이어가세요.');
+    setMsg('개인 성찰이 저장되었습니다. 반복 습관과 다음 행동을 팀 선언문으로 연결해 보세요.');
   };
 
   const hideGuide = () => {
@@ -189,6 +195,13 @@ export default function PlayerPage() {
             </div>
             <label className="personalReflectionField">내가 반복한 판단 습관<textarea value={habitDraft ?? reflection?.habit ?? ''} onChange={e => setHabitDraft(e.target.value)} placeholder="예: 불확실하면 속도를 먼저 선택했다 / 기준을 세우느라 실행을 늦췄다" /></label>
             <label className="personalReflectionField">다음 현업에서 바꿀 행동<textarea value={nextBehaviorDraft ?? reflection?.nextBehavior ?? ''} onChange={e => setNextBehaviorDraft(e.target.value)} placeholder="예: 선택 전에 부담이 누구에게 몰리는지 먼저 확인하겠다" /></label>
+            {reflectionReview && (
+              <div className="personalReflectionFeedback">
+                <h4>개인 성찰 피드백</h4>
+                <p>{reflectionReview.participantHint}</p>
+                <ul>{(reflectionReview.feedbackLines || []).map(line => <li key={line}>{line}</li>)}</ul>
+              </div>
+            )}
             <div className="actions personalReflectionActions">
               <button className="primary" onClick={saveReflection}>개인 성찰 저장하기</button>
               <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 선언문 작성하기</Link>
