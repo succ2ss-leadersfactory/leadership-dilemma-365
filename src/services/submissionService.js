@@ -10,8 +10,9 @@ export function submitRoundOutput({ roomId, roundId, teamId, answers, submittedB
   for (const f of required) {
     if (!String(answers[f.fieldKey] || '').trim()) throw new Error(`${f.label}을(를) 입력해 주세요`);
   }
-  const { quality, qualityScore } = calculateSubmissionQuality(outputRequirement, answers);
   const evidenceReview = buildTeamOutputEvidenceReview({ answers, expertiseLens });
+  const discussionQualityReview = db.rooms[roomId]?.teamDecisions?.[`${roundId}_${teamId}`]?.discussionQualityReview || null;
+  const { quality, qualityScore, qualityBreakdown } = calculateSubmissionQuality(outputRequirement, answers, evidenceReview, discussionQualityReview);
   const submissionId = `${roundId}_${teamId}`;
   updateDb(db => {
     db.rooms[roomId].submissions[submissionId] = {
@@ -21,7 +22,9 @@ export function submitRoundOutput({ roomId, roundId, teamId, answers, submittedB
       answers,
       quality,
       qualityScore,
+      qualityBreakdown,
       evidenceReview,
+      discussionQualityReview,
       submittedBy,
       submittedAt: Date.now(),
       updatedAt: Date.now(),
