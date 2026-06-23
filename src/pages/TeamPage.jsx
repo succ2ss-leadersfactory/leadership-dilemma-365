@@ -12,6 +12,7 @@ import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
 import FinalJudgmentCard from '../components/FinalJudgmentCard.jsx';
 import TeamDecisionSummary from '../components/TeamDecisionSummary.jsx';
 import TeamDiscussionGuide from '../components/TeamDiscussionGuide.jsx';
+import TeamDeclarationGuide from '../components/TeamDeclarationGuide.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
@@ -229,6 +230,7 @@ export default function TeamPage() {
           <section className="card">
             <h3>팀 선언문</h3>
             <p className="muted">12주 동안 우리 팀이 지키려 했던 기준과, 현업으로 가져갈 행동을 한 문장으로 남깁니다.</p>
+            <TeamDeclarationGuide />
             <textarea defaultValue={declaration?.teamDeclaration || ''} placeholder="우리는 12주 동안..." onChange={e => setSummary(e.target.value)} />
             <button className="primary" onClick={() => {
               updateDb(db2 => {
