@@ -26,6 +26,14 @@ function buildEvidenceSummary(evidenceReview) {
   return '산출물이 실행 메모에 가깝습니다. 판단 근거, 수치, 다음 행동, 리스크 신호를 더 남겨야 합니다.';
 }
 
+function buildDiscussionSummary(discussionReview) {
+  if (!discussionReview) return null;
+  if (discussionReview.quality === 'veryHigh') return '토의 요약에 선택 기준, 갈린 의견, 남는 부담, 다음 확인 행동이 균형 있게 남았습니다.';
+  if (discussionReview.quality === 'high') return '토의의 핵심 흔적은 보입니다. 다음에는 확인 시점이나 담당자를 더 분명히 남겨 보세요.';
+  if (discussionReview.quality === 'medium') return '선택 이유는 보이지만 갈린 의견, 남는 부담, 다음 행동 중 일부가 더 필요합니다.';
+  return '토의 요약이 결론 중심에 머물렀습니다. 왜 선택했는지와 무엇을 감수할지 더 남겨야 합니다.';
+}
+
 function buildParticipantNextAction(highest) {
   const label = stateLabels[highest?.key] || '남은 부담';
   const level = riskLabels[highest?.value] || '안정';
@@ -44,9 +52,11 @@ function buildQuestions({ card, calculation, teamNarrative, isFacilitator }) {
   ];
   if (!isFacilitator) return participantQuestions;
   const evidenceReview = calculation?.outputEvidenceReview;
+  const discussionReview = calculation?.discussionQualityReview;
   return [
     ...participantQuestions,
     teamNarrative?.question || '우리 팀의 기능 관점에서 이번 선택의 대가는 무엇입니까?',
+    discussionReview ? `이번 토의 요약의 품질은 ${discussionReview.label} 무엇이 더 남았어야 합니까?` : '이번 토의 요약에서 선택 기준과 남는 부담은 충분히 드러났습니까?',
     evidenceReview ? `이번 산출물의 증거 수준은 ${evidenceReview.evidenceLevel}입니다. 무엇을 더 구체적으로 남겼어야 합니까?` : '이번 산출물에서 더 구체적으로 남겼어야 할 증거는 무엇입니까?',
     '이번 선택에서 팀 안의 인물 카드는 결과에 어떤 영향을 주었습니까?',
     '이번 선택은 팀원 역량에 어떤 성장 경험 또는 위축 신호를 남겼습니까?'
@@ -61,6 +71,9 @@ export default function ResultCard({ card, calculation, audience = 'participant'
   const previousState = calculation?.previousState || {};
   const evidenceReview = calculation?.outputEvidenceReview;
   const evidenceSummary = buildEvidenceSummary(evidenceReview);
+  const discussionReview = calculation?.discussionQualityReview;
+  const discussionSummary = buildDiscussionSummary(discussionReview);
+  const qualityBreakdown = calculation?.outputQualityBreakdown;
   const teamNarrative = calculation?.teamResultNarrative || getTeamResultNarrative({ teamId: calculation?.teamId, choiceType: calculation?.choiceInternalType, roundId: calculation?.roundId });
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
@@ -116,6 +129,15 @@ export default function ResultCard({ card, calculation, audience = 'participant'
         </div>
       )}
 
+      {discussionReview && (
+        <div className="sceneBox">
+          <h4>{isFacilitator ? '토의 요약 품질' : '토의 기록 피드백'}</h4>
+          {isFacilitator && <p><b>토의 요약:</b> {discussionReview.label} · {discussionReview.score}/{discussionReview.maxScore}</p>}
+          <p>{discussionSummary}</p>
+          {isFacilitator && discussionReview.feedbackLines?.length > 0 && <ul>{discussionReview.feedbackLines.map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul>}
+        </div>
+      )}
+
       {evidenceReview && (
         <div className="sceneBox">
           <h4>{isFacilitator ? '전문성 신호' : '산출물 피드백'}</h4>
@@ -124,6 +146,14 @@ export default function ResultCard({ card, calculation, audience = 'participant'
           {isFacilitator && evidenceReview.expertiseKeywords?.length > 0 && <p><b>관련 역량:</b> {evidenceReview.expertiseKeywords.join(' / ')}</p>}
           {isFacilitator && evidenceReview.evidenceStandards?.length > 0 && <div className="notice"><b>팀별 좋은 산출물 기준:</b> {evidenceReview.evidenceStandards.join(' · ')}</div>}
           {isFacilitator && evidenceReview.evidenceSignals?.length > 0 && <ul>{evidenceReview.evidenceSignals.map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul>}
+        </div>
+      )}
+
+      {isFacilitator && qualityBreakdown && (
+        <div className="sceneBox">
+          <h4>품질 계산 v2 근거</h4>
+          <p><b>품질 점수:</b> {calculation?.outputQualityScore}/100 · {calculation?.outputQuality}</p>
+          <ul>{(qualityBreakdown.feedback || []).map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul>
         </div>
       )}
 
