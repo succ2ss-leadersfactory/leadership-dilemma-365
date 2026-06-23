@@ -13,7 +13,7 @@ import '../styles/hostDashboardUx.css';
 
 const phaseLabels = {
   ksaSelection: 'KSA 선택',
-  playerVote: '개인 판단 입력',
+  playerVote: '개인 생각',
   teamDecision: '팀 토의와 최종 선택',
   outputSubmission: '산출물 작성',
   resultReview: '결과 확인',
@@ -23,12 +23,12 @@ const phaseLabels = {
 };
 
 function nextAction(round, progress) {
-  if (!round) return '방 정보를 확인한 뒤 참가자 입장 상태를 다시 점검하세요.';
-  if (round.roundId === 'round0') return '팀별 KSA 저장 상태를 확인하고, 모두 준비되면 Week 1 개인 판단을 시작하세요.';
-  if (round.roundId === 'week12') return '개인 성찰과 팀 선언문 저장을 확인한 뒤 최종 판정과 교육 리포트로 마무리하세요.';
+  if (!round) return '방 정보를 확인한 뒤 팀 화면 접속 상태를 다시 점검하세요.';
+  if (round.roundId === 'round0') return '팀별 KSA 저장 상태를 확인하고, 모두 준비되면 Week 1 상황 읽기와 개인 생각을 시작하세요.';
+  if (round.roundId === 'week12') return '개인 성찰은 필요 시 별도 수집하고, 팀 선언문 저장을 확인한 뒤 최종 판정과 교육 리포트로 마무리하세요.';
   if (progress.resultVisible) return '각 팀이 결과 카드를 확인했는지 본 뒤 다음 라운드를 열어 주세요.';
-  if (progress.currentPhase === 'playerVote') return '참가자 개인 판단 저장 현황을 확인하고, 완료되면 팀 토의 단계로 넘겨 주세요.';
-  if (progress.currentPhase === 'teamDecision') return '팀 최종 선택과 산출물 저장 상태를 확인한 뒤 결과를 계산하고 공개하세요.';
+  if (progress.currentPhase === 'playerVote') return '각 팀이 상황을 읽고 1분 개인 생각을 마치면 팀 토의 단계로 넘겨 주세요.';
+  if (progress.currentPhase === 'teamDecision') return '팀 대표가 최종 선택과 산출물을 저장했는지 확인한 뒤 결과를 계산하고 공개하세요.';
   return '현재 단계의 미입력 팀을 확인하고, 준비가 끝나면 다음 단계로 넘겨 주세요.';
 }
 
@@ -49,20 +49,20 @@ function teamRoundStatus({ room, round, team, players }) {
   if (round?.roundId === 'round0') {
     return [
       { label: 'KSA', done: isKsaComplete(team), text: isKsaComplete(team) ? '저장 완료' : '미완료' },
-      { label: '팀원', done: teamPlayers.length > 0, text: `${teamPlayers.length}명 입장` }
+      { label: '팀 화면', done: true, text: teamPlayers.length > 0 ? `개인 입장 ${teamPlayers.length}명` : '대표 입력' }
     ];
   }
 
   if (round?.roundId === 'week12') {
     return [
-      { label: '개인 성찰', done: reflectionCount > 0, text: `${reflectionCount}건` },
+      { label: '개인 성찰', done: true, text: reflectionCount > 0 ? `${reflectionCount}건` : '선택 운영' },
       { label: '팀 선언문', done: Boolean(declaration?.teamDeclaration), text: declaration?.teamDeclaration ? '저장 완료' : '미완료' },
       { label: '최종 판정', done: Boolean(finalResult), text: finalResult ? '생성 완료' : '미생성' }
     ];
   }
 
   return [
-    { label: '개인 판단', done: voteCount >= Math.max(1, teamPlayers.length), text: `${voteCount}/${teamPlayers.length || 0}` },
+    { label: '개인 생각', done: true, text: voteCount > 0 ? `${voteCount}건 저장` : '팀 내 진행' },
     { label: '팀 결정', done: Boolean(decision), text: decision ? '저장 완료' : '대기' },
     { label: '산출물', done: Boolean(submission), text: submission ? '저장 완료' : '대기' },
     { label: '결과', done: Boolean(calculation), text: calculation ? '계산 완료' : '미계산' }
@@ -96,17 +96,17 @@ export default function HostDashboardPage() {
           <div>
             <p className="hostDashboardEyebrow">HOST CONTROL</p>
             <h2>{round?.title} · {phaseLabel}</h2>
-            <p>강사는 이 화면에서 진행 단계, 팀별 입력 상태, 결과 공개, 리포트 이동을 한 번에 관리합니다.</p>
+            <p>강사는 이 화면에서 진행 단계, 팀별 입력 상태, 결과 공개, 리포트 이동을 한 번에 관리합니다. 기본 운영은 팀당 1개 화면으로 진행합니다.</p>
           </div>
           <div className="hostJoinCard">
             <small>입장 코드</small>
             <b className="code">{room.joinCode}</b>
-            <p><Link to={`/join/${room.joinCode}`}>참가자 입장 링크 열기</Link></p>
+            <p><Link to={`/join/${room.joinCode}`}>확장 운영용 개인 입장 링크</Link></p>
           </div>
         </div>
 
         <div className="hostQuickStats">
-          <div><b>{players.length}</b><span>참가자</span></div>
+          <div><b>{players.length}</b><span>개인 입장</span></div>
           <div><b>{teams.length}</b><span>팀</span></div>
           <div><b>{phaseLabel}</b><span>현재 단계</span></div>
           <div><b>{progress.isScreenLocked ? '잠금' : '해제'}</b><span>화면 상태</span></div>
@@ -114,13 +114,14 @@ export default function HostDashboardPage() {
           <div><b>{finalCount}/{teams.length}</b><span>최종 판정</span></div>
         </div>
 
+        <div className="hostNextAction"><b>기본 운영 방식:</b> 팀당 1개 화면을 사용합니다. 팀 대표가 팀 화면에서 최종 선택, 토론 요약, 산출물을 입력하고 개인별 접속은 온라인/확장 운영에서만 선택적으로 사용합니다.</div>
         <div className="hostNextAction"><b>다음 운영 행동:</b> {nextAction(round, progress)}</div>
 
         <div className="hostActionBar">
           <button onClick={() => movePhase(roomId, 'prev')}>이전 단계로</button>
           <button className="primary" onClick={() => movePhase(roomId, 'next')}>다음 단계로</button>
           <button onClick={() => moveToNextRound(roomId)}>다음 라운드 열기</button>
-          <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '참가자 입력 다시 열기' : '참가자 화면 잠그기'}</button>
+          <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '팀 입력 다시 열기' : '팀 화면 잠그기'}</button>
           <button onClick={() => { calculateAllTeamResultsForRound(roomId, progress.currentRoundId); revealRoundResult(roomId); }}>결과 계산하고 공개</button>
           <button onClick={() => generateFinalResults(roomId)}>최종 판정 생성</button>
           <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필 확인</Link>
@@ -141,11 +142,11 @@ export default function HostDashboardPage() {
           <h3>진행 체크리스트</h3>
           <ol>
             <li>Round 0: 팀별 KSA 저장 및 팀원 초기 역량 프로필 자동 등록</li>
-            <li>Week 라운드: 파일럿 진행 체크리스트와 전략 이벤트 확인</li>
-            <li>개인 판단 저장 상태 확인</li>
-            <li>팀 최종 선택과 산출물 저장 상태 확인</li>
+            <li>Week 라운드: 상황 읽기 → 1분 개인 생각 → 팀 토의 순서 안내</li>
+            <li>팀 대표가 최종 선택과 토론 요약 입력</li>
+            <li>팀 대표가 산출물 저장</li>
             <li>결과 계산 후 결과 카드 공개</li>
-            <li>Week 12: 개인 성찰과 팀 선언문 저장 확인</li>
+            <li>Week 12: 개인 성찰은 필요 시 별도 수집하고 팀 선언문 저장 확인</li>
             <li>최종 판정 생성 후 교육 리포트 확인</li>
           </ol>
         </div>
@@ -190,8 +191,8 @@ export default function HostDashboardPage() {
 
       <section className="grid2">
         <div className="card">
-          <h3>참가자</h3>
-          {players.length ? players.map(p => <p key={p.playerId}>{p.displayName} · {room.teams[p.teamId]?.teamName}</p>) : <p className="muted">아직 입장자가 없습니다.</p>}
+          <h3>개인 입장 현황</h3>
+          {players.length ? players.map(p => <p key={p.playerId}>{p.displayName} · {room.teams[p.teamId]?.teamName}</p>) : <p className="muted">기본 운영에서는 개인별 입장자가 없어도 진행할 수 있습니다.</p>}
         </div>
         <div className="card">
           <h3>팀별 상태값</h3>
