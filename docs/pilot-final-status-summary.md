@@ -22,10 +22,11 @@
 | 비밀 미션 전문성 기준 | 완료 | outputEvidenceAtLeast 반영 |
 | 교육 리포트 | 완료 | 전문성 요약과 누적 경고 신호 포함 |
 | Admin QA | 완료 | 리허설 샘플, 전문성 QA, 백업 확인 지원 |
-| 운영 문서 | 완료 | 리허설, QA, 인수인계, 문서 패키지 정리 |
+| 운영 문서 | 완료 | 리허설, QA, 인수인계, 문서 패키지, 회고 템플릿 정리 |
 | 참여자 안내 UX | 완료 | 개인 선택, 팀 결정, 산출물, 결과 카드 안내문 보강 |
 | 교육생/강사용 정보 분리 | 완료 | ResultCard, FinalJudgmentCard, StrategicEventCard, TwelveWeekTimeline, CompetencyProfilePanel 분리 기준 반영 |
 | 파일럿 UI/UX QA 문서 | 완료 | `docs/pilot-ui-ux-qa-checklist.md` 추가 |
+| 파일럿 종료 후 회고 템플릿 | 완료 | `docs/pilot-post-run-retrospective-template.md` 추가 |
 
 ---
 
@@ -104,7 +105,7 @@ CompetencyProfilePanel 기본 모드
 | 핵심 기능 구조 | 완료 | 방 생성, 팀 결정, 산출물, 결과 카드, 리포트 구조 반영 |
 | 교육생 UX | 완료 | 개인 판단, 팀 토의, 산출물, 결과 피드백 흐름 보강 |
 | 강사용 리포트 | 완료 | 판정 근거, 강사용 질문, 전문성 요약 유지 |
-| 운영 문서 | 완료 | 최종 리허설, QA 판정, 문서 인덱스, UI/UX QA 체크리스트 정리 |
+| 운영 문서 | 완료 | 최종 리허설, QA 판정, 문서 인덱스, UI/UX QA, 종료 후 회고 템플릿 정리 |
 | 최종 운영 판정 | 운영 가능 | 사용자 최종 확인 기준 |
 
 ---
@@ -121,6 +122,7 @@ CompetencyProfilePanel 기본 모드
 | 참여자 모바일 | 권장 확인 | Player/Team 화면 접속 확인 |
 | JSON 백업 파일 보관 | 권장 확인 | Admin 백업 파일 별도 저장 |
 | UI/UX QA 체크리스트 | 권장 확인 | `docs/pilot-ui-ux-qa-checklist.md` 기준으로 리허설 |
+| 종료 후 회고 템플릿 | 권장 확인 | `docs/pilot-post-run-retrospective-template.md` 기준으로 운영 후 기록 |
 
 ---
 
@@ -169,13 +171,14 @@ JSON 백업 가능
 전문성 QA 핵심 항목 정상
 교육생 화면에 강사용 내부 정보 과다 노출 없음
 강사용 리포트에는 디브리핑 상세 정보 유지
+운영 종료 후 회고 템플릿으로 개선 항목 기록 가능
 ```
 
 ---
 
 ## 9. 파일럿 이후 개선 후보
 
-파일럿 이후 실제 사용 데이터를 보고 아래를 보정합니다.
+파일럿 이후 실제 사용 데이터와 회고 기록을 보고 아래를 보정합니다.
 
 ```text
 산출물 증거 수준 키워드
@@ -188,6 +191,12 @@ Markdown 리포트 반복 대가 라운드 연결
 ReportPage 강사용 상세 컴포넌트 재사용 확대
 팀별 최종 결과 PDF용 요약 카드
 산출물 입력 예시 문장 추가
+```
+
+회고 기록 기준 문서:
+
+```text
+docs/pilot-post-run-retrospective-template.md
 ```
 
 ---
@@ -205,6 +214,7 @@ UI/UX QA 체크리스트 확인
 교육 리포트 다운로드
 JSON 백업 다운로드
 참가자 모바일 접속 확인
+운영 종료 후 회고 템플릿 준비
 ```
 
 위 항목을 운영 당일에도 다시 확인한 뒤 파일럿을 진행합니다.
