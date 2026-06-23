@@ -22,7 +22,7 @@ export function createRoom(input = {}) {
       competencyProfiles: Object.fromEntries(seedTeams.map(t => [t.teamId, {}])),
       roundProgress: Object.fromEntries(seedRounds.map(r => [r.roundId, { roundId:r.roundId, week:r.week, title:r.title, status:r.roundId === 'round0' ? 'active' : 'pending', phase:'intro', resultRevealed:false, locked:false, skipped:false }])),
       votes: {}, teamDecisions: {}, submissions: {},
-      stateValues: Object.fromEntries(seedTeams.map(t => [t.teamId, { teamId:t.teamId, values:{...emptyState}, maxRiskValue:0, maxRiskKey:'aceBurnoutRisk', maxRiskLabel:'안정', updatedAt:Date.now() }])),
+      stateValues: Object.fromEntries(seedTeams.map(t => [t.teamId, { teamId:t.teamId, values:{...emptyState}, rawValues:{...emptyState}, riskHistory:[], riskTrendSummary:null, maxRiskValue:0, maxRiskKey:'aceBurnoutRisk', maxRiskLabel:'안정', updatedAt:Date.now() }])),
       roundCalculations: {}, finalResults: {}, declarations: {}, hostActions: []
     };
   });
