@@ -20,6 +20,10 @@
   --serim-radius-sm: 12px;
   --serim-radius-md: 18px;
   --serim-radius-lg: 26px;
+  --serim-card-topline: linear-gradient(90deg, rgba(36, 87, 214, 0.85), rgba(20, 184, 166, 0.72), rgba(245, 158, 11, 0.58));
+  --serim-card-watermark: rgba(36, 87, 214, 0.05);
+  --serim-eyebrow-bg: rgba(219, 234, 254, 0.88);
+  --serim-focus-ring: 0 0 0 4px rgba(36, 87, 214, 0.12);
 }
 
 body {
@@ -60,7 +64,7 @@ body {
   position: absolute;
   inset: 0 0 auto;
   height: 4px;
-  background: linear-gradient(90deg, rgba(36, 87, 214, 0.85), rgba(20, 184, 166, 0.72), rgba(245, 158, 11, 0.58));
+  background: var(--serim-card-topline);
   opacity: 0.64;
   pointer-events: none;
 }
@@ -70,6 +74,16 @@ body {
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(234, 241, 255, 0.92)),
     var(--serim-surface-strong);
+}
+
+:where(.eyebrow, [class$="__eyebrow"]) {
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--serim-primary-soft);
+  color: var(--serim-primary-dark);
+  font-weight: 850;
+  letter-spacing: 0.04em;
 }
 
 .next-step-card {
@@ -178,7 +192,7 @@ body {
   top: 18px;
   right: 22px;
   z-index: 0;
-  color: rgba(30, 58, 138, 0.05);
+  color: var(--serim-card-watermark);
   font-size: 56px;
   font-weight: 950;
   letter-spacing: 0.1em;
@@ -199,12 +213,9 @@ body {
 }
 
 .team-status-card__eyebrow {
-  width: fit-content;
   margin: 0 0 10px;
   padding: 6px 11px;
-  border-radius: 999px;
   background: rgba(234, 241, 255, 0.86);
-  color: var(--serim-primary-dark);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -306,16 +317,6 @@ th {
   color: var(--serim-muted);
 }
 
-.eyebrow {
-  width: fit-content;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--serim-primary-soft);
-  color: var(--serim-primary-dark);
-  font-weight: 850;
-  letter-spacing: 0.04em;
-}
-
 .notice,
 .signal {
   border: 1px solid rgba(36, 87, 214, 0.18);
@@ -371,7 +372,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: rgba(36, 87, 214, 0.72);
-  box-shadow: 0 0 0 4px rgba(36, 87, 214, 0.12);
+  box-shadow: var(--serim-focus-ring);
   outline: none;
 }
 
@@ -391,7 +392,7 @@ textarea:focus {
 .choice.selected {
   background: linear-gradient(135deg, #eef4ff, #ffffff);
   border-color: rgba(36, 87, 214, 0.72);
-  box-shadow: 0 0 0 4px rgba(36, 87, 214, 0.12), var(--serim-shadow-sm);
+  box-shadow: var(--serim-focus-ring), var(--serim-shadow-sm);
 }
 
 .riskBadge,
