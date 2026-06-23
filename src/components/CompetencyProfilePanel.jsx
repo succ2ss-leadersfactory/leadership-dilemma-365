@@ -1,3 +1,5 @@
+import '../styles/competencyProfileUx.css';
+
 function levelClass(level) {
   if (level >= 4) return 'success';
   if (level <= 2) return 'warning';
@@ -18,11 +20,16 @@ function eventDirectionText(direction) {
   return '변화';
 }
 
-export default function CompetencyProfilePanel({ profiles = {}, title = '팀원 역량 프로필', compact = false }) {
+function listText(items) {
+  return items?.length ? items.join(', ') : '-';
+}
+
+export default function CompetencyProfilePanel({ profiles = {}, title = '팀원 역량 프로필', compact = false, audience = 'participant' }) {
   const profileList = Object.values(profiles || {}).filter(Boolean);
+  const isFacilitator = audience === 'facilitator';
   if (!profileList.length) {
     return (
-      <section className="card">
+      <section className="card competency-profile-panel">
         <h3>{title}</h3>
         <p className="muted">아직 자동 등록된 팀원 역량 프로필이 없습니다. 참가자가 입장한 뒤 Round 0 KSA를 저장하면 자동 생성됩니다.</p>
       </section>
@@ -31,9 +38,11 @@ export default function CompetencyProfilePanel({ profiles = {}, title = '팀원 
 
   return (
     <section className="card competency-profile-panel">
-      <p className="eyebrow">Auto KSA Profile</p>
-      <h3>{title}</h3>
-      <p className="muted">Round 0에서 선택한 9개 KSA를 기준으로 팀원별 초기 수준을 자동 배정한 값입니다. 교육용 초기 진단이며, 실제 평가 점수는 아닙니다.</p>
+      <div className="competencyProfileIntro">
+        <p className="eyebrow">KSA Profile</p>
+        <h3>{title}</h3>
+        <p>{isFacilitator ? 'Round 0에서 선택한 9개 KSA를 기준으로 팀원별 초기 수준을 자동 배정한 교육용 진단 정보입니다.' : '이 프로필은 실제 평가가 아니라, 이번 12주 동안 내가 관찰할 강점과 주의 신호를 보여주는 학습용 자료입니다.'}</p>
+      </div>
       <div className="grid2">
         {profileList.map(profile => {
           const recentEvents = [...(profile.growthEvents || [])].slice(-3).reverse();
@@ -44,14 +53,19 @@ export default function CompetencyProfilePanel({ profiles = {}, title = '팀원 
               <h4>{profile.displayName}</h4>
               {profile.personaCardTitle && <p><b>{profile.personaCardTitle}</b></p>}
               {profile.personaSceneText && <p className="muted">{profile.personaSceneText}</p>}
-              <p><b>{profile.archetypeLabel}</b> · 평균 {profile.averageLevel} <span className="muted">초기 대비 {avgDelta >= 0 ? `+${avgDelta.toFixed(1)}` : avgDelta.toFixed(1)}</span></p>
+              <div className="competencyTagLine">
+                <span>{profile.archetypeLabel || '관찰 유형'}</span>
+                {isFacilitator && <span>평균 {profile.averageLevel} · 초기 대비 {avgDelta >= 0 ? `+${avgDelta.toFixed(1)}` : avgDelta.toFixed(1)}</span>}
+              </div>
               <p className="muted">{profile.archetypeDescription}</p>
-              <p><b>인물 강점:</b> {profile.personaStrengthText || '-'}</p>
-              <p><b>주의 신호:</b> {profile.personaRiskText || '-'}</p>
+              <div className="competencyFocusGrid">
+                <div><b>강점 신호</b><p>{profile.personaStrengthText || listText(profile.strengths)}</p></div>
+                <div><b>주의 신호</b><p>{profile.personaRiskText || '-'}</p></div>
+                <div><b>성장 초점</b><p>{listText(profile.growthFocus)}</p></div>
+              </div>
               <p><b>판단 습관:</b> {profile.personaDecisionHabit || '-'}</p>
-              <p><b>현재 강점:</b> {profile.strengths?.join(', ') || '-'}</p>
-              <p><b>성장 초점:</b> {profile.growthFocus?.join(', ') || '-'}</p>
-              {recentEvents.length > 0 && (
+              {!isFacilitator && <div className="competencyParticipantNote">이 프로필은 나를 평가하기 위한 점수가 아니라, 라운드마다 어떤 강점이 드러나고 어떤 부담이 반복되는지 보는 기준입니다.</div>}
+              {recentEvents.length > 0 && isFacilitator && (
                 <div className="notice">
                   <b>최근 성장 기록</b>
                   <ul>
@@ -59,8 +73,8 @@ export default function CompetencyProfilePanel({ profiles = {}, title = '팀원 
                   </ul>
                 </div>
               )}
-              {!compact && (
-                <table>
+              {isFacilitator && !compact && (
+                <table className="competencyFacilitatorTable">
                   <thead><tr><th>구분</th><th>역량</th><th>초기</th><th>현재</th><th>변화</th></tr></thead>
                   <tbody>
                     {profile.competencies?.map(item => (
