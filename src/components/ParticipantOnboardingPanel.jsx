@@ -6,12 +6,12 @@ export default function ParticipantOnboardingPanel({ mode = 'join', playerName =
     <section className="card onboardingPanel">
       <div className="onboardingHero">
         <p className="eyebrow">참가 안내</p>
-        <h3>{isPlayer ? `${playerName}님, 이렇게 참여하시면 됩니다` : '처음 입장하는 분께'}</h3>
-        <p>이 게임은 점수 경쟁이 아니라, 위기 상황에서 내가 어떤 기준으로 판단하고 팀이 어떤 대가를 감수하는지 확인하는 과정입니다.</p>
+        <h3>{isPlayer ? `${playerName}님, 이 화면은 확장 운영용입니다` : '개인별 입력을 사용하는 경우'}</h3>
+        <p>기본 대면 운영은 팀 화면 하나로 진행합니다. 개인별 입력은 온라인 과정이나 개인 성찰을 따로 수집할 때 선택적으로 사용합니다.</p>
         <div className="onboardingFlow">
-          <div><b>1. 혼자 판단</b><span>상황을 읽고 먼저 내 선택을 남깁니다.</span></div>
-          <div><b>2. 이유 기록</b><span>왜 그렇게 보았는지 짧게 적습니다.</span></div>
-          <div><b>3. 팀 토의</b><span>다른 판단과 선택의 대가를 비교합니다.</span></div>
+          <div><b>1. 개인 생각</b><span>상황을 읽고 먼저 내 선택 방향을 생각합니다.</span></div>
+          <div><b>2. 필요 시 입력</b><span>확장 운영에서는 선택과 이유를 앱에 남깁니다.</span></div>
+          <div><b>3. 팀 토의</b><span>서로 다른 판단과 선택의 대가를 비교합니다.</span></div>
           <div><b>4. 피드백 확인</b><span>결과 카드에서 남은 부담을 봅니다.</span></div>
         </div>
       </div>
@@ -36,7 +36,7 @@ export default function ParticipantOnboardingPanel({ mode = 'join', playerName =
       </div>
 
       <div className="onboardingFooter">
-        {isPlayer && teamName ? `${teamName}의 판단 흐름은 팀 화면에 함께 모입니다. ` : ''}진행 중 막히면 현재 화면의 안내 문구를 먼저 확인하고, 필요한 경우 강사의 안내에 따라 이동하시면 됩니다.
+        {isPlayer && teamName ? `${teamName}의 기본 진행은 팀 화면에서 이어집니다. ` : ''}진행 중 막히면 현재 화면의 안내 문구를 먼저 확인하고, 필요한 경우 강사의 안내에 따라 이동하시면 됩니다.
       </div>
     </section>
   );
