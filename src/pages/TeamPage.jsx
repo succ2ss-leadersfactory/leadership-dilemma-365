@@ -8,6 +8,7 @@ import ChoiceList from '../components/ChoiceList.jsx';
 import KsaSelector from '../components/KsaSelector.jsx';
 import OutputForm from '../components/OutputForm.jsx';
 import ResultCard from '../components/ResultCard.jsx';
+import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
@@ -125,6 +126,7 @@ export default function TeamPage() {
   return (
     <Layout roomId={roomId}>
       <RoundCard round={round} />
+      <ParticipantStepGuide mode="team" roundId={round.roundId} resultVisible={room.roomProgress.resultVisible} />
       <StrategicEventCard event={strategicEvent} teamId={teamId} />
       <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={round.week} teamId={teamId} compact />
 
