@@ -1,6 +1,10 @@
+.outputForm {
+  gap: 18px;
+}
+
 .outputGuide {
   position: relative;
-  padding: 18px;
+  padding: 20px;
   border: 1px solid rgba(36, 87, 214, 0.18);
   border-radius: 24px;
   background:
@@ -21,12 +25,24 @@
   pointer-events: none;
 }
 
+.outputGuide__eyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.86);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
 .outputGuide h4 {
   margin: 0 0 8px;
   letter-spacing: -0.04em;
 }
 
-.outputGuide p {
+.outputGuide p:not(.outputGuide__eyebrow) {
   max-width: 760px;
   margin: 0;
   color: #334155;
@@ -155,22 +171,73 @@
   line-height: 1.58;
 }
 
-form.stack label {
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.8);
+.outputFieldGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
 }
 
-form.stack label > small {
+form.stack label.outputFieldCard {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 18px 18px 18px 62px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.06), transparent 14rem),
+    rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.outputFieldCard__number {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2457d6, #14b8a6);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 10px 20px rgba(36, 87, 214, 0.16);
+}
+
+.outputFieldCard__label {
+  display: block;
+  color: #101828;
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+form.stack label.outputFieldCard > small {
   color: #667085;
   line-height: 1.45;
 }
 
+.outputFieldCard input,
+.outputFieldCard select,
+.outputFieldCard textarea {
+  margin-top: 3px;
+}
+
+.outputFieldCard textarea {
+  min-height: 128px;
+  line-height: 1.62;
+}
+
 .outputFieldHint {
   position: relative;
-  margin-top: 8px;
-  padding-left: 18px;
+  margin-top: 2px;
+  padding: 9px 11px 9px 28px;
+  border: 1px solid rgba(36, 87, 214, 0.1);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.86);
   color: #64748b;
   font-size: 0.84rem;
   line-height: 1.45;
@@ -179,16 +246,32 @@ form.stack label > small {
 .outputFieldHint::before {
   content: "•";
   position: absolute;
-  left: 4px;
+  left: 12px;
   color: #2457d6;
   font-weight: 900;
 }
 
+.outputSubmitBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(36, 87, 214, 0.14);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.08), transparent 14rem),
+    linear-gradient(135deg, #ffffff, #f8fbff);
+}
+
+.outputSubmitBar .primary {
+  flex: 0 0 auto;
+}
+
 .outputSubmitHelp {
-  margin-top: 8px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(248, 250, 252, 0.9);
+  flex: 1 1 260px;
+  margin: 0;
+  padding: 0;
   color: #64748b;
   font-size: 0.92rem;
   line-height: 1.55;
@@ -213,5 +296,26 @@ form.stack label > small {
   .outputChecklist div {
     min-height: auto;
     padding: 15px;
+  }
+
+  form.stack label.outputFieldCard {
+    padding: 56px 14px 14px;
+    border-radius: 18px;
+  }
+
+  .outputFieldCard__number {
+    left: 14px;
+    top: 14px;
+  }
+
+  .outputSubmitBar {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .outputSubmitBar .primary {
+    width: 100%;
   }
 }
