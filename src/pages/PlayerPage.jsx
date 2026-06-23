@@ -12,6 +12,7 @@ import { getPlayer } from '../services/playerService';
 import { getCurrentRound } from '../services/roundService';
 import { submitVote, getVote } from '../services/voteService';
 import { defaultResultCard } from '../data/seedResultCards';
+import '../styles/playerDecisionUx.css';
 
 export default function PlayerPage() {
   const { roomId, playerId } = useParams();
@@ -90,12 +91,30 @@ export default function PlayerPage() {
             <div className="notice">
               <b>지금 할 일:</b> 팀 토의 전에 먼저 혼자 판단을 남기는 단계입니다. 정답을 맞히기보다 왜 그렇게 판단했는지 짧게 적어 주세요.
             </div>
+            <div className="personalDecisionGuide">
+              <h3>혼자 먼저 판단할 때 볼 3가지</h3>
+              <p>팀 의견을 듣기 전에 내가 먼저 무엇을 중요하게 보았는지 남겨야, 토의에서 판단 차이가 드러납니다.</p>
+              <div className="personalDecisionChecklist">
+                <div><b>문제의 핵심</b><span>지금 가장 먼저 풀어야 할 문제는 무엇입니까?</span></div>
+                <div><b>얻는 것</b><span>이 선택으로 우리 팀이 바로 얻는 진전은 무엇입니까?</span></div>
+                <div><b>미루는 부담</b><span>이 선택으로 뒤로 밀리는 부담은 무엇입니까?</span></div>
+              </div>
+            </div>
             <ChoiceList choices={choices} selectedChoiceId={choiceId || vote?.choiceId} onSelect={setChoiceId} disabled={!canVote} />
-            <label>선택 이유<textarea disabled={!canVote} value={reason || vote?.reason || ''} onChange={e => setReason(e.target.value)} placeholder="왜 이 선택을 하셨습니까?" /></label>
+            <label>선택 이유<textarea disabled={!canVote} value={reason || vote?.reason || ''} onChange={e => setReason(e.target.value)} placeholder="예: 고객 신뢰 회복이 먼저라고 보았습니다. 다만 내부 실행 부담은 커질 수 있습니다." /></label>
+            <div className="personalReasonGuide">
+              <b>선택 이유에는 이런 내용이 들어가면 좋습니다</b>
+              <ul>
+                <li>내가 본 핵심 문제</li>
+                <li>이 선택으로 얻는 것</li>
+                <li>이 선택이 남길 수 있는 부담</li>
+              </ul>
+            </div>
             <div className="actions">
-              <button className="primary" disabled={!canVote} onClick={save}>개인 선택 저장</button>
+              <button className="primary" disabled={!canVote} onClick={save}>개인 판단 저장</button>
               <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 결정 화면으로 이동</Link>
             </div>
+            <p className="personalDecisionAfterSave">개인 판단을 저장한 뒤 팀 화면으로 이동하면, 팀원들의 판단 차이를 보고 토의할 수 있습니다.</p>
           </>
         ) : round.roundId === 'week12' ? (
           <>
