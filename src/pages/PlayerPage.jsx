@@ -17,7 +17,7 @@ import '../styles/playerDecisionUx.css';
 
 const PLAYER_PHASE_LABELS = {
   ksaSelection: 'KSA 선택',
-  playerVote: '개인 판단 입력',
+  playerVote: '확장 운영 개인 입력',
   teamDecision: '팀 토의와 최종 선택',
   outputSubmission: '산출물 작성',
   resultReview: '결과 카드 확인',
@@ -34,9 +34,9 @@ function getRoundLabel(round) {
 
 function playerWaitMessage(progress) {
   if (progress.isScreenLocked) return '강사가 화면을 잠근 상태입니다. 잠금이 해제되면 입력할 수 있습니다.';
-  if (progress.currentPhase === 'ksaSelection') return 'Round 0은 팀 화면에서 KSA를 먼저 선택하는 단계입니다.';
-  if (progress.currentPhase !== 'playerVote') return '지금은 개인 판단 입력 단계가 아닙니다. 팀 화면 또는 결과 확인 흐름을 따라가 주세요.';
-  return '개인 판단을 입력할 수 있습니다.';
+  if (progress.currentPhase === 'ksaSelection') return 'Round 0과 기본 진행은 팀 화면에서 진행합니다. 개인별 입력은 확장 운영에서만 사용하세요.';
+  if (progress.currentPhase !== 'playerVote') return '지금은 개인별 입력 단계가 아닙니다. 기본 운영은 팀 화면에서 토의와 결정을 진행합니다.';
+  return '온라인/확장 운영에서 개인 판단을 입력할 수 있습니다.';
 }
 
 export default function PlayerPage() {
@@ -73,7 +73,7 @@ export default function PlayerPage() {
   const save = () => {
     try {
       submitVote({ roomId, roundId: round.roundId, teamId: player.teamId, playerId, choiceId: choiceId || vote?.choiceId, reason: reasonDraft ?? vote?.reason ?? '' });
-      setMsg('개인 판단이 저장되었습니다. 팀 화면에서 선택 차이와 최종 결정을 확인하세요.');
+      setMsg('확장 운영용 개인 판단이 저장되었습니다. 기본 토의와 최종 결정은 팀 화면에서 이어가세요.');
     } catch (e) { setMsg(e.message); }
   };
 
@@ -108,10 +108,15 @@ export default function PlayerPage() {
       )}
       <RoundCard round={round} />
       <ParticipantStepGuide mode="player" roundId={round.roundId} resultVisible={room.roomProgress.resultVisible} />
+      <section className="card">
+        <h3>확장 운영용 개인 입력 화면</h3>
+        <p>이 화면은 기본 대면 운영에서 필수로 쓰지 않습니다. 팀 화면 하나로 진행하는 경우에는 각자 1분 동안 생각만 하고, 토의와 입력은 팀 화면에서 진행하세요.</p>
+        <p className="muted"><Link to={`/team/${roomId}/${player.teamId}`}>팀 진행 화면으로 이동</Link></p>
+      </section>
       <section className="card player-decision-card">
         <div className="playerDecisionHeader">
           <div>
-            <p className="playerDecisionHeader__eyebrow">PLAYER JOURNEY</p>
+            <p className="playerDecisionHeader__eyebrow">OPTIONAL PLAYER JOURNEY</p>
             <h2>{player.displayName}</h2>
             <p className="playerDecisionHeader__team">팀: <Link to={`/team/${roomId}/${player.teamId}`}>{team.teamName}</Link></p>
           </div>
@@ -123,21 +128,21 @@ export default function PlayerPage() {
         </div>
         <div className="playerDecisionHeader__meta">
           <span>{roundLabel}</span>
-          <span>{canVote ? '개인 판단 입력 가능' : '입력 대기 또는 잠금'}</span>
+          <span>{canVote ? '확장 개인 입력 가능' : '입력 대기 또는 잠금'}</span>
           <span>{vote?.choiceId ? '저장한 판단 있음' : '아직 저장 전'}</span>
         </div>
         {!showGuide && <button className="secondary" onClick={() => setShowGuide(true)}>참가 안내 다시 보기</button>}
         {msg && <div className="notice">{msg}</div>}
-        {showInputWait && <StatusNoticeCard type={room.roomProgress.isScreenLocked ? 'locked' : 'waiting'} title="개인 판단 입력 대기" meta={[currentPhaseLabel, roundLabel]}>{playerWaitMessage(room.roomProgress)}</StatusNoticeCard>}
+        {showInputWait && <StatusNoticeCard type={room.roomProgress.isScreenLocked ? 'locked' : 'waiting'} title="확장 운영 입력 대기" meta={[currentPhaseLabel, roundLabel]}>{playerWaitMessage(room.roomProgress)}</StatusNoticeCard>}
 
         {choices.length > 0 ? (
           <>
             <div className="notice">
-              <b>지금 할 일:</b> 팀 토의 전에 먼저 혼자 판단을 남기는 단계입니다. 정답을 맞히기보다 왜 그렇게 판단했는지 짧게 적어 주세요.
+              <b>확장 운영에서 할 일:</b> 팀 토의 전에 먼저 혼자 판단을 남기는 단계입니다. 기본 운영에서는 앱에 입력하지 않고 1분 동안 선택 방향만 생각해도 됩니다.
             </div>
             <div className="personalDecisionGuide">
               <h3>혼자 먼저 판단할 때 볼 3가지</h3>
-              <p>팀 의견을 듣기 전에 내가 먼저 무엇을 중요하게 보았는지 남겨야, 토의에서 판단 차이가 드러납니다.</p>
+              <p>팀 의견을 듣기 전에 내가 먼저 무엇을 중요하게 보았는지 정리하면, 토의에서 판단 차이가 더 잘 드러납니다.</p>
               <div className="personalDecisionChecklist">
                 <div><b>문제의 핵심</b><span>지금 가장 먼저 풀어야 할 문제는 무엇입니까?</span></div>
                 <div><b>얻는 것</b><span>이 선택으로 우리 팀이 바로 얻는 진전은 무엇입니까?</span></div>
@@ -155,17 +160,17 @@ export default function PlayerPage() {
               </ul>
             </div>
             <div className="actions">
-              <button className="primary" disabled={!canVote} onClick={save}>개인 판단 저장하기</button>
-              <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 결정 화면 열기</Link>
+              <button className="primary" disabled={!canVote} onClick={save}>확장 운영: 개인 판단 저장하기</button>
+              <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 진행 화면 열기</Link>
             </div>
-            <p className="personalDecisionAfterSave">개인 판단을 저장한 뒤 팀 화면으로 이동하면, 팀원들의 판단 차이를 보고 토의할 수 있습니다.</p>
+            <p className="personalDecisionAfterSave">기본 운영에서는 팀 화면에서 각자 생각한 방향을 말로 나눈 뒤, 팀 대표가 최종 선택을 입력합니다.</p>
           </>
         ) : round.roundId === 'week12' ? (
           <>
             <div className="personalReflectionPanel">
               <p className="personalReflectionPanel__eyebrow">WEEK 12 REFLECTION</p>
               <h3>개인 성찰</h3>
-              <p>팀 선언문을 쓰기 전에, 내가 반복한 판단 습관과 현업에서 바꿀 행동을 먼저 남깁니다.</p>
+              <p>팀 선언문을 쓰기 전에, 내가 반복한 판단 습관과 현업에서 바꿀 행동을 먼저 남깁니다. 기본 운영에서는 강사의 안내에 따라 별도 활동지나 팀 토의로 진행할 수 있습니다.</p>
               <div className="personalReflectionChecklist">
                 <div><b>반복한 판단 습관</b><span>12주 동안 비슷한 상황에서 내가 자주 선택한 기준을 떠올립니다.</span></div>
                 <div><b>남기고 싶은 기준</b><span>현업으로 가져가도 좋을 판단 기준을 한 문장으로 잡아 봅니다.</span></div>
@@ -180,7 +185,7 @@ export default function PlayerPage() {
             </div>
             <p className="personalReflectionAfterSave">개인 성찰을 저장한 뒤 팀 선언문 작성으로 이동하면, 우리 팀이 지킬 기준을 함께 정리할 수 있습니다.</p>
           </>
-        ) : <StatusNoticeCard title="팀 화면에서 먼저 진행합니다">KSA 선택은 팀 화면에서 진행합니다. 팀 화면에서 KSA가 저장되면 Week 1 개인 판단 단계로 이동할 수 있습니다.</StatusNoticeCard>}
+        ) : <StatusNoticeCard title="팀 화면에서 먼저 진행합니다">KSA 선택은 팀 화면에서 진행합니다. 기본 운영에서는 팀 화면 하나로 KSA 선택과 Week 1 진행을 이어갑니다.</StatusNoticeCard>}
       </section>
       <CompetencyProfilePanel profiles={competencyProfile ? { [playerId]: competencyProfile } : {}} title="나의 초기 역량 프로필" />
       {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} audience="participant" />}
