@@ -1,25 +1,44 @@
 .team-discussion-guide {
-  margin: 18px 0 14px;
-  padding: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.82);
+  position: relative;
+  margin: 18px 0 16px;
+  padding: 18px;
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(36, 87, 214, 0.08), transparent 16rem),
+    linear-gradient(135deg, #ffffff, #f8fbff);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.055);
+  overflow: hidden;
+}
+
+.team-discussion-guide::after {
+  content: "DISCUSS";
+  position: absolute;
+  right: 16px;
+  top: 10px;
+  color: rgba(36, 87, 214, 0.06);
+  font-size: 2.6rem;
+  font-weight: 950;
+  letter-spacing: -0.08em;
+  pointer-events: none;
 }
 
 .team-discussion-guide__header {
+  position: relative;
   display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 14px;
+  z-index: 1;
 }
 
 .team-discussion-guide__eyebrow {
   width: fit-content;
-  padding: 4px 9px;
+  padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
-  color: #334155;
+  background: #eaf1ff;
+  color: #1e3a8a;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 900;
   letter-spacing: -0.01em;
 }
 
@@ -27,41 +46,101 @@
 .team-discussion-guide__example {
   margin: 0;
   color: #475569;
-  line-height: 1.55;
+  line-height: 1.58;
 }
 
 .team-discussion-guide__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .team-discussion-guide__item {
+  position: relative;
+  min-height: 130px;
   display: grid;
+  align-content: flex-start;
   gap: 6px;
-  padding: 12px;
-  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
   background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+}
+
+.team-discussion-guide__item::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.team-discussion-guide__item:nth-child(1)::before {
+  content: "기";
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.team-discussion-guide__item:nth-child(2)::before {
+  content: "갈";
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.team-discussion-guide__item:nth-child(3)::before {
+  content: "부";
+  background: #ffedd5;
+  color: #b45309;
+}
+
+.team-discussion-guide__item:nth-child(4)::before {
+  content: "확";
+  background: #dcfce7;
+  color: #15803d;
 }
 
 .team-discussion-guide__item b {
-  color: #0f172a;
-  font-size: 0.94rem;
+  color: #101828;
+  font-size: 0.96rem;
+  letter-spacing: -0.02em;
 }
 
 .team-discussion-guide__item span {
-  color: #64748b;
+  color: #475569;
   font-size: 0.9rem;
-  line-height: 1.48;
+  line-height: 1.5;
 }
 
 .team-discussion-guide__example {
-  margin-top: 12px;
-  padding: 11px 12px;
-  border-radius: 14px;
-  background: rgba(226, 232, 240, 0.45);
+  position: relative;
+  margin-top: 14px;
+  padding: 13px 14px 13px 48px;
+  border: 1px solid rgba(36, 87, 214, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
   font-size: 0.92rem;
+}
+
+.team-discussion-guide__example::before {
+  content: "예";
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2457d6;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 900;
 }
 
 @media (max-width: 900px) {
@@ -71,7 +150,21 @@
 }
 
 @media (max-width: 560px) {
+  .team-discussion-guide {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .team-discussion-guide::after {
+    font-size: 2rem;
+  }
+
   .team-discussion-guide__grid {
     grid-template-columns: 1fr;
+  }
+
+  .team-discussion-guide__item {
+    min-height: auto;
+    padding: 15px;
   }
 }
