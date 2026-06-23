@@ -33,6 +33,15 @@ export default function TeamDecisionSummary({ choices = [], opinions = [] }) {
                 <b>{items.length}명</b>
               </div>
               <p>{choice.choiceText}</p>
+              {items.length > 0 ? (
+                <ul>
+                  {items.slice(0, 3).map((item, itemIndex) => (
+                    <li key={`${choice.choiceId}_${itemIndex}`}>{item.reason || '선택 이유 미작성'}</li>
+                  ))}
+                </ul>
+              ) : (
+                <small>아직 이 방향을 고른 개인 판단은 없습니다.</small>
+              )}
             </div>
           );
         })}
