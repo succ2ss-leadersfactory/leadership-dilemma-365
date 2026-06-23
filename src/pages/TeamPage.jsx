@@ -13,6 +13,7 @@ import FinalJudgmentCard from '../components/FinalJudgmentCard.jsx';
 import TeamDecisionSummary from '../components/TeamDecisionSummary.jsx';
 import TeamDiscussionGuide from '../components/TeamDiscussionGuide.jsx';
 import TeamDeclarationGuide from '../components/TeamDeclarationGuide.jsx';
+import StatusNoticeCard from '../components/StatusNoticeCard.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
@@ -84,6 +85,10 @@ export default function TeamPage() {
   const canRevealResult = Boolean(decision && submission);
   const currentPhaseLabel = PHASE_LABELS[room.roomProgress.currentPhase] || room.roomProgress.currentPhase;
   const roundLabel = getRoundLabel(round);
+  const resultReadinessItems = [
+    decision ? '팀 최종 선택 저장 완료' : '팀 최종 선택을 먼저 저장해야 합니다.',
+    submission ? '산출물 저장 완료' : '산출물을 먼저 저장해야 합니다.'
+  ];
 
   function startWeek1PlayerVote() {
     updateDb(db2 => {
@@ -169,6 +174,7 @@ export default function TeamPage() {
           <span>{canEdit ? '팀 입력 가능' : '화면 잠금'}</span>
         </div>
         {msg && <div className="notice">{msg}</div>}
+        {!canEdit && <StatusNoticeCard type="locked" title="현재 화면이 잠겨 있습니다" meta={[currentPhaseLabel, roundLabel]}>강사가 화면 잠금을 해제하면 선택, 토론 요약, 산출물 입력을 다시 진행할 수 있습니다.</StatusNoticeCard>}
       </section>
 
       {round.roundId === 'round0' && (
@@ -188,7 +194,7 @@ export default function TeamPage() {
           <section className="card next-step-card">
             <h3>다음 행동</h3>
             <p>KSA 저장을 마쳤다면 아래 버튼으로 바로 Week 1의 개인 선택 단계로 이동하세요.</p>
-            {!ksaComplete && <p className="muted">지식·기술·태도 각 3개씩 선택 후 KSA를 저장하면 이동할 수 있습니다.</p>}
+            {!ksaComplete && <StatusNoticeCard title="KSA 선택 대기" items={['지식 3개를 선택합니다.', '기술 3개를 선택합니다.', '태도 3개를 선택합니다.']}>세 영역이 모두 3개씩 선택되어야 Week 1로 이동할 수 있습니다.</StatusNoticeCard>}
             <div className="actions">
               <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>KSA 저장하고 Week 1 개인 선택으로 이동</button>
             </div>
@@ -209,6 +215,7 @@ export default function TeamPage() {
             <b>지금 할 일</b>
             <span>가장 많이 나온 선택을 그대로 따르기보다, 팀이 책임질 수 있는 기준과 부담을 함께 확인하세요.</span>
           </div>
+          {!canEdit && <StatusNoticeCard type="locked" title="팀 결정 입력 대기">현재는 강사가 화면을 잠근 상태입니다. 화면이 열리면 최종 선택과 토론 요약을 저장할 수 있습니다.</StatusNoticeCard>}
           <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
           <TeamDiscussionGuide />
           <label className="team-decision-summary-field">토론 요약
@@ -249,7 +256,7 @@ export default function TeamPage() {
         <section className="card next-step-card">
           <h3>다음 행동</h3>
           <p>팀 결정과 산출물 저장을 마쳤다면 결과를 공개하고, 이번 선택이 남긴 피드백을 확인하세요.</p>
-          {!canRevealResult && <p className="muted">팀 결정과 산출물이 모두 저장되어야 결과 공개가 가능합니다.</p>}
+          {!canRevealResult && <StatusNoticeCard title="결과 공개 대기" items={resultReadinessItems}>결과 공개는 팀 최종 선택과 산출물이 모두 저장된 뒤 가능합니다.</StatusNoticeCard>}
           <div className="actions">
             <button className="primary" disabled={!canRevealResult} onClick={calculateAndReveal}>결과 공개하고 피드백 확인</button>
           </div>
@@ -297,6 +304,7 @@ export default function TeamPage() {
           <section className="card next-step-card">
             <h3>마지막 단계</h3>
             <p>팀 선언문을 저장했다면 최종 판정을 생성하고, 12주 동안 반복한 판단 습관을 확인하세요.</p>
+            {!declaration?.teamDeclaration && <StatusNoticeCard title="팀 선언문 저장 대기">최종 판정은 생성할 수 있지만, 먼저 팀 선언문을 저장하면 결과를 우리 팀의 행동 약속과 함께 돌아볼 수 있습니다.</StatusNoticeCard>}
             <div className="actions">
               <button className="primary" onClick={createFinalJudgment}>최종 판정 생성</button>
             </div>
