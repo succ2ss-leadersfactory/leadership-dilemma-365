@@ -169,28 +169,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
+  min-width: 46px;
   height: 30px;
   margin-bottom: 10px;
-  border-radius: 50%;
+  padding: 0 10px;
+  border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .eventSignalGrid > div:nth-child(1)::before {
-  content: "압";
+  content: "압박";
   background: #ffedd5;
   color: #b45309;
 }
 
 .eventSignalGrid > div:nth-child(2)::before {
-  content: "대";
+  content: "대가";
   background: #fee2e2;
   color: #991b1b;
 }
 
 .eventSignalGrid > div:nth-child(3)::before {
-  content: "기";
+  content: "기회";
   background: #dcfce7;
   color: #15803d;
 }
