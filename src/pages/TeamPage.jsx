@@ -25,7 +25,7 @@ import '../styles/teamDecisionWorkshop.css';
 
 const PHASE_LABELS = {
   ksaSelection: 'KSA 선택',
-  playerVote: '개인 판단 입력',
+  playerVote: '개인 생각',
   teamDecision: '팀 토의와 최종 선택',
   outputSubmission: '산출물 작성',
   resultReview: '결과 카드 확인',
@@ -108,7 +108,7 @@ export default function TeamPage() {
         targetRoom.roundProgress.week1.phase = 'playerVote';
       }
     });
-    setMsg('Week 1 개인 판단 단계가 열렸습니다. 먼저 개인 선택과 이유를 남겨 주세요.');
+    setMsg('Week 1이 열렸습니다. 먼저 상황을 읽고 각자 1분 동안 선택 방향을 생각한 뒤 팀 토의로 이어가세요.');
     navigate(`/team/${roomId}/${teamId}`);
   }
 
@@ -128,7 +128,7 @@ export default function TeamPage() {
       setFinalChoiceId('');
       setDiscussionSummaryDraft(null);
       setTeamDeclarationDraft(null);
-      setMsg('다음 라운드가 열렸습니다. 새 상황을 읽고 개인 판단부터 이어가세요.');
+      setMsg('다음 라운드가 열렸습니다. 새 상황을 읽고 각자 1분 개인 생각 후 팀 토의로 이어가세요.');
       navigate(`/team/${roomId}/${teamId}`);
     } catch (e) {
       setMsg(e.message);
@@ -172,11 +172,20 @@ export default function TeamPage() {
         </div>
         <div className="team-status-card__meta">
           <span>{roundLabel}</span>
-          <span>{room.roomProgress.resultVisible ? '결과 확인 중' : '판단 진행 중'}</span>
-          <span>{canEdit ? '팀 입력 가능' : '화면 잠금'}</span>
+          <span>{room.roomProgress.resultVisible ? '결과 확인 중' : '팀 판단 진행 중'}</span>
+          <span>{canEdit ? '팀 대표 입력 가능' : '화면 잠금'}</span>
         </div>
         {msg && <div className="notice">{msg}</div>}
-        {!canEdit && <StatusNoticeCard type="locked" title="현재 화면이 잠겨 있습니다" meta={[currentPhaseLabel, roundLabel]}>강사가 화면 잠금을 해제하면 선택, 토론 요약, 산출물 입력을 다시 진행할 수 있습니다.</StatusNoticeCard>}
+        {!canEdit && <StatusNoticeCard type="locked" title="현재 화면이 잠겨 있습니다" meta={[currentPhaseLabel, roundLabel]}>강사가 화면 잠금을 해제하면 팀 최종 선택, 토론 요약, 산출물 입력을 다시 진행할 수 있습니다.</StatusNoticeCard>}
+      </section>
+
+      <section className="card team-single-screen-guide">
+        <h3>팀 단일 화면 운영 안내</h3>
+        <p>이 화면은 팀 대표 입력 화면입니다. 각 팀은 화면 하나만 사용해 상황을 읽고, 각자 1분 동안 선택 방향을 생각한 뒤 토의합니다.</p>
+        <div className="team-decision-workshop-card__notice">
+          <b>입력은 한 명만</b>
+          <span>팀원들은 토의에 참여하고, 팀 대표가 최종 선택·토론 요약·산출물을 이 화면에 입력하면 됩니다.</span>
+        </div>
       </section>
 
       {round.roundId === 'round0' && (
@@ -187,7 +196,7 @@ export default function TeamPage() {
             onSubmit={(ksa) => {
               try {
                 saveTeamKSA(roomId, teamId, ksa);
-                setMsg('KSA가 저장되었습니다. 이제 Week 1 개인 판단을 시작할 수 있습니다.');
+                setMsg('KSA가 저장되었습니다. 이제 Week 1 상황 읽기와 개인 생각을 시작할 수 있습니다.');
               } catch (e) {
                 setMsg(e.message);
               }
@@ -195,10 +204,10 @@ export default function TeamPage() {
           />
           <section className="card next-step-card">
             <h3>다음에 할 일</h3>
-            <p>KSA 저장을 마쳤다면 Week 1 개인 판단을 시작하세요.</p>
+            <p>KSA 저장을 마쳤다면 Week 1 상황 읽기와 개인 생각으로 넘어가세요.</p>
             {!ksaComplete && <StatusNoticeCard title="KSA 선택 대기" items={['지식 3개를 선택합니다.', '기술 3개를 선택합니다.', '태도 3개를 선택합니다.']}>세 영역이 모두 3개씩 선택되어야 Week 1로 이동할 수 있습니다.</StatusNoticeCard>}
             <div className="actions">
-              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>Week 1 개인 판단 시작하기</button>
+              <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>Week 1 시작하기</button>
             </div>
             <p className="muted">전체 진행과 리포트 관리는 강사 화면에서 별도로 운영됩니다.</p>
           </section>
@@ -211,11 +220,11 @@ export default function TeamPage() {
           <div className="team-decision-workshop-card__header">
             <p className="team-decision-workshop-card__eyebrow">TEAM AGREEMENT</p>
             <h3>팀 최종 선택</h3>
-            <p>개인 선택을 참고하되, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.</p>
+            <p>각자 먼저 생각한 선택 방향을 나눈 뒤, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.</p>
           </div>
           <div className="team-decision-workshop-card__notice">
             <b>지금 할 일</b>
-            <span>가장 많이 나온 선택을 그대로 따르기보다, 팀이 책임질 수 있는 기준과 부담을 함께 확인하세요.</span>
+            <span>가장 먼저 떠오른 선택을 그대로 따르기보다, 팀이 책임질 수 있는 기준과 부담을 함께 확인하세요.</span>
           </div>
           {!canEdit && <StatusNoticeCard type="locked" title="팀 결정 입력 대기">현재는 강사가 화면을 잠근 상태입니다. 화면이 열리면 최종 선택과 토론 요약을 저장할 수 있습니다.</StatusNoticeCard>}
           <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
