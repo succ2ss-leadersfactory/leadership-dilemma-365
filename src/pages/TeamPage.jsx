@@ -10,6 +10,7 @@ import OutputForm from '../components/OutputForm.jsx';
 import ResultCard from '../components/ResultCard.jsx';
 import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
 import FinalJudgmentCard from '../components/FinalJudgmentCard.jsx';
+import TeamDecisionSummary from '../components/TeamDecisionSummary.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
@@ -162,11 +163,7 @@ export default function TeamPage() {
 
       {choices.length > 0 && (
         <section className="card">
-          <h3>개인 선택 분포</h3>
-          {votes.length ? votes.map(v => (
-            <p key={v.voteId}>• {choices.find(c => c.choiceId === v.choiceId)?.choiceText}<br /><small>{v.reason}</small></p>
-          )) : <p className="muted">아직 개인 선택이 없습니다. 팀원들이 개인 선택을 저장하면 여기에 모입니다.</p>}
-
+          <TeamDecisionSummary choices={choices} opinions={votes} />
           <h3>팀 최종 선택</h3>
           <div className="notice">
             <b>지금 할 일:</b> 개인 선택을 참고하되, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.
