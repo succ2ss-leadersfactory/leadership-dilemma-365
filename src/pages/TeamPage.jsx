@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import RoundCard from '../components/RoundCard.jsx';
 import StrategicEventCard from '../components/StrategicEventCard.jsx';
@@ -117,7 +117,7 @@ export default function TeamPage() {
         targetRoom.roomProgress.finalResultVisible = true;
         Object.values(targetRoom.finalResults).forEach(result => { result.visible = true; });
       });
-      setMsg('최종 판정을 생성했습니다. 아래 요약을 확인하거나 교육 리포트로 이동하세요.');
+      setMsg('최종 판정을 생성했습니다. 아래 요약을 확인하고 팀 선언문과 연결해 보세요.');
     } catch (e) {
       setMsg(e.message);
     }
@@ -157,8 +157,8 @@ export default function TeamPage() {
             {!ksaComplete && <p className="muted">지식·기술·태도 각 3개씩 선택 후 KSA를 저장하면 이동할 수 있습니다.</p>}
             <div className="actions">
               <button className="primary" disabled={!ksaComplete} onClick={startWeek1PlayerVote}>KSA 저장하고 Week 1 개인 선택으로 이동</button>
-              <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
             </div>
+            <p className="muted">전체 진행과 리포트 관리는 강사 화면에서 별도로 운영됩니다.</p>
           </section>
         </>
       )}
@@ -168,7 +168,7 @@ export default function TeamPage() {
           <h3>개인 선택 분포</h3>
           {votes.length ? votes.map(v => (
             <p key={v.voteId}>• {choices.find(c => c.choiceId === v.choiceId)?.choiceText}<br /><small>{v.reason}</small></p>
-          )) : <p className="muted">아직 개인 선택이 없습니다. 빠른 테스트에서는 아래 팀 최종 선택부터 진행해도 됩니다.</p>}
+          )) : <p className="muted">아직 개인 선택이 없습니다. 팀원들이 개인 선택을 저장하면 여기에 모입니다.</p>}
 
           <h3>팀 최종 선택</h3>
           <div className="notice">
@@ -179,7 +179,7 @@ export default function TeamPage() {
           <button className="primary" onClick={() => {
             try {
               submitTeamDecision({ roomId, roundId: round.roundId, teamId, finalChoiceId: finalChoiceId || decision?.finalChoiceId, discussionSummary: summary || decision?.discussionSummary, submittedBy: 'team' });
-              setMsg('팀 결정을 저장했습니다. 이어서 산출물을 입력하세요.');
+              setMsg('팀 결정을 저장했습니다. 이어서 산출물에 다음 행동과 남는 부담을 남겨 주세요.');
             } catch (e) { setMsg(e.message); }
           }}>팀 결정 저장</button>
         </section>
@@ -196,7 +196,7 @@ export default function TeamPage() {
             onSubmit={(answers) => {
               try {
                 submitRoundOutput({ roomId, roundId: round.roundId, teamId, answers, submittedBy: 'team' });
-                setMsg('산출물을 저장했습니다. 증거 수준을 확인한 뒤 결과를 계산하고 공개하세요.');
+                setMsg('산출물을 저장했습니다. 결과를 공개하면 산출물 피드백과 다음 행동을 확인할 수 있습니다.');
               } catch (e) { setMsg(e.message); }
             }}
           />
@@ -206,11 +206,10 @@ export default function TeamPage() {
       {choices.length > 0 && !room.roomProgress.resultVisible && (
         <section className="card next-step-card">
           <h3>다음 행동</h3>
-          <p>팀 결정과 산출물 저장을 마쳤다면 결과를 계산하고 공개하세요.</p>
+          <p>팀 결정과 산출물 저장을 마쳤다면 결과를 공개하고, 이번 선택이 남긴 피드백을 확인하세요.</p>
           {!canRevealResult && <p className="muted">팀 결정과 산출물이 모두 저장되어야 결과 공개가 가능합니다.</p>}
           <div className="actions">
-            <button className="primary" disabled={!canRevealResult} onClick={calculateAndReveal}>결과 계산하고 공개</button>
-            <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 계산하기</Link>
+            <button className="primary" disabled={!canRevealResult} onClick={calculateAndReveal}>결과 공개하고 피드백 확인</button>
           </div>
         </section>
       )}
@@ -223,8 +222,8 @@ export default function TeamPage() {
             <p>결과를 확인했다면 다음 라운드로 이동해 같은 흐름을 이어가세요.</p>
             <div className="actions">
               <button className="primary" onClick={goNextRound}>다음 라운드로 이동</button>
-              <Link className="secondary" to={`/host/${roomId}`}>Host 화면에서 진행하기</Link>
             </div>
+            <p className="muted">강사용 리포트와 다팀 비교는 강사가 마무리 단계에서 안내합니다.</p>
           </section>
         </>
       )}
@@ -239,19 +238,17 @@ export default function TeamPage() {
               updateDb(db2 => {
                 db2.rooms[roomId].declarations[teamId] = { ...(db2.rooms[roomId].declarations[teamId] || { teamId }), teamDeclaration: summary || declaration?.teamDeclaration || '', submittedAt: Date.now() };
               });
-              setMsg('팀 선언문을 저장했습니다. 이제 최종 판정을 생성하고 교육 리포트를 확인하세요.');
+              setMsg('팀 선언문을 저장했습니다. 이제 최종 판정을 생성하고 우리 팀의 판단 흐름을 확인하세요.');
             }}>선언문 저장</button>
           </section>
 
           <section className="card next-step-card">
             <h3>마지막 단계</h3>
-            <p>팀 선언문을 저장했다면 최종 판정을 생성하고 교육 리포트에서 전체 결과를 확인하세요.</p>
+            <p>팀 선언문을 저장했다면 최종 판정을 생성하고, 12주 동안 반복한 판단 습관을 확인하세요.</p>
             <div className="actions">
               <button className="primary" onClick={createFinalJudgment}>최종 판정 생성</button>
-              <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
-              <Link className="secondary" to={`/compare/${roomId}`}>다팀 비교 보기</Link>
-              <Link className="secondary" to={`/host/${roomId}`}>Host 화면</Link>
             </div>
+            <p className="muted">최종 리포트와 전체 비교는 강사가 별도로 안내합니다.</p>
           </section>
 
           {finalResult && (
@@ -262,9 +259,7 @@ export default function TeamPage() {
                 <div><b>{resultLabel(finalResult.survivalLabel)}</b><span>1차 조직개편 생존 판정</span></div>
                 <div><b>{resultLabel(finalResult.missionLabel)}</b><span>2차 미션 달성 판정</span></div>
                 <div><b>{resultLabel(finalResult.finalLevel)}</b><span>종합 판정</span></div>
-                <div><b>{finalResult.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
                 <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 반영</span></div>
-                <div><b>{finalResult.skippedPlayableLogCount ?? 0}</b><span>플레이로 처리된 사건</span></div>
               </div>
               <h4>판정 근거</h4>
               <ul>
