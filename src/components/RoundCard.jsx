@@ -1,6 +1,14 @@
+import { useEffect } from 'react';
 import '../styles/roundCardUx.css';
 
 export default function RoundCard({ round, teamVariant = null }) {
+  const roundId = round?.roundId;
+
+  useEffect(() => {
+    if (!roundId) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [roundId]);
+
   if (!round) return null;
 
   return (
