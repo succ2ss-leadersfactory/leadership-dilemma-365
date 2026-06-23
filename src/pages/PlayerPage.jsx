@@ -39,6 +39,14 @@ function playerWaitMessage(progress) {
   return '온라인/확장 운영에서 개인 판단을 입력할 수 있습니다.';
 }
 
+function buildTeamChoices(choices, teamVariant) {
+  const overrides = teamVariant?.choiceTextOverrides || {};
+  return choices.map(choice => ({
+    ...choice,
+    choiceText: overrides[choice.choiceId] || choice.choiceText
+  }));
+}
+
 export default function PlayerPage() {
   const { roomId, playerId } = useParams();
   const [tick, setTick] = useState(0);
@@ -58,7 +66,9 @@ export default function PlayerPage() {
   if (!room || !player || !round) return <Layout><div className="card">정보를 찾을 수 없습니다.</div></Layout>;
 
   const team = room.teams[player.teamId];
+  const teamVariant = db.gameContent.teamSituationVariants?.[round.roundId]?.[player.teamId];
   const choices = db.gameContent.choices.filter(c => round.choiceIds.includes(c.choiceId)).sort((a, b) => a.displayOrder - b.displayOrder);
+  const teamChoices = buildTeamChoices(choices, teamVariant);
   const vote = getVote(roomId, round.roundId, player.teamId, playerId);
   const canVote = room.roomProgress.currentPhase === 'playerVote' && !room.roomProgress.isScreenLocked;
   const calculation = room.roundCalculations[`${round.roundId}_${player.teamId}`];
@@ -68,7 +78,7 @@ export default function PlayerPage() {
   const competencyProfile = room.competencyProfiles?.[player.teamId]?.[playerId];
   const currentPhaseLabel = PLAYER_PHASE_LABELS[room.roomProgress.currentPhase] || room.roomProgress.currentPhase;
   const roundLabel = getRoundLabel(round);
-  const showInputWait = choices.length > 0 && !canVote && !room.roomProgress.resultVisible;
+  const showInputWait = teamChoices.length > 0 && !canVote && !room.roomProgress.resultVisible;
 
   const save = () => {
     try {
@@ -106,7 +116,7 @@ export default function PlayerPage() {
           <section className="card"><button className="secondary" onClick={hideGuide}>참가 안내 접기</button></section>
         </>
       )}
-      <RoundCard round={round} />
+      <RoundCard round={round} teamVariant={teamVariant} />
       <ParticipantStepGuide mode="player" roundId={round.roundId} resultVisible={room.roomProgress.resultVisible} />
       <section className="card">
         <h3>확장 운영용 개인 입력 화면</h3>
@@ -135,7 +145,7 @@ export default function PlayerPage() {
         {msg && <div className="notice">{msg}</div>}
         {showInputWait && <StatusNoticeCard type={room.roomProgress.isScreenLocked ? 'locked' : 'waiting'} title="확장 운영 입력 대기" meta={[currentPhaseLabel, roundLabel]}>{playerWaitMessage(room.roomProgress)}</StatusNoticeCard>}
 
-        {choices.length > 0 ? (
+        {teamChoices.length > 0 ? (
           <>
             <div className="notice">
               <b>확장 운영에서 할 일:</b> 팀 토의 전에 먼저 혼자 판단을 남기는 단계입니다. 기본 운영에서는 앱에 입력하지 않고 1분 동안 선택 방향만 생각해도 됩니다.
@@ -149,7 +159,7 @@ export default function PlayerPage() {
                 <div><b>미루는 부담</b><span>이 선택으로 뒤로 밀리는 부담은 무엇입니까?</span></div>
               </div>
             </div>
-            <ChoiceList choices={choices} selectedChoiceId={choiceId || vote?.choiceId} onSelect={setChoiceId} disabled={!canVote} />
+            <ChoiceList choices={teamChoices} selectedChoiceId={choiceId || vote?.choiceId} onSelect={setChoiceId} disabled={!canVote} />
             <label className="personalReasonField">선택 이유<textarea disabled={!canVote} value={reasonDraft ?? vote?.reason ?? ''} onChange={e => setReasonDraft(e.target.value)} placeholder="예: 고객 신뢰 회복이 먼저라고 보았습니다. 다만 내부 실행 부담은 커질 수 있습니다." /></label>
             <div className="personalReasonGuide">
               <b>선택 이유에는 이런 내용이 들어가면 좋습니다</b>
