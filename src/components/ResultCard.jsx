@@ -71,12 +71,15 @@ export default function ResultCard({ card, calculation, audience = 'participant'
   const questions = buildQuestions({ card, calculation, teamNarrative, isFacilitator });
 
   return (
-    <section className="card result-card">
-      <p className="eyebrow">결과 카드</p>
-      <h3>{card.resultTitle || '이번 선택이 남긴 결과'}</h3>
-      <p className="resultLine">{card.oneLineResult}</p>
-      <div className="notice">
-        <b>결과 읽는 법:</b> 이 결과는 점수가 아니라 피드백입니다. 우리 팀이 얻은 것과 뒤로 미룬 부담을 함께 확인해 주세요.
+    <section className={`card result-card ${isFacilitator ? 'result-card--facilitator' : 'result-card--participant'}`}>
+      <div className="result-card__header">
+        <p className="result-card__eyebrow">RESULT REVIEW</p>
+        <h3>{card.resultTitle || '이번 선택이 남긴 결과'}</h3>
+        <p className="resultLine">{card.oneLineResult}</p>
+      </div>
+      <div className="resultReadingGuide">
+        <b>결과 읽는 법</b>
+        <span>이 결과는 점수가 아니라 피드백입니다. 우리 팀이 얻은 것과 뒤로 미룬 부담을 함께 확인해 주세요.</span>
       </div>
 
       {!isFacilitator && (
@@ -126,7 +129,7 @@ export default function ResultCard({ card, calculation, audience = 'participant'
 
       <div className="stateSummary">
         <h4>팀 상태 변화</h4>
-        <p className="muted">가장 크게 남은 부담은 <b>{stateLabels[highest?.key]}</b>이며, 현재 수준은 <b>{riskLabels[highest?.value] || '안정'}</b>입니다.</p>
+        <p className="stateSummary__lead">가장 크게 남은 부담은 <b>{stateLabels[highest?.key]}</b>이며, 현재 수준은 <b>{riskLabels[highest?.value] || '안정'}</b>입니다.</p>
         <div className="stateList">
           {stateEntries.map(({ key, value, diff }) => (
             <div className="stateRow" key={key}>
