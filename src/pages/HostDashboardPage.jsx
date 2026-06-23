@@ -69,6 +69,46 @@ function teamRoundStatus({ room, round, team, players }) {
   ];
 }
 
+function latestTeamCalculation(room, teamId, currentRoundId) {
+  const current = room.roundCalculations?.[`${currentRoundId}_${teamId}`];
+  if (current) return current;
+  return Object.values(room.roundCalculations || {})
+    .filter(item => item.teamId === teamId)
+    .sort((a, b) => Number(b.calculatedAt || 0) - Number(a.calculatedAt || 0))[0] || null;
+}
+
+function buildTeamFacilitatorInsight({ room, team, currentRoundId }) {
+  const finalResult = room.finalResults?.[team.teamId];
+  const state = room.stateValues?.[team.teamId] || {};
+  const calculation = latestTeamCalculation(room, team.teamId, currentRoundId);
+  const trend = finalResult?.riskTrendSummary || state.riskTrendSummary;
+  const topRisk = trend?.maxRawRiskLabel || state.maxRawRiskLabel || stateLabels[state.maxRiskKey] || '아직 없음';
+  const topRiskValue = trend?.maxRawRiskValue ?? state.maxRawRiskValue ?? state.maxRiskValue ?? 0;
+  const impactFactors = calculation?.roundImpactSummary?.topFactors || [];
+  const gateIssues = (finalResult?.gateChecks || []).filter(check => !check.passed);
+  const gateLabel = finalResult?.gateLabel || finalResult?.finalLevel || '최종 판정 전';
+  const missionLabel = finalResult?.missionLabel || '미생성';
+  const impactTitle = impactFactors[0]?.title || '최근 영향도 미계산';
+
+  return {
+    team,
+    finalResult,
+    calculation,
+    trend,
+    topRisk,
+    topRiskValue,
+    impactFactors,
+    gateIssues,
+    gateLabel,
+    missionLabel,
+    questions: [
+      `${team.teamName}은 ${topRisk} 부담을 낮추기 위해 다음 현업에서 무엇을 먼저 줄여야 합니까?`,
+      `최근 결과의 핵심 요인인 '${impactTitle}'은 이 팀의 어떤 판단 습관을 보여줍니까?`,
+      finalResult ? `${gateLabel} 판정을 더 안정적으로 만들려면 어떤 회복 증거가 추가로 필요합니까?` : '최종 판정 전, 이 팀의 반복 판단 패턴을 어떻게 설명할 수 있습니까?'
+    ]
+  };
+}
+
 export default function HostDashboardPage() {
   const { roomId } = useParams();
   const [tick, setTick] = useState(0);
@@ -88,6 +128,7 @@ export default function HostDashboardPage() {
   const phaseLabel = phaseLabels[progress.currentPhase] || progress.currentPhase;
   const ksaDoneCount = teams.filter(isKsaComplete).length;
   const roundCalculations = Object.values(room.roundCalculations || {}).filter(item => item.roundId === progress.currentRoundId).length;
+  const facilitatorInsights = teams.map(team => buildTeamFacilitatorInsight({ room, team, currentRoundId: progress.currentRoundId }));
 
   return (
     <Layout roomId={roomId}>
@@ -156,6 +197,51 @@ export default function HostDashboardPage() {
           <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면 열기</Link></p>
           <p><Link to={`/guide/${roomId}`}>강사 가이드 열기</Link></p>
           <p><Link to={`/admin/${roomId}`}>관리자 운영 도구 열기</Link></p>
+        </div>
+      </section>
+
+      <section className="card hostFacilitationPanel">
+        <div className="hostFacilitationHeader">
+          <div>
+            <p className="hostDashboardEyebrow">FACILITATOR INSIGHT</p>
+            <h3>강사용 설명 패널</h3>
+            <p>팀별 최종 게이트, 누적 리스크, 최근 영향도 TOP 요인을 한 화면에서 비교합니다. 참가자에게 산식으로 설명하지 말고, 토의 질문으로 전환해 주세요.</p>
+          </div>
+          <Link className="secondary" to={`/report/${roomId}`}>상세 리포트 보기</Link>
+        </div>
+        <div className="hostInsightGrid">
+          {facilitatorInsights.map(insight => (
+            <div className="hostInsightCard" key={insight.team.teamId}>
+              <div className="hostTeamOpsCard__top">
+                <div>
+                  <h4>{insight.team.teamName}</h4>
+                  <small>{insight.gateLabel} · {insight.missionLabel}</small>
+                </div>
+                <span className={insight.finalResult ? 'hostBadge success' : 'hostBadge warning'}>{insight.finalResult ? '판정 생성' : '판정 전'}</span>
+              </div>
+              <div className="hostInsightMeta">
+                <div><b>{insight.topRisk}</b><span>누적 TOP 부담 {Number(insight.topRiskValue || 0).toFixed(1)}</span></div>
+                <div><b>{insight.gateIssues.length}</b><span>주의 게이트</span></div>
+              </div>
+              {insight.impactFactors.length > 0 ? (
+                <ol className="hostImpactList">
+                  {insight.impactFactors.map(factor => <li key={`${insight.team.teamId}_${factor.type}`}><b>{factor.title}</b><span>{factor.summary}</span></li>)}
+                </ol>
+              ) : (
+                <p className="muted">최근 라운드 영향도는 아직 계산되지 않았습니다.</p>
+              )}
+              {insight.gateIssues.length > 0 && (
+                <div className="hostGateIssueBox">
+                  <b>주의 게이트</b>
+                  {insight.gateIssues.map(issue => <span key={issue.code}>{issue.label}: {issue.reason}</span>)}
+                </div>
+              )}
+              <div className="hostDebriefQuestions">
+                <b>디브리핑 질문</b>
+                <ul>{insight.questions.map(question => <li key={question}>{question}</li>)}</ul>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
