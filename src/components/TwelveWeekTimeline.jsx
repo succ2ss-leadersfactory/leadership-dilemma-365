@@ -1,3 +1,5 @@
+import '../styles/timelineUx.css';
+
 function buildTimelineItems(rounds = [], weekLogs = []) {
   const playableByWeek = Object.fromEntries(rounds.map(round => [round.week, round]));
   const logByWeek = Object.fromEntries(weekLogs.map(log => [log.week, log]));
@@ -43,14 +45,20 @@ function getCompactItems(items, currentWeek) {
   return slice;
 }
 
-export default function TwelveWeekTimeline({ rounds = [], weekLogs = [], currentWeek = 0, teamId, compact = false }) {
+export default function TwelveWeekTimeline({ rounds = [], weekLogs = [], currentWeek = 0, teamId, compact = false, audience = 'participant' }) {
   const items = buildTimelineItems(rounds, weekLogs);
   const visibleItems = compact ? getCompactItems(items, currentWeek) : items;
+  const isFacilitator = audience === 'facilitator';
   return (
     <section className="card twelve-week-timeline">
-      <p className="eyebrow">{compact ? '현재 구간' : '12주 흐름'}</p>
-      <h3>{compact ? '이번 판단 구간' : '위기의 12주 타임라인'}</h3>
-      <p className="muted">{compact ? '현재 라운드와 바로 앞뒤의 흐름만 보여줍니다.' : 'PLAY는 직접 선택하는 라운드이고, LOG는 선택 사이에 누적되는 중간 사건입니다.'}</p>
+      <div className="timelineHeader">
+        <div>
+          <p className="eyebrow">{compact ? '현재 구간' : '12주 흐름'}</p>
+          <h3>{compact ? '이번 판단 구간' : '위기의 12주 타임라인'}</h3>
+        </div>
+        <span className="timelineModeBadge">{compact ? '현재 중심' : '전체 흐름'}</span>
+      </div>
+      <div className="timelineGuide">{compact ? '현재 라운드와 바로 앞뒤의 흐름만 보여줍니다. 지금 선택이 앞선 사건과 다음 흐름에 어떻게 이어지는지 확인하세요.' : 'PLAY는 직접 선택하는 라운드이고, LOG는 선택 사이에 누적되는 중간 사건입니다.'}</div>
       <div className="timelineList">
         {visibleItems.map(item => {
           const lens = item.log?.teamLens?.[teamId];
@@ -59,16 +67,18 @@ export default function TwelveWeekTimeline({ rounds = [], weekLogs = [], current
             <div className={`timelineItem ${item.itemType} ${isActive ? 'active' : ''}`} key={item.week}>
               <div className="timelineMeta"><b>Week {item.week}</b><span>{item.badge}</span></div>
               <div>
+                {isActive && <span className="timelineCurrentNote">현재 위치</span>}
                 <h4>{item.title}</h4>
                 <p>{item.text}</p>
                 {!compact && item.storyText && <p className="muted">{item.storyText}</p>}
                 {lens && <p className="eventLens"><b>우리 팀 관점</b><br />{lens}</p>}
-                {item.prompt && <small>{item.prompt}</small>}
+                {isFacilitator && item.prompt && <small className="timelineSmallPrompt">{item.prompt}</small>}
               </div>
             </div>
           );
         })}
       </div>
+      {!isFacilitator && <p className="timelineParticipantHint">타임라인은 정답을 알려주는 표가 아니라, 선택이 누적되는 흐름을 보는 장치입니다.</p>}
     </section>
   );
 }
