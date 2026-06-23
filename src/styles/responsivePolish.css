@@ -1,0 +1,187 @@
+@media (max-width: 1024px) {
+  .card {
+    border-radius: 22px;
+  }
+
+  .hero,
+  .player-decision-card,
+  .team-status-card,
+  .team-decision-workshop-card,
+  .team-declaration-workshop-card,
+  .finalJudgmentCard,
+  .twelve-week-timeline,
+  .hostDashboardHero {
+    padding: 20px;
+  }
+
+  .grid2,
+  .hostOpsBoard,
+  .hostTeamOpsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions,
+  .hostActionBar {
+    gap: 8px;
+  }
+
+  .actions button,
+  .actions a,
+  .hostActionBar button,
+  .hostActionBar a {
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 820px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .card {
+    margin-inline: 0;
+  }
+
+  .choiceGrid.choiceCardGrid,
+  .hostQuickStats,
+  .ksaProgress,
+  .finalJudgmentHero,
+  .summaryCards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .team-status-card__main,
+  .playerDecisionHeader,
+  .hostDashboardHeader,
+  .timelineHeader,
+  .roundHeroTop {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .team-status-card__phase,
+  .playerDecisionHeader__phase,
+  .hostJoinCard,
+  .timelineStats {
+    width: 100%;
+    min-width: 0;
+    justify-items: start;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero,
+  .card,
+  .player-decision-card,
+  .team-status-card,
+  .team-decision-workshop-card,
+  .team-declaration-workshop-card,
+  .result-card,
+  .finalJudgmentCard,
+  .twelve-week-timeline,
+  .hostDashboardHero {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .choiceGrid.choiceCardGrid,
+  .hostQuickStats,
+  .ksaProgress,
+  .finalJudgmentHero,
+  .summaryCards,
+  .roundReadHint,
+  .personalDecisionChecklist,
+  .personalReflectionChecklist {
+    grid-template-columns: 1fr;
+  }
+
+  .actions,
+  .hostActionBar,
+  .team-decision-save-bar,
+  .team-declaration-save-bar,
+  .outputSubmitBar,
+  .personalReflectionActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .actions button,
+  .actions a,
+  .hostActionBar button,
+  .hostActionBar a,
+  .team-decision-save-bar button,
+  .team-declaration-save-bar button,
+  .outputSubmitBar button,
+  .personalReflectionActions button,
+  .personalReflectionActions a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  textarea,
+  input,
+  select,
+  button,
+  a.secondary,
+  .primary,
+  .secondary {
+    max-width: 100%;
+  }
+
+  .team-status-card__meta,
+  .playerDecisionHeader__meta,
+  .statusNoticeCard__meta {
+    gap: 6px;
+  }
+
+  .team-status-card__meta span,
+  .playerDecisionHeader__meta span,
+  .statusNoticeCard__meta span {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero h2,
+  .roundHeroTop h2,
+  .team-status-card h2,
+  .playerDecisionHeader h2,
+  .hostDashboardHeader h2 {
+    font-size: 1.45rem;
+    line-height: 1.25;
+  }
+
+  .card h3,
+  .team-decision-workshop-card__header h3,
+  .team-declaration-workshop-card__header h3,
+  .finalJudgmentHeader h3 {
+    font-size: 1.16rem;
+  }
+
+  .choiceCard,
+  .outputFieldCard,
+  .hostTeamOpsCard,
+  .statusNoticeCard,
+  .timelineItem,
+  .roundSituationBox,
+  .roundSignalBox {
+    border-radius: 16px;
+  }
+
+  .code {
+    word-break: break-all;
+  }
+
+  .timelineMeta,
+  .hostTeamOpsCard__top,
+  .choiceCardTop {
+    align-items: flex-start;
+  }
+}
