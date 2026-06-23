@@ -6,6 +6,7 @@ import { applyRoundCompetencyGrowth } from '../utils/competencyGrowthUtils';
 import { applyTeamPersonaInfluence } from '../utils/teamPersonaInfluenceUtils';
 import { applyExpertiseFinalAdjustment } from '../utils/expertiseFinalAdjustmentUtils';
 import { getTeamResultNarrative } from '../utils/teamResultNarrativeUtils';
+import { buildRoundImpactSummary } from '../utils/roundImpactSummaryUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -40,6 +41,16 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       choice
     });
     const finalState = personaInfluence.values;
+    const roundImpactSummary = buildRoundImpactSummary({
+      choice,
+      previousState,
+      afterChoice,
+      afterQuality,
+      finalState,
+      submission,
+      discussionReview: decision.discussionQualityReview || submission.discussionQualityReview || null,
+      personaInfluence
+    });
     const risk = getMaxRisk(finalState);
     const growth = applyRoundCompetencyGrowth({
       room: db2.rooms[roomId],
@@ -52,7 +63,7 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
     const teamResultNarrative = getTeamResultNarrative({ teamId, choiceType: choice?.internalType, roundId });
     db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
       calculationId:`${roundId}_${teamId}`,
-      calculationModelVersion: 'round-v2.0-quality-foundation',
+      calculationModelVersion: 'round-v2.1-impact-log',
       roundId,
       teamId,
       choiceId:decision.finalChoiceId,
@@ -65,6 +76,7 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       outputQualityScore: submission.qualityScore,
       outputQualityBreakdown: submission.qualityBreakdown || null,
       outputEvidenceReview: submission.evidenceReview || null,
+      roundImpactSummary,
       teamResultNarrative,
       previousState,
       afterChoice,
