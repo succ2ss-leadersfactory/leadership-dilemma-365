@@ -35,6 +35,7 @@ export default function FinalJudgmentCard({ finalResult, audience = 'participant
   const isFacilitator = audience === 'facilitator';
   const feedbackLines = isFacilitator ? pickLines(finalResult.evidenceLines, 20) : buildParticipantFeedback(finalResult);
   const riskTrend = finalResult.riskTrendSummary;
+  const gateChecks = finalResult.gateChecks || [];
 
   return (
     <section className="card result-card finalJudgmentCard">
@@ -82,6 +83,16 @@ export default function FinalJudgmentCard({ finalResult, audience = 'participant
           <div><b>{finalResult.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
           <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 반영</span></div>
           <div><b>{Number(finalResult.rawRiskLoad || 0).toFixed(1)}</b><span>누적 리스크 총량</span></div>
+        </div>
+      )}
+
+      {isFacilitator && gateChecks.length > 0 && (
+        <div className="finalFeedbackBox">
+          <h4>최종 게이트 판정</h4>
+          <p><b>{resultLabel(finalResult.gateLabel || finalResult.finalLevel)}</b> · {finalResult.gateReason}</p>
+          <ul>
+            {gateChecks.map(check => <li key={check.code}>{check.passed ? '통과' : '주의'} · {check.label}: {check.reason}</li>)}
+          </ul>
         </div>
       )}
 
