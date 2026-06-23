@@ -6,6 +6,7 @@ import ChoiceList from '../components/ChoiceList.jsx';
 import ResultCard from '../components/ResultCard.jsx';
 import CompetencyProfilePanel from '../components/CompetencyProfilePanel.jsx';
 import ParticipantOnboardingPanel from '../components/ParticipantOnboardingPanel.jsx';
+import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getPlayer } from '../services/playerService';
 import { getCurrentRound } from '../services/roundService';
@@ -77,6 +78,7 @@ export default function PlayerPage() {
         </>
       )}
       <RoundCard round={round} />
+      <ParticipantStepGuide mode="player" roundId={round.roundId} resultVisible={room.roomProgress.resultVisible} />
       <section className="card">
         <p>참가자: <b>{player.displayName}</b> · 팀: <Link to={`/team/${roomId}/${player.teamId}`}>{team.teamName}</Link></p>
         <p className="muted">현재 단계: {room.roomProgress.currentPhase}</p>
