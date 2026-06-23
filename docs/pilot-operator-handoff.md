@@ -10,6 +10,7 @@
 
 | 목적 | 볼 문서 |
 |---|---|
+| 문서 패키지 전체 인덱스 | `docs/pilot-document-package-index.md` |
 | 전체 구조 파악 | `README.md` |
 | 파일럿 당일 운영 순서 | `docs/facilitator-pilot-runbook.md` |
 | UI/UX와 화면별 노출 기준 | `docs/pilot-ui-ux-qa-checklist.md` |
@@ -29,18 +30,19 @@
 
 운영 전에는 아래 순서만 확인하면 됩니다.
 
-1. `docs/facilitator-pilot-runbook.md`로 당일 진행 순서를 확인합니다.
-2. `docs/pilot-ui-ux-qa-checklist.md`로 교육생/강사용 화면 노출 기준을 확인합니다.
-3. `npm install`
-4. `npm run build`
-5. `/host/create`에서 방 생성
-6. `/admin/:roomId` 접속
-7. 리허설 샘플 1개 생성
-8. 리허설 샘플 밸런스 검증 패널 확인
-9. QA 리포트 다운로드
-10. `/report/:roomId`에서 교육 리포트 다운로드
-11. `docs/pilot-final-qa-decision-table.md` 기준으로 운영 가능 여부 판정
-12. 운영 전 JSON 백업을 저장합니다.
+1. `docs/pilot-document-package-index.md`로 상황별 문서 위치를 확인합니다.
+2. `docs/facilitator-pilot-runbook.md`로 당일 진행 순서를 확인합니다.
+3. `docs/pilot-ui-ux-qa-checklist.md`로 교육생/강사용 화면 노출 기준을 확인합니다.
+4. `npm install`
+5. `npm run build`
+6. `/host/create`에서 방 생성
+7. `/admin/:roomId` 접속
+8. 리허설 샘플 1개 생성
+9. 리허설 샘플 밸런스 검증 패널 확인
+10. QA 리포트 다운로드
+11. `/report/:roomId`에서 교육 리포트 다운로드
+12. `docs/pilot-final-qa-decision-table.md` 기준으로 운영 가능 여부 판정
+13. 운영 전 JSON 백업을 저장합니다.
 
 ---
 
