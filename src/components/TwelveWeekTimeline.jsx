@@ -50,22 +50,34 @@ export default function TwelveWeekTimeline({ rounds = [], weekLogs = [], current
   const visibleItems = compact ? getCompactItems(items, currentWeek) : items;
   const resolvedAudience = audience || (compact ? 'participant' : 'facilitator');
   const isFacilitator = resolvedAudience === 'facilitator';
+  const meaningfulCount = items.filter(item => item.itemType !== 'empty').length;
+  const playCount = items.filter(item => item.itemType === 'play').length;
+  const logCount = items.filter(item => item.itemType === 'log').length;
+
   return (
-    <section className="card twelve-week-timeline">
+    <section className={`card twelve-week-timeline ${compact ? 'twelve-week-timeline--compact' : 'twelve-week-timeline--full'}`}>
       <div className="timelineHeader">
         <div>
-          <p className="eyebrow">{compact ? '현재 구간' : '12주 흐름'}</p>
+          <p className="timelineHeader__eyebrow">{compact ? 'CURRENT WINDOW' : '12 WEEK JOURNEY'}</p>
           <h3>{compact ? '이번 판단 구간' : '위기의 12주 타임라인'}</h3>
+          <p>{compact ? '현재 위치와 바로 앞뒤 흐름을 중심으로 봅니다.' : '직접 선택하는 라운드와 중간 사건이 어떻게 누적되는지 봅니다.'}</p>
         </div>
-        <span className="timelineModeBadge">{compact ? '현재 중심' : '전체 흐름'}</span>
+        <div className="timelineStats">
+          <span className="timelineModeBadge">{compact ? '현재 중심' : '전체 흐름'}</span>
+          <small>Week {currentWeek}</small>
+        </div>
       </div>
-      <div className="timelineGuide">{compact ? '현재 라운드와 바로 앞뒤의 흐름만 보여줍니다. 지금 선택이 앞선 사건과 다음 흐름에 어떻게 이어지는지 확인하세요.' : 'PLAY는 직접 선택하는 라운드이고, LOG는 선택 사이에 누적되는 중간 사건입니다.'}</div>
+      <div className="timelineGuide">
+        <b>흐름 읽는 법</b>
+        <span>{compact ? '지금 선택이 앞선 사건과 다음 흐름에 어떻게 이어지는지 확인하세요.' : `PLAY ${playCount}개와 LOG ${logCount}개가 12주 동안 누적됩니다. 각 사건은 선택의 배경과 대가를 보여줍니다.`}</span>
+        <em>{meaningfulCount}개 흐름 표시</em>
+      </div>
       <div className="timelineList">
         {visibleItems.map(item => {
           const lens = item.log?.teamLens?.[teamId];
           const isActive = item.week === currentWeek;
           return (
-            <div className={`timelineItem ${item.itemType} ${isActive ? 'active' : ''}`} key={item.week}>
+            <div className={`timelineItem ${item.itemType} ${isActive ? 'active' : ''}`} aria-current={isActive ? 'step' : undefined} key={item.week}>
               <div className="timelineMeta"><b>Week {item.week}</b><span>{item.badge}</span></div>
               <div>
                 {isActive && <span className="timelineCurrentNote">현재 위치</span>}
