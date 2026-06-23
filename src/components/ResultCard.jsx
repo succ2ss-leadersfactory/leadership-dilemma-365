@@ -74,6 +74,7 @@ export default function ResultCard({ card, calculation, audience = 'participant'
   const discussionReview = calculation?.discussionQualityReview;
   const discussionSummary = buildDiscussionSummary(discussionReview);
   const qualityBreakdown = calculation?.outputQualityBreakdown;
+  const roundImpactSummary = calculation?.roundImpactSummary;
   const teamNarrative = calculation?.teamResultNarrative || getTeamResultNarrative({ teamId: calculation?.teamId, choiceType: calculation?.choiceInternalType, roundId: calculation?.roundId });
   const stateEntries = Object.keys(stateLabels).map(key => {
     const value = finalState[key] ?? 0;
@@ -126,6 +127,24 @@ export default function ResultCard({ card, calculation, audience = 'participant'
           <p><b>진전:</b> {teamNarrative.gain}</p>
           <p><b>남은 대가:</b> {teamNarrative.risk}</p>
           {isFacilitator && <div className="notice"><b>강사용 질문:</b> {teamNarrative.question}</div>}
+        </div>
+      )}
+
+      {roundImpactSummary?.topFactors?.length > 0 && (
+        <div className="sceneBox">
+          <h4>{isFacilitator ? '이번 라운드 영향도 TOP 3' : '이번 결과에 가장 크게 작용한 것'}</h4>
+          {isFacilitator ? (
+            <ol>
+              {roundImpactSummary.topFactors.map(factor => (
+                <li key={`${factor.rank}_${factor.type}`}>
+                  <b>{factor.title}</b>: {factor.summary}
+                  {factor.detailLines?.length > 0 && <ul>{factor.detailLines.map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul>}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p>{roundImpactSummary.participantSummary}</p>
+          )}
         </div>
       )}
 
