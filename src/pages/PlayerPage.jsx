@@ -110,7 +110,7 @@ export default function PlayerPage() {
         ) : <p>KSA 선택은 팀 화면에서 진행합니다.</p>}
       </section>
       <CompetencyProfilePanel profiles={competencyProfile ? { [playerId]: competencyProfile } : {}} title="나의 초기 역량 프로필" />
-      {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} />}
+      {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} audience="participant" />}
     </Layout>
   );
 }
