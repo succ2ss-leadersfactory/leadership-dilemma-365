@@ -7,6 +7,7 @@ export default function Layout({ children, roomId }) {
   const location = useLocation();
   const showFacilitatorNav = Boolean(roomId && facilitatorNavPrefixes.some(prefix => location.pathname.startsWith(prefix)));
   const showParticipantBadge = Boolean(roomId && !showFacilitatorNav);
+  const participantBadgeText = location.pathname.startsWith('/player/') ? '확장 개인 입력 화면' : '팀 진행 화면';
 
   return (
     <div>
@@ -23,7 +24,7 @@ export default function Layout({ children, roomId }) {
         )}
         {showParticipantBadge && (
           <nav className="participantNav" aria-label="참가자 화면 안내">
-            <span>참가자 진행 화면</span>
+            <span>{participantBadgeText}</span>
           </nav>
         )}
       </header>
