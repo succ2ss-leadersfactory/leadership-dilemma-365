@@ -1,15 +1,59 @@
 .finalJudgmentCard {
+  isolation: isolate;
   border-color: rgba(36, 87, 214, 0.2);
   background:
     radial-gradient(circle at top right, rgba(21, 128, 61, 0.09), transparent 18rem),
+    radial-gradient(circle at left bottom, rgba(36, 87, 214, 0.08), transparent 18rem),
     linear-gradient(135deg, #ffffff, #f8fbff);
 }
 
-.finalJudgmentCard > h3 {
+.finalJudgmentCard::after {
+  content: "FINAL";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 0;
+  color: rgba(36, 87, 214, 0.045);
+  font-size: 54px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.finalJudgmentCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.finalJudgmentHeader {
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at right top, rgba(36, 87, 214, 0.08), transparent 15rem),
+    rgba(255, 255, 255, 0.84);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.finalJudgmentHeader__eyebrow {
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(219, 234, 254, 0.88);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.finalJudgmentHeader h3 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin: 0 0 10px;
   padding: 8px 13px;
   border-radius: 999px;
   background: rgba(234, 241, 255, 0.9);
@@ -17,10 +61,39 @@
   font-size: 1.15rem;
 }
 
-.finalJudgmentCard > h3::before {
+.finalJudgmentHeader h3::before {
   content: "★";
   color: #2457d6;
   font-size: 0.9rem;
+}
+
+.finalJudgmentHeader p:not(.finalJudgmentHeader__eyebrow) {
+  max-width: 840px;
+  margin: 0;
+  color: #344054;
+  font-weight: 620;
+  line-height: 1.62;
+}
+
+.finalJudgmentReadingGuide {
+  display: grid;
+  gap: 5px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(36, 87, 214, 0.16);
+  border-left: 5px solid #2457d6;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  color: #344054;
+}
+
+.finalJudgmentReadingGuide b {
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+}
+
+.finalJudgmentReadingGuide span {
+  line-height: 1.58;
 }
 
 .finalJudgmentHero {
@@ -191,6 +264,23 @@
 }
 
 @media (max-width: 560px) {
+  .finalJudgmentCard::after {
+    top: 16px;
+    right: 16px;
+    font-size: 34px;
+  }
+
+  .finalJudgmentHeader,
+  .finalJudgmentReadingGuide {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .finalJudgmentHeader h3 {
+    width: 100%;
+    border-radius: 14px;
+  }
+
   .finalJudgmentHero {
     grid-template-columns: 1fr;
   }
