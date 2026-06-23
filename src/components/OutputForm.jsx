@@ -35,8 +35,9 @@ export default function OutputForm({ outputRequirement, initialAnswers = {}, onS
   const participantEvidenceText = buildParticipantEvidenceText(evidenceReview);
 
   return (
-    <form className="stack" onSubmit={(e) => { e.preventDefault(); onSubmit(answers); }}>
+    <form className="stack outputForm" onSubmit={(e) => { e.preventDefault(); onSubmit(answers); }}>
       <div className="outputGuide">
+        <p className="outputGuide__eyebrow">TEAM OUTPUT</p>
         <h4>산출물은 긴 글이 아니라 실행 약속입니다</h4>
         <p>팀 결정이 끝났다면, 그 선택을 실제 행동으로 옮기기 위해 필요한 최소 기준을 남겨 주세요.</p>
         <div className="outputChecklist">
@@ -74,25 +75,30 @@ export default function OutputForm({ outputRequirement, initialAnswers = {}, onS
         </div>
       )}
 
-      {outputRequirement.fields.map(f => (
-        <label key={f.fieldKey}>
-          {f.label}
-          <small>{f.question}</small>
-          {f.type === 'select' ? (
-            <select value={answers[f.fieldKey] || ''} onChange={e => change(f.fieldKey, e.target.value)}>
-              <option value="">선택</option>
-              {(f.options || []).map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-          ) : f.type === 'textarea' ? (
-            <textarea value={answers[f.fieldKey] || ''} onChange={e => change(f.fieldKey, e.target.value)} placeholder={getFieldHint(f)} />
-          ) : (
-            <input value={answers[f.fieldKey] || ''} onChange={e => change(f.fieldKey, e.target.value)} placeholder={getFieldHint(f)} />
-          )}
-          <div className="outputFieldHint">{getFieldHint(f)}</div>
-        </label>
-      ))}
-      <button className="primary">산출물 저장</button>
-      <p className="outputSubmitHelp">저장 후에도 같은 라운드 안에서는 다시 수정할 수 있습니다. 완성도보다 실행 조건이 보이는지가 더 중요합니다.</p>
+      <div className="outputFieldGrid">
+        {outputRequirement.fields.map((f, index) => (
+          <label className="outputFieldCard" key={f.fieldKey}>
+            <span className="outputFieldCard__number">{index + 1}</span>
+            <span className="outputFieldCard__label">{f.label}</span>
+            <small>{f.question}</small>
+            {f.type === 'select' ? (
+              <select value={answers[f.fieldKey] || ''} onChange={e => change(f.fieldKey, e.target.value)}>
+                <option value="">선택</option>
+                {(f.options || []).map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            ) : f.type === 'textarea' ? (
+              <textarea value={answers[f.fieldKey] || ''} onChange={e => change(f.fieldKey, e.target.value)} placeholder={getFieldHint(f)} />
+            ) : (
+              <input value={answers[f.fieldKey] || ''} onChange={e => change(f.fieldKey, e.target.value)} placeholder={getFieldHint(f)} />
+            )}
+            <div className="outputFieldHint">{getFieldHint(f)}</div>
+          </label>
+        ))}
+      </div>
+      <div className="outputSubmitBar">
+        <button className="primary">산출물 저장</button>
+        <p className="outputSubmitHelp">저장 후에도 같은 라운드 안에서는 다시 수정할 수 있습니다. 완성도보다 실행 조건이 보이는지가 더 중요합니다.</p>
+      </div>
     </form>
   );
 }
