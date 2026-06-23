@@ -7,7 +7,7 @@
 
 .choiceCard {
   position: relative;
-  min-height: 178px;
+  min-height: 196px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -122,6 +122,24 @@
   letter-spacing: -0.025em;
 }
 
+.choiceTradeoffCue {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(234, 241, 255, 0.82);
+  color: #1e3a8a;
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.42;
+}
+
+.choiceCard.selected .choiceTradeoffCue {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .choiceHint {
   margin-top: auto;
   padding-top: 11px;
@@ -149,5 +167,10 @@
 
   .choiceText {
     font-size: 0.98rem;
+  }
+
+  .choiceTradeoffCue {
+    width: 100%;
+    border-radius: 14px;
   }
 }
