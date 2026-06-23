@@ -7,6 +7,7 @@ import { applyTeamPersonaInfluence } from '../utils/teamPersonaInfluenceUtils';
 import { applyExpertiseFinalAdjustment } from '../utils/expertiseFinalAdjustmentUtils';
 import { getTeamResultNarrative } from '../utils/teamResultNarrativeUtils';
 import { buildRoundImpactSummary } from '../utils/roundImpactSummaryUtils';
+import { applyRawRiskEffects, applyPersonaRiskEffects, buildRiskTrendSnapshot, getOutputQualityRiskEffects, normalizeRiskMap } from '../utils/riskAccumulationUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -31,16 +32,28 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
   if (!decision) throw new Error('팀 최종 선택이 없습니다');
   const choice = db.gameContent.choices.find(c => c.choiceId === decision.finalChoiceId);
   const submission = room.submissions[`${roundId}_${teamId}`] || { quality:'low' };
-  const previousState = room.stateValues[teamId].values;
+  const stateRecord = room.stateValues[teamId] || {};
+  const previousState = stateRecord.values || {};
+  const previousRawState = normalizeRiskMap(stateRecord.rawValues || previousState);
   const afterChoice = applyChoiceEffects(previousState, choice?.baseEffects || {});
   const afterQuality = applyOutputQualityModifier(afterChoice, submission.quality);
+  const afterChoiceRaw = applyRawRiskEffects(previousRawState, choice?.baseEffects || {});
+  const afterQualityRaw = applyRawRiskEffects(afterChoiceRaw, getOutputQualityRiskEffects(submission.quality));
   updateDb(db2 => {
+    const targetStateRecord = db2.rooms[roomId].stateValues[teamId] || { teamId, values: previousState };
     const personaInfluence = applyTeamPersonaInfluence({
       values: afterQuality,
       profiles: db2.rooms[roomId].competencyProfiles?.[teamId] || {},
       choice
     });
     const finalState = personaInfluence.values;
+    const finalRawState = applyPersonaRiskEffects(afterQualityRaw, personaInfluence.personaInfluences);
+    const riskTrendSnapshot = buildRiskTrendSnapshot({
+      previousRawValues: previousRawState,
+      rawValues: finalRawState,
+      previousHistory: targetStateRecord.riskHistory || [],
+      roundId
+    });
     const roundImpactSummary = buildRoundImpactSummary({
       choice,
       previousState,
@@ -63,7 +76,7 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
     const teamResultNarrative = getTeamResultNarrative({ teamId, choiceType: choice?.internalType, roundId });
     db2.rooms[roomId].roundCalculations[`${roundId}_${teamId}`] = {
       calculationId:`${roundId}_${teamId}`,
-      calculationModelVersion: 'round-v2.1-impact-log',
+      calculationModelVersion: 'round-v2.2-cumulative-risk',
       roundId,
       teamId,
       choiceId:decision.finalChoiceId,
@@ -77,6 +90,11 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       outputQualityBreakdown: submission.qualityBreakdown || null,
       outputEvidenceReview: submission.evidenceReview || null,
       roundImpactSummary,
+      riskTrendSnapshot,
+      previousRawState,
+      afterChoiceRaw,
+      afterQualityRaw,
+      rawRiskValues: finalRawState,
       teamResultNarrative,
       previousState,
       afterChoice,
@@ -90,7 +108,19 @@ export function calculateRoundResult({ roomId, roundId, teamId }) {
       calculatedAt:Date.now(),
       calculatedBy:'system'
     };
-    db2.rooms[roomId].stateValues[teamId] = { teamId, values:finalState, ...risk, updatedAt:Date.now() };
+    db2.rooms[roomId].stateValues[teamId] = {
+      teamId,
+      values:finalState,
+      rawValues: finalRawState,
+      riskHistory: riskTrendSnapshot.riskHistory,
+      riskTrendSummary: riskTrendSnapshot,
+      rawRiskLoad: riskTrendSnapshot.riskLoad,
+      maxRawRiskKey: riskTrendSnapshot.maxRawRiskKey,
+      maxRawRiskLabel: riskTrendSnapshot.maxRawRiskLabel,
+      maxRawRiskValue: riskTrendSnapshot.maxRawRiskValue,
+      ...risk,
+      updatedAt:Date.now()
+    };
   });
 }
 export function calculateAllTeamResultsForRound(roomId, roundId) {
@@ -111,6 +141,17 @@ function assetSentence(patternLabel) {
   if (patternLabel.includes('균형')) return '성과와 사람을 함께 보려는 판단 기준이 반복적으로 확인되었습니다.';
   if (patternLabel.includes('조건')) return '상위 기대와 협업 조건을 맞추며 리스크를 줄이려는 힘이 확인되었습니다.';
   return '선택을 기록하고 끝까지 실행하려는 힘이 확인되었습니다.';
+}
+
+function cumulativeRiskSentence(riskTrendSummary) {
+  if (!riskTrendSummary) return '누적 리스크 기록은 아직 충분하지 않습니다.';
+  const label = riskTrendSummary.maxRawRiskLabel || '누적 부담';
+  const value = Number(riskTrendSummary.maxRawRiskValue || 0);
+  const trend = riskTrendSummary.maxRiskTrend?.trendLabel || '유지';
+  const streak = riskTrendSummary.maxRiskTrend?.dangerStreak || 0;
+  if (value >= 3 && streak >= 2) return `${label}이 누적 기준으로도 높고 ${streak}회 연속 위험권에 머물렀습니다. 일시적 신호가 아니라 반복 부담으로 해석됩니다.`;
+  if (value >= 3) return `${label}이 누적 기준으로 위험권에 닿았습니다. 다음 라운드에서 회복 행동이 필요합니다.`;
+  return `${label}의 누적 흐름은 ${trend} 상태입니다. 표시 리스크와 함께 반복 부담 여부를 관찰했습니다.`;
 }
 
 function getMissionForTeam(db, teamId) {
@@ -184,7 +225,9 @@ export function generateFinalResults(roomId) {
   const db = readDb(); const room = db.rooms[roomId]; const choices = db.gameContent.choices;
   updateDb(db2 => {
     Object.keys(room.teams).forEach(teamId => {
-      const values = room.stateValues[teamId]?.values || {};
+      const stateRecord = room.stateValues[teamId] || {};
+      const values = stateRecord.values || {};
+      const riskTrendSummary = stateRecord.riskTrendSummary || null;
       const week11 = room.submissions[`week11_${teamId}`]?.quality || 'medium';
       const decisions = Object.values(room.teamDecisions).filter(d => d.teamId === teamId);
       const pattern = getJudgmentPattern(decisions, choices);
@@ -213,6 +256,12 @@ export function generateFinalResults(roomId) {
         ...mission,
         judgmentPattern: pattern.label,
         baseValues: values,
+        rawRiskValues: stateRecord.rawValues || {},
+        riskTrendSummary,
+        rawRiskLoad: stateRecord.rawRiskLoad || riskTrendSummary?.riskLoad || 0,
+        maxRawRiskKey: stateRecord.maxRawRiskKey || riskTrendSummary?.maxRawRiskKey,
+        maxRawRiskLabel: stateRecord.maxRawRiskLabel || riskTrendSummary?.maxRawRiskLabel,
+        maxRawRiskValue: stateRecord.maxRawRiskValue || riskTrendSummary?.maxRawRiskValue,
         preExpertiseReviewValues: logImpact.reviewValues,
         reviewValues,
         reviewMaxRiskKey: risk.maxRiskKey,
@@ -233,6 +282,7 @@ export function generateFinalResults(roomId) {
         missionEvidenceLines: missionEval.missionEvidenceLines,
         evidenceLines: [
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
+          cumulativeRiskSentence(riskTrendSummary),
           logImpactSentence(logImpact),
           ...(expertiseAdjustment.adjustmentLines || []),
           riskSentence(risk),
