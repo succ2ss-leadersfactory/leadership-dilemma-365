@@ -14,6 +14,7 @@ function buildParticipantFeedback(finalResult) {
   return [
     `${finalResult.judgmentPattern || '우리 팀의 판단 패턴'}이 반복되었습니다. 12주 동안 어떤 기준을 자주 선택했는지 먼저 돌아보세요.`,
     riskTrend?.participantSummary || `가장 크게 남은 부담은 ${finalResult.remainingBurden || '아직 정리되지 않은 부담'}입니다. 다음 현업에서 이 부담을 낮출 행동을 정해야 합니다.`,
+    finalResult.declarationQualityReview?.participantHint || '팀 선언문과 개인 성찰을 연결해 다음 회의에서 바꿀 행동 하나를 정하세요.',
     finalResult.nextAction ? `현업 적용 행동: ${finalResult.nextAction}` : '팀 선언문과 개인 성찰을 연결해 다음 회의에서 바꿀 행동 하나를 정하세요.'
   ];
 }
@@ -36,6 +37,8 @@ export default function FinalJudgmentCard({ finalResult, audience = 'participant
   const feedbackLines = isFacilitator ? pickLines(finalResult.evidenceLines, 20) : buildParticipantFeedback(finalResult);
   const riskTrend = finalResult.riskTrendSummary;
   const gateChecks = finalResult.gateChecks || [];
+  const declarationReview = finalResult.declarationQualityReview;
+  const reflectionSummary = finalResult.reflectionSummary;
 
   return (
     <section className="card result-card finalJudgmentCard">
@@ -81,8 +84,24 @@ export default function FinalJudgmentCard({ finalResult, audience = 'participant
           <div><b>{resultLabel(finalResult.missionLabel)}</b><span>2차 미션 달성 판정</span></div>
           <div><b>{resultLabel(finalResult.finalLevel)}</b><span>종합 판정</span></div>
           <div><b>{finalResult.secretMissionScore ?? '미생성'}/3</b><span>비밀 미션 점수</span></div>
-          <div><b>{finalResult.weekLogImpactCount ?? 0}</b><span>중간 사건 반영</span></div>
+          <div><b>{reflectionSummary?.count ?? 0}</b><span>개인 성찰 기록</span></div>
           <div><b>{Number(finalResult.rawRiskLoad || 0).toFixed(1)}</b><span>누적 리스크 총량</span></div>
+        </div>
+      )}
+
+      {finalResult.declarationText && (
+        <div className="finalFeedbackBox">
+          <h4>{isFacilitator ? '팀 선언문 피드백' : '우리 팀 선언문'}</h4>
+          <p><b>“{finalResult.declarationText}”</b></p>
+          {declarationReview && <p>{isFacilitator ? `${declarationReview.label} · ${declarationReview.score}/${declarationReview.maxScore}` : declarationReview.participantHint}</p>}
+          {isFacilitator && declarationReview?.feedbackLines?.length > 0 && <ul>{declarationReview.feedbackLines.map(line => <li key={line}>{line}</li>)}</ul>}
+        </div>
+      )}
+
+      {isFacilitator && reflectionSummary && (
+        <div className="finalFeedbackBox">
+          <h4>개인 성찰 요약</h4>
+          <p>{reflectionSummary.summaryLine}</p>
         </div>
       )}
 
