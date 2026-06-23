@@ -24,12 +24,13 @@ const phaseLabels = {
 
 function nextAction(round, progress) {
   if (!round) return '방 정보를 확인한 뒤 팀 화면 접속 상태를 다시 점검하세요.';
-  if (round.roundId === 'round0') return '팀별 KSA 저장 상태를 확인하고, 모두 준비되면 Week 1 상황 읽기와 개인 생각을 시작하세요.';
-  if (round.roundId === 'week12') return '개인 성찰은 필요 시 별도 수집하고, 팀 선언문 저장을 확인한 뒤 최종 판정과 교육 리포트로 마무리하세요.';
-  if (progress.resultVisible) return '각 팀이 결과 카드를 확인했는지 본 뒤 다음 라운드를 열어 주세요.';
-  if (progress.currentPhase === 'playerVote') return '각 팀이 상황을 읽고 1분 개인 생각을 마치면 팀 토의 단계로 넘겨 주세요.';
-  if (progress.currentPhase === 'teamDecision') return '팀 대표가 최종 선택과 산출물을 저장했는지 확인한 뒤 결과를 계산하고 공개하세요.';
-  return '현재 단계의 미입력 팀을 확인하고, 준비가 끝나면 다음 단계로 넘겨 주세요.';
+  if (round.roundId === 'round0') return '팀별 KSA 저장 상태를 확인하고, 모두 준비되면 Host 화면에서 Week 1을 여세요.';
+  if (round.roundId === 'week12') return '팀 선언문 저장을 확인한 뒤 최종 판정을 생성하고, 교육 리포트에서 성찰·선언·판정 흐름을 확인하세요.';
+  if (progress.resultVisible) return '각 팀이 결과 카드를 읽고 남은 부담을 확인했는지 본 뒤 다음 Week를 여세요.';
+  if (progress.currentPhase === 'playerVote') return '팀 화면에서 상황을 읽고 1분 개인 생각을 마친 뒤 팀 토의와 최종 선택 단계로 넘겨 주세요.';
+  if (progress.currentPhase === 'teamDecision') return '팀 대표가 최종 선택과 토의 요약을 저장했는지 확인한 뒤 산출물 작성 단계로 넘겨 주세요.';
+  if (progress.currentPhase === 'outputSubmission') return '산출물 저장 상태를 확인한 뒤 결과를 계산하고 공개하세요.';
+  return '현재 단계의 미입력 팀을 확인하고, 준비가 끝나면 현재 라운드 다음 단계로 넘겨 주세요.';
 }
 
 function isKsaComplete(team) {
@@ -121,6 +122,7 @@ function buildTeamFacilitatorInsight({ room, team, currentRoundId }) {
 export default function HostDashboardPage() {
   const { roomId } = useParams();
   const [tick, setTick] = useState(0);
+  const [msg, setMsg] = useState('');
   useEffect(() => subscribe(() => setTick(x => x + 1)), []);
 
   const db = readDb();
@@ -139,6 +141,19 @@ export default function HostDashboardPage() {
   const roundCalculations = Object.values(room.roundCalculations || {}).filter(item => item.roundId === progress.currentRoundId).length;
   const facilitatorInsights = teams.map(team => buildTeamFacilitatorInsight({ room, team, currentRoundId: progress.currentRoundId }));
 
+  function calculateAndRevealFromHost() {
+    if (!window.confirm('팀 최종 선택과 산출물 저장을 확인했습니까? 결과를 계산하고 각 팀 결과 카드를 공개합니다.')) return;
+    calculateAllTeamResultsForRound(roomId, progress.currentRoundId);
+    revealRoundResult(roomId);
+    setMsg('현재 라운드 결과를 계산하고 공개했습니다. 팀 화면에서 결과 카드를 확인하세요.');
+  }
+
+  function generateFinalFromHost() {
+    if (!window.confirm('Week 12 팀 선언문 저장 상태를 확인했습니까? 최종 게이트 판정과 교육 리포트용 근거를 생성합니다.')) return;
+    generateFinalResults(roomId);
+    setMsg('최종 판정을 생성했습니다. 교육 리포트에서 팀별 게이트와 성찰·선언 피드백을 확인하세요.');
+  }
+
   return (
     <Layout roomId={roomId}>
       <section className="card hero hostDashboardHero">
@@ -146,7 +161,7 @@ export default function HostDashboardPage() {
           <div>
             <p className="hostDashboardEyebrow">HOST CONTROL</p>
             <h2>{round?.title} · {phaseLabel}</h2>
-            <p>강사는 이 화면에서 진행 단계, 팀별 입력 상태, 결과 공개, 리포트 이동을 한 번에 관리합니다. 기본 운영은 팀당 1개 화면으로 진행합니다.</p>
+            <p>강사는 이 화면에서 단계 이동, 팀별 입력 상태, 결과 공개, 리포트 이동을 관리합니다. 기본 운영은 팀당 1개 화면으로 진행합니다.</p>
           </div>
           <div className="hostJoinCard">
             <small>입장 코드</small>
@@ -164,16 +179,17 @@ export default function HostDashboardPage() {
           <div><b>{finalCount}/{teams.length}</b><span>최종 판정</span></div>
         </div>
 
-        <div className="hostNextAction"><b>기본 운영 방식:</b> 팀당 1개 화면을 사용합니다. 팀 대표가 팀 화면에서 최종 선택, 토론 요약, 산출물을 입력하고 개인별 접속은 온라인/확장 운영에서만 선택적으로 사용합니다.</div>
+        <div className="hostNextAction"><b>기본 운영 방식:</b> 팀당 1개 화면을 사용합니다. 개인별 접속은 온라인/확장 운영에서만 선택적으로 사용합니다.</div>
         <div className="hostNextAction"><b>다음 운영 행동:</b> {nextAction(round, progress)}</div>
+        {msg && <div className="notice">{msg}</div>}
 
         <div className="hostActionBar">
-          <button onClick={() => movePhase(roomId, 'prev')}>이전 단계로</button>
-          <button className="primary" onClick={() => movePhase(roomId, 'next')}>다음 단계로</button>
-          <button onClick={() => moveToNextRound(roomId)}>다음 라운드 열기</button>
-          <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '팀 입력 다시 열기' : '팀 화면 잠그기'}</button>
-          <button onClick={() => { calculateAllTeamResultsForRound(roomId, progress.currentRoundId); revealRoundResult(roomId); }}>결과 계산하고 공개</button>
-          <button onClick={() => generateFinalResults(roomId)}>최종 판정 생성</button>
+          <button onClick={() => movePhase(roomId, 'prev')}>현재 라운드 이전 단계</button>
+          <button className="primary" onClick={() => movePhase(roomId, 'next')}>현재 라운드 다음 단계</button>
+          <button onClick={() => moveToNextRound(roomId)}>다음 Week 열기</button>
+          <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '팀 입력 다시 열기' : '팀 화면 입력 잠그기'}</button>
+          <button onClick={calculateAndRevealFromHost}>결과 계산 후 공개</button>
+          <button onClick={generateFinalFromHost}>최종 판정 생성</button>
           <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필 확인</Link>
           <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드 열기</Link>
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
@@ -192,12 +208,13 @@ export default function HostDashboardPage() {
           <h3>진행 체크리스트</h3>
           <ol>
             <li>Round 0: 팀별 KSA 저장 및 팀원 초기 역량 프로필 자동 등록</li>
-            <li>Week 라운드: 상황 읽기 → 1분 개인 생각 → 팀 토의 순서 안내</li>
-            <li>팀 대표가 최종 선택과 토론 요약 입력</li>
+            <li>Week 라운드: 상황 읽기 → 1분 개인 생각 → 팀 토의와 최종 선택</li>
+            <li>팀 대표가 최종 선택과 토의 요약 입력</li>
             <li>팀 대표가 산출물 저장</li>
-            <li>결과 계산 후 결과 카드 공개</li>
-            <li>Week 12: 개인 성찰은 필요 시 별도 수집하고 팀 선언문 저장 확인</li>
-            <li>최종 판정 생성 후 교육 리포트 확인</li>
+            <li>Host 화면에서 결과 계산 후 공개</li>
+            <li>팀 화면에서 결과 카드 확인 후 다음 Week 이동</li>
+            <li>Week 12: 팀 선언문 저장 후 최종 판정 생성</li>
+            <li>교육 리포트와 운영 QA 점검판 확인</li>
           </ol>
         </div>
         <div className="card hostOpsCard hostLinksCard">
