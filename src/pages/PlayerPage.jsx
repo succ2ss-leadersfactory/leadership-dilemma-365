@@ -7,6 +7,7 @@ import ResultCard from '../components/ResultCard.jsx';
 import CompetencyProfilePanel from '../components/CompetencyProfilePanel.jsx';
 import ParticipantOnboardingPanel from '../components/ParticipantOnboardingPanel.jsx';
 import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
+import StatusNoticeCard from '../components/StatusNoticeCard.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getPlayer } from '../services/playerService';
 import { getCurrentRound } from '../services/roundService';
@@ -29,6 +30,13 @@ function getRoundLabel(round) {
   if (round.roundId === 'round0') return 'Round 0';
   if (round.roundId === 'week12') return 'Week 12';
   return `Week ${round.week}`;
+}
+
+function playerWaitMessage(progress) {
+  if (progress.isScreenLocked) return '강사가 화면을 잠근 상태입니다. 잠금이 해제되면 입력할 수 있습니다.';
+  if (progress.currentPhase === 'ksaSelection') return 'Round 0은 팀 화면에서 KSA를 먼저 선택하는 단계입니다.';
+  if (progress.currentPhase !== 'playerVote') return '지금은 개인 판단 입력 단계가 아닙니다. 팀 화면 또는 결과 확인 흐름을 따라가 주세요.';
+  return '개인 판단을 입력할 수 있습니다.';
 }
 
 export default function PlayerPage() {
@@ -60,6 +68,7 @@ export default function PlayerPage() {
   const competencyProfile = room.competencyProfiles?.[player.teamId]?.[playerId];
   const currentPhaseLabel = PLAYER_PHASE_LABELS[room.roomProgress.currentPhase] || room.roomProgress.currentPhase;
   const roundLabel = getRoundLabel(round);
+  const showInputWait = choices.length > 0 && !canVote && !room.roomProgress.resultVisible;
 
   const save = () => {
     try {
@@ -119,6 +128,7 @@ export default function PlayerPage() {
         </div>
         {!showGuide && <button className="secondary" onClick={() => setShowGuide(true)}>참가 안내 다시 보기</button>}
         {msg && <div className="notice">{msg}</div>}
+        {showInputWait && <StatusNoticeCard type={room.roomProgress.isScreenLocked ? 'locked' : 'waiting'} title="개인 판단 입력 대기" meta={[currentPhaseLabel, roundLabel]}>{playerWaitMessage(room.roomProgress)}</StatusNoticeCard>}
 
         {choices.length > 0 ? (
           <>
@@ -170,7 +180,7 @@ export default function PlayerPage() {
             </div>
             <p className="personalReflectionAfterSave">개인 성찰을 저장한 뒤 팀 선언문 작성으로 이동하면, 우리 팀이 지킬 기준을 함께 정리할 수 있습니다.</p>
           </>
-        ) : <p>KSA 선택은 팀 화면에서 진행합니다.</p>}
+        ) : <StatusNoticeCard title="팀 화면에서 먼저 진행합니다">KSA 선택은 팀 화면에서 진행합니다. 팀 화면에서 KSA가 저장되면 Week 1 개인 판단 단계로 이동할 수 있습니다.</StatusNoticeCard>}
       </section>
       <CompetencyProfilePanel profiles={competencyProfile ? { [playerId]: competencyProfile } : {}} title="나의 초기 역량 프로필" />
       {room.roomProgress.resultVisible && calculation && <ResultCard card={resultCard} calculation={calculation} audience="participant" />}
