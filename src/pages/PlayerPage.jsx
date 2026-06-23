@@ -106,8 +106,8 @@ export default function PlayerPage() {
             <div className="actions">
               <button className="primary" onClick={saveReflection}>개인 성찰 저장</button>
               <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 선언문 작성으로 이동</Link>
-              <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
             </div>
+            <p className="muted">최종 리포트와 전체 비교는 강사가 마무리 단계에서 안내합니다.</p>
           </>
         ) : <p>KSA 선택은 팀 화면에서 진행합니다.</p>}
       </section>
