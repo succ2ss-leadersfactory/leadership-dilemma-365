@@ -40,6 +40,7 @@ export default function CompetencyProfilesPage() {
         <h2>팀원 초기 역량 프로필</h2>
         <p>Round 0에서 팀이 선택한 KSA 9개와 팀원 인물 카드를 기준으로 팀원별 초기 수준을 자동 등록한 화면입니다.</p>
         <p className="muted">이 값은 교육용 출발점입니다. 실제 인사평가가 아니라, 12주 게임에서 역할 분담과 성장 초점을 토의하기 위한 기준입니다.</p>
+        <div className="facilitatorOnlyNotice"><b>강사용 역량 해석 화면</b><p>이 화면은 팀 운영과 디브리핑을 돕기 위한 참고 자료입니다. 참가자에게는 평가처럼 보이지 않도록 필요한 메시지만 선별해 공유해 주세요.</p></div>
         <div className="actions">
           <Link className="secondary" to={`/host/${roomId}`}>Host 화면</Link>
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트</Link>
