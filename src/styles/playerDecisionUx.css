@@ -365,6 +365,28 @@
   line-height: 1.62;
 }
 
+.personalReflectionFeedback {
+  margin: 14px 0;
+  padding: 16px;
+  border: 1px solid rgba(20, 184, 166, 0.22);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ecfdf3, #ffffff);
+}
+
+.personalReflectionFeedback h4 {
+  margin: 0 0 8px;
+}
+
+.personalReflectionFeedback ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.personalReflectionFeedback li {
+  margin: 5px 0;
+  color: #475569;
+}
+
 .personalReflectionActions {
   padding-top: 16px;
   border-top: 1px solid rgba(20, 184, 166, 0.14);
@@ -415,38 +437,6 @@
 
   .playerDecisionHeader__meta span {
     justify-content: center;
-    border-radius: 14px;
-  }
-
-  .personalDecisionChecklist,
-  .personalReflectionChecklist {
-    grid-template-columns: 1fr;
-  }
-
-  .personalDecisionGuide,
-  .personalReflectionPanel {
-    padding: 16px;
-    border-radius: 18px;
-  }
-
-  .personalReasonField,
-  .personalReflectionField {
-    padding: 14px;
-    border-radius: 16px;
-  }
-
-  .personalReasonField textarea,
-  .personalReflectionField textarea {
-    min-height: 170px;
-  }
-
-  .personalReasonGuide ul {
-    grid-template-columns: 1fr;
-  }
-
-  .personalDecisionAfterSave,
-  .personalReflectionAfterSave {
-    width: 100%;
     border-radius: 14px;
   }
 }
