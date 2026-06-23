@@ -49,6 +49,7 @@
 | 팀별 판단 패턴 비교 | `/compare/:roomId` |
 | 전문성 렌즈 구조 확인 | `docs/expertise-index.md` |
 | 교육생/강사용 정보 분리 기준 확인 | `docs/pilot-ui-ux-qa-checklist.md` |
+| 운영 직후 회고 기록 작성 | `docs/pilot-post-run-retrospective-template.md` |
 
 ---
 
@@ -90,9 +91,20 @@ README.md
 
 ---
 
-## 8. 관리 원칙
+## 8. 파일럿 종료 후 확인 문서
+
+| 필요 상황 | 문서 |
+|---|---|
+| 운영 직후 회고를 남겨야 함 | `docs/pilot-post-run-retrospective-template.md` |
+| 다음 파일럿 전 고칠 점을 정리해야 함 | `docs/pilot-post-run-retrospective-template.md` |
+| 판정 밸런스 조정 근거가 필요함 | `docs/pilot-post-run-retrospective-template.md`, `docs/all-week-balance-policy.md` |
+
+---
+
+## 9. 관리 원칙
 
 - 운영자는 README, 파일럿 운영자 런북, UI/UX QA 체크리스트를 우선 봅니다.
 - 강사는 운영자 런북, 강사 가이드, 교육 리포트, 전문성 인덱스를 함께 봅니다.
 - 개발자는 정책 문서와 QA 문서를 함께 봅니다.
+- 파일럿 종료 후에는 회고 템플릿을 기준으로 다음 개선 항목을 남깁니다.
 - 파일럿 전에는 새 기능 추가보다 저장, 계산, 리포트, 백업 안정성을 우선합니다.
