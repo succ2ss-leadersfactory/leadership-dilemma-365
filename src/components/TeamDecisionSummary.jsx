@@ -12,6 +12,7 @@ function voteRatio(count, total) {
 export default function TeamDecisionSummary({ choices = [], opinions = [] }) {
   if (!choices.length) return null;
   const total = opinions.length;
+  const hasSavedOpinions = total > 0;
   const maxVotes = choices.reduce((max, choice) => {
     const count = opinions.filter(item => item.choiceId === choice.choiceId).length;
     return Math.max(max, count);
@@ -22,34 +23,34 @@ export default function TeamDecisionSummary({ choices = [], opinions = [] }) {
       <div className="teamDecisionSummaryHeader">
         <div>
           <p className="teamDecisionSummaryEyebrow">TEAM DISCUSSION STARTER</p>
-          <h3>개인 판단 모아보기</h3>
-          <p>팀 결정 전에 각자가 먼저 본 문제와 선택 이유를 확인합니다. 이 분포는 결론이 아니라 토의 출발점입니다.</p>
+          <h3>개인 생각 나누기</h3>
+          <p>앱에 저장된 개인 판단이 있으면 참고하고, 없으면 각자 1분 동안 생각한 선택 방향을 말로 공유한 뒤 토의를 시작합니다.</p>
         </div>
         <div className="decisionMeta">
           <b>{total}</b>
-          <span>저장된 개인 판단</span>
+          <span>앱에 저장된 개인 판단</span>
         </div>
       </div>
 
-      {total === 0 && <div className="decisionEmptyBox">아직 개인 판단이 없습니다. 팀원들이 개인 선택을 저장하면 이곳에 모입니다.</div>}
+      {!hasSavedOpinions && <div className="decisionEmptyBox">기본 운영에서는 개인별 앱 저장이 없어도 됩니다. 각자 생각한 선택 방향을 말로 나눈 뒤 바로 팀 토의를 시작하세요.</div>}
 
       <div className="decisionChoiceGrid">
         {choices.map((choice, index) => {
           const items = opinions.filter(item => item.choiceId === choice.choiceId);
           const percent = voteRatio(items.length, total);
-          const isTop = total > 0 && items.length === maxVotes;
+          const isTop = hasSavedOpinions && items.length === maxVotes;
           return (
             <div className={`decisionChoiceCard ${isTop ? 'top' : ''}`} key={choice.choiceId}>
               <div className="decisionChoiceTitle">
                 <span>{optionMark(index)}</span>
-                <b>{items.length}명</b>
+                <b>{hasSavedOpinions ? `${items.length}명` : '토의'}</b>
               </div>
               <p>{choice.choiceText}</p>
-              <div className="decisionVoteBar" aria-label={`${percent}% 선택`}>
+              <div className="decisionVoteBar" aria-label={hasSavedOpinions ? `${percent}% 선택` : '저장된 개인 판단 없음'}>
                 <i style={{ width: `${percent}%` }} />
               </div>
               <div className="decisionVoteMeta">
-                <span>{percent}%</span>
+                <span>{hasSavedOpinions ? `${percent}%` : '팀 논의'}</span>
                 {isTop && <em>가장 많이 고른 방향</em>}
               </div>
               {items.length > 0 ? (
@@ -59,7 +60,7 @@ export default function TeamDecisionSummary({ choices = [], opinions = [] }) {
                   ))}
                 </ul>
               ) : (
-                <small>아직 이 방향을 고른 개인 판단은 없습니다.</small>
+                <small>{hasSavedOpinions ? '아직 이 방향을 고른 개인 판단은 없습니다.' : '이 방향을 선택한다면 얻는 것과 부담을 함께 말해 보세요.'}</small>
               )}
             </div>
           );
