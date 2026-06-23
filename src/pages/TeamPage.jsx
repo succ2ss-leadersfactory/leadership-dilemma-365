@@ -169,6 +169,9 @@ export default function TeamPage() {
           )) : <p className="muted">아직 개인 선택이 없습니다. 빠른 테스트에서는 아래 팀 최종 선택부터 진행해도 됩니다.</p>}
 
           <h3>팀 최종 선택</h3>
+          <div className="notice">
+            <b>지금 할 일:</b> 개인 선택을 참고하되, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.
+          </div>
           <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
           <label>토론 요약<textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} /></label>
           <button className="primary" onClick={() => {
