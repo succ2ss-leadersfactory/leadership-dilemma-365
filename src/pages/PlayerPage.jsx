@@ -152,15 +152,23 @@ export default function PlayerPage() {
           </>
         ) : round.roundId === 'week12' ? (
           <>
-            <h3>개인 성찰</h3>
-            <p className="muted">팀 선언문을 쓰기 전에, 내가 반복한 판단 습관과 현업에서 바꿀 행동을 먼저 남깁니다.</p>
-            <label>내가 반복한 판단 습관<textarea defaultValue={reflection?.habit || ''} onChange={e => setHabit(e.target.value)} placeholder="예: 불확실하면 속도를 먼저 선택했다 / 기준을 세우느라 실행을 늦췄다" /></label>
-            <label>다음 현업에서 바꿀 행동<textarea defaultValue={reflection?.nextBehavior || ''} onChange={e => setNextBehavior(e.target.value)} placeholder="예: 선택 전에 부담이 누구에게 몰리는지 먼저 확인하겠다" /></label>
-            <div className="actions">
+            <div className="personalReflectionPanel">
+              <p className="personalReflectionPanel__eyebrow">WEEK 12 REFLECTION</p>
+              <h3>개인 성찰</h3>
+              <p>팀 선언문을 쓰기 전에, 내가 반복한 판단 습관과 현업에서 바꿀 행동을 먼저 남깁니다.</p>
+              <div className="personalReflectionChecklist">
+                <div><b>반복한 판단 습관</b><span>12주 동안 비슷한 상황에서 내가 자주 선택한 기준을 떠올립니다.</span></div>
+                <div><b>남기고 싶은 기준</b><span>현업으로 가져가도 좋을 판단 기준을 한 문장으로 잡아 봅니다.</span></div>
+                <div><b>바꿀 행동</b><span>다음 회의나 1on1에서 바로 바꿔볼 작은 행동을 정합니다.</span></div>
+              </div>
+            </div>
+            <label className="personalReflectionField">내가 반복한 판단 습관<textarea defaultValue={reflection?.habit || ''} onChange={e => setHabit(e.target.value)} placeholder="예: 불확실하면 속도를 먼저 선택했다 / 기준을 세우느라 실행을 늦췄다" /></label>
+            <label className="personalReflectionField">다음 현업에서 바꿀 행동<textarea defaultValue={reflection?.nextBehavior || ''} onChange={e => setNextBehavior(e.target.value)} placeholder="예: 선택 전에 부담이 누구에게 몰리는지 먼저 확인하겠다" /></label>
+            <div className="actions personalReflectionActions">
               <button className="primary" onClick={saveReflection}>개인 성찰 저장</button>
               <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 선언문 작성으로 이동</Link>
             </div>
-            <p className="muted">최종 리포트와 전체 비교는 강사가 마무리 단계에서 안내합니다.</p>
+            <p className="personalReflectionAfterSave">개인 성찰을 저장한 뒤 팀 선언문 작성으로 이동하면, 우리 팀이 지킬 기준을 함께 정리할 수 있습니다.</p>
           </>
         ) : <p>KSA 선택은 팀 화면에서 진행합니다.</p>}
       </section>
