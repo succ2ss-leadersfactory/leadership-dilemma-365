@@ -73,7 +73,7 @@ export default function PlayerPage() {
   const save = () => {
     try {
       submitVote({ roomId, roundId: round.roundId, teamId: player.teamId, playerId, choiceId: choiceId || vote?.choiceId, reason: reason || vote?.reason });
-      setMsg('개인 선택을 저장했습니다. 팀 화면에서 선택 분포와 최종 결정을 확인하세요.');
+      setMsg('개인 판단이 저장되었습니다. 팀 화면에서 선택 차이와 최종 결정을 확인하세요.');
     } catch (e) { setMsg(e.message); }
   };
 
@@ -90,7 +90,7 @@ export default function PlayerPage() {
       };
       db2.rooms[roomId].declarations[player.teamId] = d;
     });
-    setMsg('개인 성찰을 저장했습니다. 팀 화면에서 선언문을 작성해 마무리하세요.');
+    setMsg('개인 성찰이 저장되었습니다. 팀 선언문 작성으로 이어가세요.');
   };
 
   const hideGuide = () => {
@@ -103,7 +103,7 @@ export default function PlayerPage() {
       {showGuide && (
         <>
           <ParticipantOnboardingPanel mode="player" playerName={player.displayName} teamName={team.teamName} />
-          <section className="card"><button className="secondary" onClick={hideGuide}>안내 접기</button></section>
+          <section className="card"><button className="secondary" onClick={hideGuide}>참가 안내 접기</button></section>
         </>
       )}
       <RoundCard round={round} />
@@ -155,8 +155,8 @@ export default function PlayerPage() {
               </ul>
             </div>
             <div className="actions">
-              <button className="primary" disabled={!canVote} onClick={save}>개인 판단 저장</button>
-              <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 결정 화면으로 이동</Link>
+              <button className="primary" disabled={!canVote} onClick={save}>개인 판단 저장하기</button>
+              <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 결정 화면 열기</Link>
             </div>
             <p className="personalDecisionAfterSave">개인 판단을 저장한 뒤 팀 화면으로 이동하면, 팀원들의 판단 차이를 보고 토의할 수 있습니다.</p>
           </>
@@ -175,8 +175,8 @@ export default function PlayerPage() {
             <label className="personalReflectionField">내가 반복한 판단 습관<textarea defaultValue={reflection?.habit || ''} onChange={e => setHabit(e.target.value)} placeholder="예: 불확실하면 속도를 먼저 선택했다 / 기준을 세우느라 실행을 늦췄다" /></label>
             <label className="personalReflectionField">다음 현업에서 바꿀 행동<textarea defaultValue={reflection?.nextBehavior || ''} onChange={e => setNextBehavior(e.target.value)} placeholder="예: 선택 전에 부담이 누구에게 몰리는지 먼저 확인하겠다" /></label>
             <div className="actions personalReflectionActions">
-              <button className="primary" onClick={saveReflection}>개인 성찰 저장</button>
-              <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 선언문 작성으로 이동</Link>
+              <button className="primary" onClick={saveReflection}>개인 성찰 저장하기</button>
+              <Link className="secondary" to={`/team/${roomId}/${player.teamId}`}>팀 선언문 작성하기</Link>
             </div>
             <p className="personalReflectionAfterSave">개인 성찰을 저장한 뒤 팀 선언문 작성으로 이동하면, 우리 팀이 지킬 기준을 함께 정리할 수 있습니다.</p>
           </>
