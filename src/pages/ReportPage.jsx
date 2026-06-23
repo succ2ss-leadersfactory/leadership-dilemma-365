@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import TwelveWeekTimeline from '../components/TwelveWeekTimeline.jsx';
 import ReportExpertiseSummaryPanel from '../components/ReportExpertiseSummaryPanel.jsx';
+import FacilitatorDebriefBoard from '../components/FacilitatorDebriefBoard.jsx';
 import { subscribe, readDb } from '../services/storage';
 import { stateLabels } from '../utils/statusLabels';
 import { buildAllTeamExpertiseReportSummaries } from '../utils/reportExpertiseUtils';
@@ -200,8 +201,7 @@ function buildMarkdownReport(room, teams, summary, gameContent, observations, ex
     lines.push(`### ${item.teamName}`);
     lines.push(`- 전문성 렌즈: ${item.lensTitle}`);
     lines.push(`- 평균 증거 수준: ${item.evidenceLevel} (${item.averageScore || '-'}/4, ${item.evidenceCount}건)`);
-    lines.push(`- 결과 해석 기록: ${item.narrativeCount || 0}건`);
-    lines.push(`- 누적 결과 해석: ${item.narrativeSummary || '-'}`);
+    lines.push(`- 결과 해석 기록: ${item.resultEvidenceCount}건`);
     lines.push(`- 관련 역량: ${item.expertiseKeywords.join(', ') || '-'}`);
     lines.push(`- 강한 주차: ${item.strongestWeeks}`);
     lines.push(`- 취약 주차: ${item.weakestWeeks}`);
@@ -315,6 +315,8 @@ export default function ReportPage() {
         </div>
         <div className="actions"><button onClick={() => window.print()}>인쇄 / PDF 저장</button><button className="secondary" onClick={saveMarkdown}>Markdown 다운로드</button></div>
       </section>
+
+      <FacilitatorDebriefBoard summary={summary} teams={teams} room={room} observations={observations} expertiseSummaries={expertiseSummaries} />
 
       <TwelveWeekTimeline rounds={db.gameContent.rounds} weekLogs={db.gameContent.weekLogs} currentWeek={12} />
 
