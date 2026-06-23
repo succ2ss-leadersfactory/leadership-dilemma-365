@@ -8,6 +8,7 @@ import { applyExpertiseFinalAdjustment } from '../utils/expertiseFinalAdjustment
 import { getTeamResultNarrative } from '../utils/teamResultNarrativeUtils';
 import { buildRoundImpactSummary } from '../utils/roundImpactSummaryUtils';
 import { applyRawRiskEffects, applyPersonaRiskEffects, buildRiskTrendSnapshot, getOutputQualityRiskEffects, normalizeRiskMap } from '../utils/riskAccumulationUtils';
+import { analyzeTeamDeclaration, summarizeReflectionReviews } from '../utils/reflectionQualityUtils';
 import { stateLabels } from '../utils/statusLabels';
 import { seedMissions } from '../data/seedMissions';
 
@@ -228,6 +229,9 @@ export function generateFinalResults(roomId) {
       const stateRecord = room.stateValues[teamId] || {};
       const values = stateRecord.values || {};
       const riskTrendSummary = stateRecord.riskTrendSummary || null;
+      const declaration = room.declarations?.[teamId] || {};
+      const declarationQualityReview = declaration.declarationQualityReview || analyzeTeamDeclaration(declaration.teamDeclaration || '');
+      const reflectionSummary = summarizeReflectionReviews(declaration.individualReflections || {});
       const week11 = room.submissions[`week11_${teamId}`]?.quality || 'medium';
       const decisions = Object.values(room.teamDecisions).filter(d => d.teamId === teamId);
       const pattern = getJudgmentPattern(decisions, choices);
@@ -260,6 +264,9 @@ export function generateFinalResults(roomId) {
         maxRawRiskKey: stateRecord.maxRawRiskKey || riskTrendSummary?.maxRawRiskKey,
         maxRawRiskLabel: stateRecord.maxRawRiskLabel || riskTrendSummary?.maxRawRiskLabel,
         maxRawRiskValue: stateRecord.maxRawRiskValue || riskTrendSummary?.maxRawRiskValue,
+        declarationText: declaration.teamDeclaration || '',
+        declarationQualityReview,
+        reflectionSummary,
         preExpertiseReviewValues: logImpact.reviewValues,
         reviewValues,
         reviewMaxRiskKey: risk.maxRiskKey,
@@ -282,6 +289,8 @@ export function generateFinalResults(roomId) {
           `${pattern.label} 판단이 반복되었습니다. ${assetSentence(pattern.label)}`,
           ...(finalGate.gateEvidenceLines || []),
           cumulativeRiskSentence(riskTrendSummary),
+          reflectionSummary.summaryLine,
+          declarationQualityReview?.label ? `팀 선언문: ${declarationQualityReview.label}` : '팀 선언문 품질은 아직 확인되지 않았습니다.',
           logImpactSentence(logImpact),
           ...(expertiseAdjustment.adjustmentLines || []),
           riskSentence(risk),
