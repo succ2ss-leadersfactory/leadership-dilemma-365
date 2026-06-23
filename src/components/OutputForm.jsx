@@ -3,13 +3,21 @@ import '../styles/outputFormUx.css';
 
 const outputChecklist = [
   { title: '선택 기준', text: '왜 이 방향을 택했는지 한 문장으로 남깁니다.' },
-  { title: '다음 행동', text: '회의가 끝난 뒤 바로 할 일을 씁니다.' },
+  { title: '실행 조건', text: '회의가 끝난 뒤 바로 할 일과 확인 방식을 씁니다.' },
   { title: '책임자', text: '누가 챙길지 이름이나 역할을 정합니다.' },
   { title: '확인 시점', text: '언제 다시 볼지 날짜나 시점을 남깁니다.' },
   { title: '남는 부담', text: '아직 불안한 점을 숨기지 않고 적습니다.' }
 ];
 
-function buildParticipantEvidenceText(evidenceReview) {
+function buildParticipantEvidenceText(evidenceReview, qualityBreakdown) {
+  if (qualityBreakdown?.feedback?.length) {
+    const score = Number(qualityBreakdown?.evidenceScore || 0);
+    if (score >= 85) return '저장한 산출물은 판단 근거와 실행 조건이 비교적 분명합니다. 다음에도 기준, 책임자, 확인 시점을 함께 남겨 주세요.';
+    if (score >= 65) return '저장한 산출물은 기본 방향이 보입니다. 다음에는 남는 부담과 확인 시점을 조금 더 분명히 적어 보세요.';
+    if (score >= 40) return '저장한 산출물은 방향은 있지만 실행 조건이 더 필요합니다. 누가, 언제, 무엇을 확인할지 남겨 주세요.';
+    return '저장한 산출물은 메모에 가깝습니다. 선택 기준, 다음 행동, 책임자, 확인 시점을 꼭 남겨 주세요.';
+  }
+
   if (!evidenceReview) return null;
   const score = Number(evidenceReview.evidenceScore || 0);
   if (score >= 4) return '이전에 저장한 산출물은 판단 근거와 다음 행동이 비교적 분명합니다. 이번에도 같은 수준으로 구체성을 유지해 주세요.';
@@ -27,19 +35,19 @@ function getFieldHint(field) {
   return '짧아도 좋습니다. 판단 근거가 보이게 구체적으로 적어 주세요.';
 }
 
-export default function OutputForm({ outputRequirement, initialAnswers = {}, onSubmit, expertiseLens = null, evidenceReview = null, audience = 'participant' }) {
+export default function OutputForm({ outputRequirement, initialAnswers = {}, onSubmit, expertiseLens = null, evidenceReview = null, qualityBreakdown = null, audience = 'participant' }) {
   const [answers, setAnswers] = useState(initialAnswers);
   if (!outputRequirement) return <p className="muted">이 라운드에는 산출물 입력이 없습니다.</p>;
   const change = (key, value) => setAnswers(a => ({ ...a, [key]: value }));
   const isFacilitator = audience === 'facilitator';
-  const participantEvidenceText = buildParticipantEvidenceText(evidenceReview);
+  const participantEvidenceText = buildParticipantEvidenceText(evidenceReview, qualityBreakdown);
 
   return (
     <form className="stack outputForm" onSubmit={(e) => { e.preventDefault(); onSubmit(answers); }}>
       <div className="outputGuide">
-        <p className="outputGuide__eyebrow">TEAM OUTPUT</p>
+        <p className="outputGuide__eyebrow">TEAM OUTPUT · QUALITY v2</p>
         <h4>산출물은 긴 글이 아니라 실행 약속입니다</h4>
-        <p>팀 결정이 끝났다면, 그 선택을 실제 행동으로 옮기기 위해 필요한 최소 기준을 남겨 주세요.</p>
+        <p>팀 결정이 끝났다면, 그 선택을 실제 행동으로 옮기기 위해 필요한 최소 기준을 남겨 주세요. 좋은 산출물은 칸을 많이 채운 글이 아니라, <b>선택 기준·실행 조건·남는 부담</b>이 보이는 기록입니다.</p>
         <div className="outputChecklist">
           {outputChecklist.map(item => (
             <div key={item.title}>
@@ -59,15 +67,17 @@ export default function OutputForm({ outputRequirement, initialAnswers = {}, onS
         </div>
       )}
 
-      {evidenceReview && (
+      {(evidenceReview || qualityBreakdown) && (
         <div className="outputSavedFeedback">
           <p className="eyebrow">저장된 산출물 피드백</p>
           {isFacilitator ? (
             <>
-              <h4>{evidenceReview.evidenceLevel} · {evidenceReview.evidenceScore}/4</h4>
-              <ul>
+              {qualityBreakdown && <h4>산출물 품질 · {qualityBreakdown.modelVersion}</h4>}
+              {qualityBreakdown?.feedback?.length > 0 && <ul>{qualityBreakdown.feedback.map(line => <li key={line}>{line}</li>)}</ul>}
+              {evidenceReview && <h4>{evidenceReview.evidenceLevel} · 증거 수준 {evidenceReview.evidenceScore}/4</h4>}
+              {evidenceReview?.evidenceSignals?.length > 0 && <ul>
                 {(evidenceReview.evidenceSignals || []).map(signal => <li key={signal}>{signal}</li>)}
-              </ul>
+              </ul>}
             </>
           ) : (
             <p>{participantEvidenceText}</p>
