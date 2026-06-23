@@ -75,6 +75,9 @@ export default function ResultCard({ card, calculation }) {
       <p className="eyebrow">결과 카드</p>
       <h3>{card.resultTitle || '이번 선택이 남긴 결과'}</h3>
       <p className="resultLine">{card.oneLineResult}</p>
+      <div className="notice">
+        <b>결과 읽는 법:</b> 이 결과는 점수가 아니라 피드백입니다. 우리 팀이 얻은 것과 뒤로 미룬 부담을 함께 확인해 주세요.
+      </div>
 
       <div className="resultGrid">
         <div className="resultBox good">
