@@ -1,5 +1,6 @@
 import { getTeamResultNarrative } from '../utils/teamResultNarrativeUtils';
 import { stateLabels, riskLabels } from '../utils/statusLabels';
+import '../styles/resultCardUx.css';
 
 function getRiskClass(value = 0) {
   if (value >= 3) return 'danger';
@@ -23,6 +24,15 @@ function buildEvidenceSummary(evidenceReview) {
   if (score >= 3) return '산출물의 기본 증거는 충실하지만, 한 가지 기준은 더 보완하면 좋습니다.';
   if (score >= 2) return '산출물의 방향은 보이지만, 증거와 다음 행동을 더 구체화해야 합니다.';
   return '산출물이 실행 메모에 가깝습니다. 판단 근거, 수치, 다음 행동, 리스크 신호를 더 남겨야 합니다.';
+}
+
+function buildParticipantNextAction(highest) {
+  const label = stateLabels[highest?.key] || '남은 부담';
+  const level = riskLabels[highest?.value] || '안정';
+  if (!highest || highest.value === 0) return `현재 가장 크게 남은 부담은 크지 않습니다. 다음 라운드에서는 지금의 판단 기준을 유지하면서 실행 조건을 더 분명히 남겨 보세요.`;
+  if (highest.value === 1) return `${label}에 작은 신호가 있습니다. 다음 라운드에서는 이 부담이 커지기 전에 책임자와 확인 시점을 먼저 정해 보세요.`;
+  if (highest.value === 2) return `${label}이 ${level} 수준입니다. 다음 라운드에서는 성과보다 먼저 이 부담을 줄일 행동을 하나 정해야 합니다.`;
+  return `${label}이 ${level} 수준입니다. 다음 라운드에서는 새 일을 더하기보다 이 부담을 낮추는 선택을 우선 검토하세요.`;
 }
 
 function buildQuestions({ card, calculation, teamNarrative, isFacilitator }) {
@@ -69,15 +79,34 @@ export default function ResultCard({ card, calculation, audience = 'participant'
         <b>결과 읽는 법:</b> 이 결과는 점수가 아니라 피드백입니다. 우리 팀이 얻은 것과 뒤로 미룬 부담을 함께 확인해 주세요.
       </div>
 
-      <div className="resultGrid">
-        <div className="resultBox good"><h4>작은 진전</h4><p>{card.smallProgress}</p></div>
-        <div className="resultBox friction"><h4>남은 부담</h4><p>{card.smallFriction}</p></div>
-        <div className="resultBox review"><h4>조직개편 심사 관점</h4><p>{card.reorgReviewView}</p></div>
-      </div>
+      {!isFacilitator && (
+        <div className="participantResultHero">
+          <div>
+            <small>이번 선택으로 얻은 것</small>
+            <b>{card.smallProgress}</b>
+          </div>
+          <div>
+            <small>아직 남은 부담</small>
+            <b>{card.smallFriction}</b>
+          </div>
+          <div>
+            <small>다음에 먼저 볼 신호</small>
+            <b>{stateLabels[highest?.key] || '팀 상태 변화'} · {riskLabels[highest?.value] || '안정'}</b>
+          </div>
+        </div>
+      )}
+
+      {isFacilitator && (
+        <div className="resultGrid">
+          <div className="resultBox good"><h4>작은 진전</h4><p>{card.smallProgress}</p></div>
+          <div className="resultBox friction"><h4>남은 부담</h4><p>{card.smallFriction}</p></div>
+          <div className="resultBox review"><h4>조직개편 심사 관점</h4><p>{card.reorgReviewView}</p></div>
+        </div>
+      )}
 
       {teamNarrative && (
         <div className="sceneBox">
-          <h4>팀별 결과 해석 · {teamNarrative.title}</h4>
+          <h4>{isFacilitator ? `팀별 결과 해석 · ${teamNarrative.title}` : '우리 팀 관점에서 보면'}</h4>
           <p><b>진전:</b> {teamNarrative.gain}</p>
           <p><b>남은 대가:</b> {teamNarrative.risk}</p>
           {isFacilitator && <div className="notice"><b>강사용 질문:</b> {teamNarrative.question}</div>}
@@ -106,16 +135,23 @@ export default function ResultCard({ card, calculation, audience = 'participant'
             </div>
           ))}
         </div>
+        {!isFacilitator && (
+          <div className="participantNextAction">
+            <h4>다음 라운드에서 관리할 부담</h4>
+            <p>{buildParticipantNextAction(highest)}</p>
+          </div>
+        )}
       </div>
 
       {isFacilitator && calculation?.personaInfluenceLines?.length > 0 && <div className="sceneBox"><h4>인물 카드 영향</h4><ul>{calculation.personaInfluenceLines.map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul></div>}
       {isFacilitator && calculation?.competencyGrowthLines?.length > 0 && <div className="sceneBox"><h4>팀원 역량 변화</h4><ul>{calculation.competencyGrowthLines.map((line, index) => <li key={`${line}_${index}`}>{line}</li>)}</ul></div>}
 
-      {card.stateSceneText && Object.keys(card.stateSceneText).length > 0 && <div className="sceneBox"><h4>장면으로 보면</h4><ul>{Object.entries(card.stateSceneText).map(([key, text]) => <li key={key}>{text}</li>)}</ul></div>}
+      {isFacilitator && card.stateSceneText && Object.keys(card.stateSceneText).length > 0 && <div className="sceneBox"><h4>장면으로 보면</h4><ul>{Object.entries(card.stateSceneText).map(([key, text]) => <li key={key}>{text}</li>)}</ul></div>}
 
       <div className="debriefBox">
         <h4>{isFacilitator ? '디브리핑 질문' : '성찰 질문'}</h4>
         <ol>{questions.map(q => <li key={q}>{q}</li>)}</ol>
+        {!isFacilitator && <p className="participantDebriefHint">질문에 정답은 없습니다. 우리 팀이 어떤 기준을 반복했는지, 그리고 다음 선택에서 무엇을 줄일지 이야기해 보세요.</p>}
       </div>
     </section>
   );
