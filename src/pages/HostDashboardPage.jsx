@@ -23,13 +23,13 @@ const phaseLabels = {
 };
 
 function nextAction(round, progress) {
-  if (!round) return '방을 다시 확인하세요.';
-  if (round.roundId === 'round0') return '팀 화면에서 KSA를 선택한 뒤 Week 1로 이동합니다.';
-  if (round.roundId === 'week12') return '개인 성찰, 팀 선언문, 최종 판정, 교육 리포트 순서로 마무리합니다.';
-  if (progress.resultVisible) return '결과 카드를 확인한 뒤 다음 라운드로 이동합니다.';
-  if (progress.currentPhase === 'playerVote') return '참가자가 개인 선택을 저장한 뒤 팀 화면에서 최종 결정을 진행합니다.';
-  if (progress.currentPhase === 'teamDecision') return '팀 최종 선택과 산출물을 저장한 뒤 결과를 계산합니다.';
-  return '현재 단계의 입력을 확인한 뒤 다음 단계로 이동합니다.';
+  if (!round) return '방 정보를 확인한 뒤 참가자 입장 상태를 다시 점검하세요.';
+  if (round.roundId === 'round0') return '팀별 KSA 저장 상태를 확인하고, 모두 준비되면 Week 1 개인 판단을 시작하세요.';
+  if (round.roundId === 'week12') return '개인 성찰과 팀 선언문 저장을 확인한 뒤 최종 판정과 교육 리포트로 마무리하세요.';
+  if (progress.resultVisible) return '각 팀이 결과 카드를 확인했는지 본 뒤 다음 라운드를 열어 주세요.';
+  if (progress.currentPhase === 'playerVote') return '참가자 개인 판단 저장 현황을 확인하고, 완료되면 팀 토의 단계로 넘겨 주세요.';
+  if (progress.currentPhase === 'teamDecision') return '팀 최종 선택과 산출물 저장 상태를 확인한 뒤 결과를 계산하고 공개하세요.';
+  return '현재 단계의 미입력 팀을 확인하고, 준비가 끝나면 다음 단계로 넘겨 주세요.';
 }
 
 function isKsaComplete(team) {
@@ -96,7 +96,7 @@ export default function HostDashboardPage() {
           <div>
             <p className="hostDashboardEyebrow">HOST CONTROL</p>
             <h2>{round?.title} · {phaseLabel}</h2>
-            <p>강사는 이 화면에서 진행 단계, 팀별 입력 상태, 결과 공개와 최종 리포트 이동을 관리합니다.</p>
+            <p>강사는 이 화면에서 진행 단계, 팀별 입력 상태, 결과 공개, 리포트 이동을 한 번에 관리합니다.</p>
           </div>
           <div className="hostJoinCard">
             <small>입장 코드</small>
@@ -114,18 +114,18 @@ export default function HostDashboardPage() {
           <div><b>{finalCount}/{teams.length}</b><span>최종 판정</span></div>
         </div>
 
-        <div className="hostNextAction"><b>다음 행동:</b> {nextAction(round, progress)}</div>
+        <div className="hostNextAction"><b>다음 운영 행동:</b> {nextAction(round, progress)}</div>
 
         <div className="hostActionBar">
-          <button onClick={() => movePhase(roomId, 'prev')}>이전 단계</button>
-          <button className="primary" onClick={() => movePhase(roomId, 'next')}>다음 단계</button>
-          <button onClick={() => moveToNextRound(roomId)}>다음 라운드</button>
-          <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '잠금 해제' : '화면 잠금'}</button>
-          <button onClick={() => { calculateAllTeamResultsForRound(roomId, progress.currentRoundId); revealRoundResult(roomId); }}>계산 후 결과 공개</button>
+          <button onClick={() => movePhase(roomId, 'prev')}>이전 단계로</button>
+          <button className="primary" onClick={() => movePhase(roomId, 'next')}>다음 단계로</button>
+          <button onClick={() => moveToNextRound(roomId)}>다음 라운드 열기</button>
+          <button onClick={() => updateRoomProgress(roomId, { isScreenLocked: !progress.isScreenLocked })}>{progress.isScreenLocked ? '참가자 입력 다시 열기' : '참가자 화면 잠그기'}</button>
+          <button onClick={() => { calculateAllTeamResultsForRound(roomId, progress.currentRoundId); revealRoundResult(roomId); }}>결과 계산하고 공개</button>
           <button onClick={() => generateFinalResults(roomId)}>최종 판정 생성</button>
-          <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필</Link>
-          <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드</Link>
-          <Link className="secondary" to={`/report/${roomId}`}>교육 리포트</Link>
+          <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필 확인</Link>
+          <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드 열기</Link>
+          <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
         </div>
       </section>
 
@@ -142,19 +142,19 @@ export default function HostDashboardPage() {
           <ol>
             <li>Round 0: 팀별 KSA 저장 및 팀원 초기 역량 프로필 자동 등록</li>
             <li>Week 라운드: 파일럿 진행 체크리스트와 전략 이벤트 확인</li>
-            <li>개인 선택 저장</li>
-            <li>팀 최종 선택과 산출물 저장</li>
-            <li>결과 계산 후 결과 카드 확인</li>
-            <li>Week 12: 개인 성찰과 팀 선언문 저장</li>
+            <li>개인 판단 저장 상태 확인</li>
+            <li>팀 최종 선택과 산출물 저장 상태 확인</li>
+            <li>결과 계산 후 결과 카드 공개</li>
+            <li>Week 12: 개인 성찰과 팀 선언문 저장 확인</li>
             <li>최종 판정 생성 후 교육 리포트 확인</li>
           </ol>
         </div>
         <div className="card hostOpsCard hostLinksCard">
           <h3>운영 링크</h3>
-          <p><Link to={`/compare/${roomId}`}>다팀 비교 화면</Link></p>
-          <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면</Link></p>
-          <p><Link to={`/guide/${roomId}`}>강사 가이드</Link></p>
-          <p><Link to={`/admin/${roomId}`}>관리자 운영 도구</Link></p>
+          <p><Link to={`/compare/${roomId}`}>다팀 비교 화면 열기</Link></p>
+          <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면 열기</Link></p>
+          <p><Link to={`/guide/${roomId}`}>강사 가이드 열기</Link></p>
+          <p><Link to={`/admin/${roomId}`}>관리자 운영 도구 열기</Link></p>
         </div>
       </section>
 
