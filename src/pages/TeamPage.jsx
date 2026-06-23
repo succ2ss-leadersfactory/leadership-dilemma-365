@@ -11,6 +11,7 @@ import ResultCard from '../components/ResultCard.jsx';
 import ParticipantStepGuide from '../components/ParticipantStepGuide.jsx';
 import FinalJudgmentCard from '../components/FinalJudgmentCard.jsx';
 import TeamDecisionSummary from '../components/TeamDecisionSummary.jsx';
+import TeamDiscussionGuide from '../components/TeamDiscussionGuide.jsx';
 import { subscribe, readDb, updateDb } from '../services/storage';
 import { getCurrentRound, moveToNextRound, revealRoundResult } from '../services/roundService';
 import { getTeamVotes } from '../services/voteService';
@@ -169,6 +170,7 @@ export default function TeamPage() {
             <b>지금 할 일:</b> 개인 선택을 참고하되, 팀으로 감수할 선택을 정하는 단계입니다. 좋은 점과 남는 부담을 함께 말한 뒤 최종 선택을 저장하세요.
           </div>
           <ChoiceList choices={choices} selectedChoiceId={finalChoiceId || decision?.finalChoiceId} onSelect={setFinalChoiceId} disabled={!canEdit} />
+          <TeamDiscussionGuide />
           <label>토론 요약<textarea value={summary || decision?.discussionSummary || ''} onChange={e => setSummary(e.target.value)} /></label>
           <button className="primary" onClick={() => {
             try {
