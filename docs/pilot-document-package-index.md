@@ -1,36 +1,58 @@
 # 파일럿 운영 문서 패키지 인덱스
 
-이 문서는 **리더십 딜레마 365: 위기의 12주** 파일럿 운영자가 어떤 문서를 언제 보면 되는지 정리한 안내서입니다.
+이 문서는 `리더십 딜레마 365: 위기의 12주` v1.0 파일럿 운영에 필요한 문서를 빠르게 찾기 위한 인덱스입니다.
 
 ---
 
-## 1. 먼저 볼 문서
+## 1. 가장 먼저 볼 문서
 
 | 순서 | 문서 | 용도 |
 |---|---|---|
-| 1 | `README.md` | 전체 구조와 route 확인 |
-| 2 | `docs/pilot-final-status-summary.md` | 파일럿 후보 상태와 남은 확인 항목 요약 |
-| 3 | `docs/pilot-final-rehearsal-runbook.md` | 파일럿 직전 최종 리허설 |
-| 4 | `docs/pilot-final-qa-decision-table.md` | 운영 가능 여부 판정 |
-| 5 | `docs/pilot-operator-handoff.md` | 운영자 인수인계 |
-| 6 | `docs/expertise-index.md` | 전문성 고도화 구조 확인 |
+| 1 | `README.md` | 전체 구조, 주요 route, 기본 운영 흐름 확인 |
+| 2 | `docs/facilitator-pilot-runbook.md` | 파일럿 당일 강사용 진행 순서 확인 |
+| 3 | `docs/pilot-ui-ux-qa-checklist.md` | 교육생 화면과 강사용 화면 노출 기준 확인 |
+| 4 | `docs/pilot-final-status-summary.md` | 현재 v1.0 파일럿 운영 가능 상태 확인 |
+| 5 | `docs/release-notes-v1.0-pilot.md` | 이번 배포본 포함 기능과 제한 사항 확인 |
+| 6 | `docs/pilot-operator-handoff.md` | 운영자 인수인계 기준 확인 |
 
 ---
 
-## 2. 운영자 문서
+## 2. 파일럿 당일 운영 문서
 
-| 목적 | 문서 |
+| 필요 상황 | 문서 |
 |---|---|
-| 최종 상태 요약 | `docs/pilot-final-status-summary.md` |
-| 운영 전체 흐름 | `docs/pilot-operator-handoff.md` |
-| 최종 리허설 | `docs/pilot-final-rehearsal-runbook.md` |
-| 운영 판정 | `docs/pilot-final-qa-decision-table.md` |
-| 기본 동선 리허설 | `docs/pilot-rehearsal-script.md` |
-| 파일럿 버전 요약 | `docs/release-notes-v1.0-pilot.md` |
+| 당일 운영 순서가 필요함 | `docs/facilitator-pilot-runbook.md` |
+| 강사 멘트와 디브리핑 질문이 필요함 | `docs/facilitator-pilot-runbook.md` |
+| 운영자에게 전체 흐름을 넘겨야 함 | `docs/pilot-operator-handoff.md` |
+| 전체 route와 기능을 확인해야 함 | `README.md` |
 
 ---
 
-## 3. 전문성 문서
+## 3. 파일럿 전 점검 문서
+
+| 필요 상황 | 문서 |
+|---|---|
+| UI/UX와 화면별 노출 기준 확인 | `docs/pilot-ui-ux-qa-checklist.md` |
+| 20분 리허설 진행 | `docs/pilot-rehearsal-script.md` |
+| 최종 운영 여부 판정 | `docs/pilot-final-qa-decision-table.md` |
+| 리허설 샘플 밸런스 확인 | `docs/rehearsal-scenario-balance-check.md` |
+| 현재 최종 상태 확인 | `docs/pilot-final-status-summary.md` |
+
+---
+
+## 4. 강사용 디브리핑 문서
+
+| 필요 상황 | 문서 또는 화면 |
+|---|---|
+| 팀별 관찰과 개입 질문 확인 | `/guide/:roomId` |
+| 최종 리포트 확인 | `/report/:roomId` |
+| 팀별 판단 패턴 비교 | `/compare/:roomId` |
+| 전문성 렌즈 구조 확인 | `docs/expertise-index.md` |
+| 교육생/강사용 정보 분리 기준 확인 | `docs/pilot-ui-ux-qa-checklist.md` |
+
+---
+
+## 5. 전문성·판정 정책 문서
 
 | 목적 | 문서 |
 |---|---|
@@ -39,79 +61,38 @@
 | 비밀 미션 전문성 기준 | `docs/secret-mission-expertise-evidence-policy.md` |
 | 팀별 결과 카드 문장 | `docs/team-result-narrative-policy.md` |
 | 누적 결과 해석 | `docs/cumulative-result-narrative-report-policy.md` |
+| 전체 Week 밸런스 | `docs/all-week-balance-policy.md` |
+| PLAY Week와 LOG 정책 | `docs/playable-week-log-policy.md` |
 
 ---
 
-## 4. 개발·QA 문서
+## 6. 개발·운영 안정화 문서
 
 | 목적 | 문서 |
 |---|---|
-| 개발 안정화 최종 체크 | `docs/pilot-dev-stability-checklist.md` |
-| 전체 Week 밸런스 | `docs/all-week-balance-policy.md` |
-| LOG 후폭풍 중복 방지 | `docs/playable-week-log-policy.md` |
-| 리허설 샘플 검증 | `docs/rehearsal-scenario-balance-check.md` |
 | 의존성 안정화 | `docs/dependency-stability-policy.md` |
 | 의존성 변경 절차 | `docs/dependency-update-checklist.md` |
+| Firestore 전환 계획 | `docs/firestore-migration-plan.md` |
+| 개발 안정화 체크 | `docs/pilot-dev-stability-checklist.md` |
 
 ---
 
-## 5. 파일럿 직전 10분 체크
-
-시간이 부족하면 아래 세 문서만 봅니다.
+## 7. 파일럿 전 최종 확인 순서
 
 ```text
-docs/pilot-final-status-summary.md
-docs/pilot-final-rehearsal-runbook.md
-docs/pilot-final-qa-decision-table.md
-```
-
-확인 순서는 다음입니다.
-
-```text
-최종 상태 요약 확인
-→ 방 생성
-→ 리허설 샘플 생성
-→ Admin QA 확인
-→ 전문성 QA 확인
-→ Report 다운로드
-→ JSON 백업
-→ 운영 가능 여부 기록
-```
-
----
-
-## 6. 문제 상황별 바로 볼 문서
-
-| 문제 | 볼 문서 |
-|---|---|
-| 현재 준비 상태를 빠르게 보고 싶음 | `docs/pilot-final-status-summary.md` |
-| 리허설 동선이 막힘 | `docs/pilot-final-rehearsal-runbook.md` |
-| 운영 가능 여부가 애매함 | `docs/pilot-final-qa-decision-table.md` |
-| 개발 안정화 확인이 필요함 | `docs/pilot-dev-stability-checklist.md` |
-| 전문성 신호가 이상함 | `docs/evidence-review-keyword-policy.md` |
-| 비밀 미션 점수가 낮음 | `docs/secret-mission-expertise-evidence-policy.md` |
-| 결과 카드 문장이 어색함 | `docs/team-result-narrative-policy.md` |
-| 리포트 경고 신호가 이해되지 않음 | `docs/cumulative-result-narrative-report-policy.md` |
-
----
-
-## 7. 파일럿 후 남길 자료
-
-```text
-교육 리포트 Markdown
-Admin QA 리포트 Markdown
-JSON 백업 파일
-최종 QA 판정 기록
-강사 관찰 메모
-참가자 반응 메모
-수정 필요 문구 목록
+README.md
+→ docs/facilitator-pilot-runbook.md
+→ docs/pilot-ui-ux-qa-checklist.md
+→ docs/pilot-rehearsal-script.md
+→ docs/pilot-final-qa-decision-table.md
+→ docs/pilot-final-status-summary.md
 ```
 
 ---
 
 ## 8. 관리 원칙
 
-- 운영자는 최종 상태 요약, 리허설 Runbook, 최종 QA 판정표를 우선 봅니다.
-- 강사는 전문성 인덱스와 리포트 관련 문서를 봅니다.
+- 운영자는 README, 파일럿 운영자 런북, UI/UX QA 체크리스트를 우선 봅니다.
+- 강사는 운영자 런북, 강사 가이드, 교육 리포트, 전문성 인덱스를 함께 봅니다.
 - 개발자는 정책 문서와 QA 문서를 함께 봅니다.
 - 파일럿 전에는 새 기능 추가보다 저장, 계산, 리포트, 백업 안정성을 우선합니다.
