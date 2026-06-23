@@ -39,6 +39,7 @@ v1.0 Pilot은 교육장 리허설과 단일 브라우저 데모 운영을 위한
 - 운영 QA 점검판
 - 리허설 샘플 시나리오
 - 파일럿 최종 동선 점검표
+- 운영 문서 패키지 인덱스
 - 파일럿 운영자 런북
 - 파일럿 UI/UX QA 체크리스트
 - 모바일 참가자 화면 개선
@@ -128,17 +129,18 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 
 ## 파일럿 전 확인 순서
 
-1. `docs/facilitator-pilot-runbook.md`로 운영 당일 순서를 확인합니다.
-2. `docs/pilot-ui-ux-qa-checklist.md`로 교육생/강사용 화면 노출 기준을 확인합니다.
-3. `npm install`
-4. `npm run dev`
-5. `/host/create`에서 방 생성
-6. `/admin/:roomId`에서 최종 동선 점검표 확인
-7. 리허설 샘플 1개 생성
-8. `/guide/:roomId` 확인
-9. `/report/:roomId`에서 Markdown 다운로드 확인
-10. `docs/pilot-rehearsal-script.md`에 따라 20분 리허설 수행
-11. `docs/pilot-final-qa-decision-table.md` 기준으로 운영 가능 여부 판정
+1. `docs/pilot-document-package-index.md`로 상황별 운영 문서 위치를 확인합니다.
+2. `docs/facilitator-pilot-runbook.md`로 운영 당일 순서를 확인합니다.
+3. `docs/pilot-ui-ux-qa-checklist.md`로 교육생/강사용 화면 노출 기준을 확인합니다.
+4. `npm install`
+5. `npm run dev`
+6. `/host/create`에서 방 생성
+7. `/admin/:roomId`에서 최종 동선 점검표 확인
+8. 리허설 샘플 1개 생성
+9. `/guide/:roomId` 확인
+10. `/report/:roomId`에서 Markdown 다운로드 확인
+11. `docs/pilot-rehearsal-script.md`에 따라 20분 리허설 수행
+12. `docs/pilot-final-qa-decision-table.md` 기준으로 운영 가능 여부 판정
 
 ---
 
@@ -168,6 +170,7 @@ Admin 화면에서 다음 샘플을 생성할 수 있습니다.
 ## 관련 문서
 
 - `README.md`
+- `docs/pilot-document-package-index.md`
 - `docs/facilitator-pilot-runbook.md`
 - `docs/pilot-ui-ux-qa-checklist.md`
 - `docs/pilot-final-status-summary.md`
