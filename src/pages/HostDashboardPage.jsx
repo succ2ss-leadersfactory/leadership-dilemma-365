@@ -79,6 +79,10 @@ function latestTeamCalculation(room, teamId, currentRoundId) {
 
 function buildTeamFacilitatorInsight({ room, team, currentRoundId }) {
   const finalResult = room.finalResults?.[team.teamId];
+  const declaration = room.declarations?.[team.teamId] || {};
+  const reflectionCount = Object.keys(declaration.individualReflections || {}).length;
+  const declarationReview = finalResult?.declarationQualityReview || declaration.declarationQualityReview;
+  const reflectionSummary = finalResult?.reflectionSummary;
   const state = room.stateValues?.[team.teamId] || {};
   const calculation = latestTeamCalculation(room, team.teamId, currentRoundId);
   const trend = finalResult?.riskTrendSummary || state.riskTrendSummary;
@@ -101,9 +105,14 @@ function buildTeamFacilitatorInsight({ room, team, currentRoundId }) {
     gateIssues,
     gateLabel,
     missionLabel,
+    declarationText: declaration.teamDeclaration || finalResult?.declarationText || '',
+    declarationReview,
+    reflectionCount,
+    reflectionSummary,
     questions: [
       `${team.teamName}은 ${topRisk} 부담을 낮추기 위해 다음 현업에서 무엇을 먼저 줄여야 합니까?`,
       `최근 결과의 핵심 요인인 '${impactTitle}'은 이 팀의 어떤 판단 습관을 보여줍니까?`,
+      declaration.teamDeclaration ? `팀 선언문이 실제 다음 회의 행동으로 이어지려면 첫 확인 시점을 어떻게 잡아야 합니까?` : '아직 팀 선언문이 없다면, 이 팀이 멈출 판단 습관은 무엇입니까?',
       finalResult ? `${gateLabel} 판정을 더 안정적으로 만들려면 어떤 회복 증거가 추가로 필요합니까?` : '최종 판정 전, 이 팀의 반복 판단 패턴을 어떻게 설명할 수 있습니까?'
     ]
   };
@@ -223,6 +232,15 @@ export default function HostDashboardPage() {
                 <div><b>{insight.topRisk}</b><span>누적 TOP 부담 {Number(insight.topRiskValue || 0).toFixed(1)}</span></div>
                 <div><b>{insight.gateIssues.length}</b><span>주의 게이트</span></div>
               </div>
+              {(insight.declarationText || insight.reflectionSummary) && (
+                <div className="hostDeclarationCue">
+                  <b>성찰·선언 연결</b>
+                  {insight.declarationText && <span>선언문: “{insight.declarationText}”</span>}
+                  {insight.declarationReview && <span>선언문 피드백: {insight.declarationReview.label}</span>}
+                  {insight.reflectionSummary && <span>{insight.reflectionSummary.summaryLine}</span>}
+                  {!insight.reflectionSummary && <span>개인 성찰 {insight.reflectionCount}건 저장</span>}
+                </div>
+              )}
               {insight.impactFactors.length > 0 ? (
                 <ol className="hostImpactList">
                   {insight.impactFactors.map(factor => <li key={`${insight.team.teamId}_${factor.type}`}><b>{factor.title}</b><span>{factor.summary}</span></li>)}
