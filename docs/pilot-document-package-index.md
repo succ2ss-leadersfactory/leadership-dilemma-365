@@ -13,6 +13,7 @@
 | 1 | `README.md` | 전체 구조, 주요 route, 기본 실행 방법 |
 | 2 | `docs/pilot-operator-package.md` | 파일럿 운영자가 당일 바로 따라갈 최종 운영 패키지 |
 | 3 | `docs/release-notes-v1.0-pilot.md` | 이번 파일럿 버전의 포함 기능, 제한, 운영 메모 |
+| 4 | `docs/release-checkpoint-v1.0-pilot.md` | v1.0 Pilot 릴리즈 후보 기준 커밋과 최종 확인 항목 |
 
 ---
 
@@ -40,6 +41,7 @@
 6. `/report/:roomId`에서 리포트와 Markdown 다운로드가 정상 작동하는지 확인한다.
 7. `/admin/:roomId`에서 JSON 백업을 다운로드한다.
 8. 실제 운영 전에는 **현재 방 진행 데이터 초기화**를 실행한다.
+9. 실제 배포 기준은 `docs/release-checkpoint-v1.0-pilot.md`의 체크포인트와 로컬 `npm run build` 결과를 함께 확인한다.
 
 ---
 
@@ -84,5 +86,6 @@
 - Admin QA 리포트
 - JSON 백업
 - 강사 회고 메모
+- 릴리즈 후보 기준: `docs/release-checkpoint-v1.0-pilot.md`
 
 초기화 전에는 반드시 JSON 백업을 먼저 다운로드합니다.
