@@ -11,6 +11,7 @@ import AdminOpsPage from './pages/AdminOpsPage.jsx';
 import FacilitatorGuidePage from './pages/FacilitatorGuidePage.jsx';
 import CompetencyProfilesPage from './pages/CompetencyProfilesPage.jsx';
 import FirebaseCheckPage from './pages/FirebaseCheckPage.jsx';
+import FirebaseRoomExportPage from './pages/FirebaseRoomExportPage.jsx';
 import './styles/visualDesignSystem.css';
 import './styles/responsivePolish.css';
 import './styles/facilitatorBoundary.css';
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/admin/:roomId" element={<AdminOpsPage />} />
       <Route path="/firebase-check" element={<FirebaseCheckPage />} />
       <Route path="/firebase-check/:roomId" element={<FirebaseCheckPage />} />
+      <Route path="/firebase-export/:roomId" element={<FirebaseRoomExportPage />} />
     </Routes>
   );
 }
