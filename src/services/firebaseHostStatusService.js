@@ -20,6 +20,7 @@ export function subscribeFirebaseHostStatus({ roomId, onChange, onError }) {
   const state = {
     room: null,
     teams: {},
+    teamMembers: {},
     teamDecisions: {},
     submissions: {},
     declarations: {},
@@ -34,6 +35,10 @@ export function subscribeFirebaseHostStatus({ roomId, onChange, onError }) {
     }, error => onError?.(error)),
     onSnapshot(collection(roomRef, 'teams'), snapshot => {
       state.teams = mapCollection(snapshot);
+      emit();
+    }, error => onError?.(error)),
+    onSnapshot(collection(roomRef, 'teamMembers'), snapshot => {
+      state.teamMembers = mapCollection(snapshot);
       emit();
     }, error => onError?.(error)),
     onSnapshot(collection(roomRef, 'teamDecisions'), snapshot => {
