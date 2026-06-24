@@ -58,6 +58,18 @@ export function subscribeFirebaseTeamScreen({ roomId, teamId, roundId, onChange,
   return () => unsubs.forEach(unsub => unsub());
 }
 
+export async function registerFirebaseTeamRepresentative({ roomId, teamId, teamName, representativeName, representativePin }) {
+  const { teamRef } = refs(roomId, teamId, 'round0');
+  await setDoc(teamRef, {
+    teamId,
+    teamName: teamName || teamId,
+    representativeName: representativeName || '팀대표',
+    representativePin,
+    representativeRegisteredAt: serverTimestamp(),
+    browserRepresentativeRegisteredAt: Date.now()
+  }, { merge: true });
+}
+
 export async function saveFirebaseTeamKsa({ roomId, teamId, teamName, selectedKSA }) {
   const { teamRef } = refs(roomId, teamId, 'round0');
   await setDoc(teamRef, { teamId, teamName: teamName || teamId, selectedKSA: clean(selectedKSA), updatedAt: serverTimestamp(), browserUpdatedAt: Date.now() }, { merge: true });
