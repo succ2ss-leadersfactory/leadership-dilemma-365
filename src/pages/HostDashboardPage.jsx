@@ -228,6 +228,13 @@ export default function HostDashboardPage() {
             <p key={team.teamId}><Link to={`/team/${roomId}/${team.teamId}`}>{team.teamName} 팀 화면 열기</Link></p>
           ))}
           <hr />
+          <p className="muted">Firebase 확장 운영에서는 아래 실시간 팀 화면을 참가자에게 공유합니다.</p>
+          {teams.map(team => (
+            <p key={`firebase_${team.teamId}`}><Link to={`/firebase-team/${roomId}/${team.teamId}`}>{team.teamName} Firebase 팀 화면 열기</Link></p>
+          ))}
+          <p><Link to={`/firebase-export/${roomId}`}>현재 방 Firebase 내보내기</Link></p>
+          <p><Link to={`/firebase-check/${roomId}`}>Firebase 연결 확인</Link></p>
+          <hr />
           <p><Link to={`/compare/${roomId}`}>다팀 비교 화면 열기</Link></p>
           <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면 열기</Link></p>
           <p><Link to={`/guide/${roomId}`}>강사 가이드 열기</Link></p>
@@ -306,7 +313,10 @@ export default function HostDashboardPage() {
                     <h4>{team.teamName}</h4>
                     <small>팀 화면에서 대표 입력 중심으로 운영</small>
                   </div>
-                  <Link className="secondary" to={`/team/${roomId}/${team.teamId}`}>팀 화면</Link>
+                  <div className="actions">
+                    <Link className="secondary" to={`/team/${roomId}/${team.teamId}`}>팀 화면</Link>
+                    <Link className="secondary" to={`/firebase-team/${roomId}/${team.teamId}`}>Firebase 팀 화면</Link>
+                  </div>
                 </div>
                 <div className="hostStatusPills">
                   {statuses.map(s => <span key={s.label} className={s.done ? 'done' : 'todo'}>{s.label}: {s.text}</span>)}
