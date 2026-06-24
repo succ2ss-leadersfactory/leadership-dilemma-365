@@ -14,6 +14,7 @@ import FirebaseCheckPage from './pages/FirebaseCheckPage.jsx';
 import FirebaseRoomExportPage from './pages/FirebaseRoomExportPage.jsx';
 import FirebaseTeamPage from './pages/FirebaseTeamPage.jsx';
 import FirebasePinIssuePage from './pages/FirebasePinIssuePage.jsx';
+import FirebaseHostStatusPage from './pages/FirebaseHostStatusPage.jsx';
 import './styles/visualDesignSystem.css';
 import './styles/responsivePolish.css';
 import './styles/facilitatorBoundary.css';
@@ -37,6 +38,7 @@ export default function App() {
       <Route path="/firebase-export/:roomId" element={<FirebaseRoomExportPage />} />
       <Route path="/firebase-team/:roomId/:teamId" element={<FirebaseTeamPage />} />
       <Route path="/firebase-pins/:roomId" element={<FirebasePinIssuePage />} />
+      <Route path="/firebase-status/:roomId" element={<FirebaseHostStatusPage />} />
     </Routes>
   );
 }
