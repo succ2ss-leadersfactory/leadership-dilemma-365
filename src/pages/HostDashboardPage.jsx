@@ -196,7 +196,7 @@ export default function HostDashboardPage() {
           <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드 열기</Link>
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
           <Link className="secondary" to={`/firebase-pins/${roomId}`}>팀대표 PIN 발급</Link>
-          <Link className="secondary" to={`/firebase-status/${roomId}`}>Firebase 운영 상태</Link>
+          <Link className="secondary" to={`/firebase-status/${roomId}`}>팀 진행 현황</Link>
         </div>
       </section>
 
@@ -225,24 +225,23 @@ export default function HostDashboardPage() {
         </div>
         <div className="card hostOpsCard hostLinksCard">
           <h3>운영 링크</h3>
-          <p className="muted">PC 기본 운영에서는 아래 팀별 Team 화면을 새 탭으로 열어 사용합니다.</p>
+          <p className="muted">참가자에게는 아래 팀 참가 링크만 공유합니다.</p>
           {teams.map(team => (
-            <p key={team.teamId}><Link to={`/team/${roomId}/${team.teamId}`}>{team.teamName} 팀 화면 열기</Link></p>
+            <p key={team.teamId}><Link to={`/play/${roomId}/${team.teamId}`}>{team.teamName} 팀 참가 링크</Link></p>
           ))}
           <hr />
-          <p className="muted">Firebase 확장 운영에서는 아래 실시간 팀 화면을 참가자에게 공유합니다.</p>
-          {teams.map(team => (
-            <p key={`firebase_${team.teamId}`}><Link to={`/firebase-team/${roomId}/${team.teamId}`}>{team.teamName} Firebase 팀 화면 열기</Link></p>
-          ))}
-          <p><Link to={`/firebase-status/${roomId}`}>Firebase 운영 상태 보기</Link></p>
+          <p><Link to={`/firebase-status/${roomId}`}>팀 진행 현황 보기</Link></p>
           <p><Link to={`/firebase-pins/${roomId}`}>팀대표 PIN 발급/확인</Link></p>
-          <p><Link to={`/firebase-export/${roomId}`}>현재 방 Firebase 내보내기</Link></p>
-          <p><Link to={`/firebase-check/${roomId}`}>Firebase 연결 확인</Link></p>
-          <hr />
-          <p><Link to={`/compare/${roomId}`}>다팀 비교 화면 열기</Link></p>
-          <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면 열기</Link></p>
-          <p><Link to={`/guide/${roomId}`}>강사 가이드 열기</Link></p>
-          <p><Link to={`/admin/${roomId}`}>관리자 운영 도구 열기</Link></p>
+          <details className="reportInsight">
+            <summary>고급 운영 메뉴</summary>
+            <p><Link to={`/team/${roomId}/${teams[0]?.teamId || 'team'}`}>기존 팀 화면 확인</Link></p>
+            <p><Link to={`/firebase-export/${roomId}`}>온라인 운영 준비</Link></p>
+            <p><Link to={`/firebase-check/${roomId}`}>온라인 연결 확인</Link></p>
+            <p><Link to={`/compare/${roomId}`}>다팀 비교 화면 열기</Link></p>
+            <p><Link to={`/competencies/${roomId}`}>역량 프로필 화면 열기</Link></p>
+            <p><Link to={`/guide/${roomId}`}>강사 가이드 열기</Link></p>
+            <p><Link to={`/admin/${roomId}`}>관리자 운영 도구 열기</Link></p>
+          </details>
         </div>
       </section>
 
@@ -315,11 +314,11 @@ export default function HostDashboardPage() {
                 <div className="hostTeamOpsCard__top">
                   <div>
                     <h4>{team.teamName}</h4>
-                    <small>팀 화면에서 대표 입력 중심으로 운영</small>
+                    <small>팀 참가 화면에서 대표 입력 중심으로 운영</small>
                   </div>
                   <div className="actions">
-                    <Link className="secondary" to={`/team/${roomId}/${team.teamId}`}>팀 화면</Link>
-                    <Link className="secondary" to={`/firebase-team/${roomId}/${team.teamId}`}>Firebase 팀 화면</Link>
+                    <Link className="secondary" to={`/play/${roomId}/${team.teamId}`}>팀 참가 화면</Link>
+                    <Link className="secondary" to={`/team/${roomId}/${team.teamId}`}>기존 팀 화면</Link>
                   </div>
                 </div>
                 <div className="hostStatusPills">
