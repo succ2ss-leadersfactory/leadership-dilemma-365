@@ -195,6 +195,7 @@ export default function HostDashboardPage() {
           <Link className="secondary" to={`/competencies/${roomId}`}>역량 프로필 확인</Link>
           <Link className="secondary" to={`/guide/${roomId}`}>강사 가이드 열기</Link>
           <Link className="secondary" to={`/report/${roomId}`}>교육 리포트 보기</Link>
+          <Link className="secondary" to={`/firebase-pins/${roomId}`}>팀대표 PIN 발급</Link>
         </div>
       </section>
 
@@ -232,6 +233,7 @@ export default function HostDashboardPage() {
           {teams.map(team => (
             <p key={`firebase_${team.teamId}`}><Link to={`/firebase-team/${roomId}/${team.teamId}`}>{team.teamName} Firebase 팀 화면 열기</Link></p>
           ))}
+          <p><Link to={`/firebase-pins/${roomId}`}>팀대표 PIN 발급/확인</Link></p>
           <p><Link to={`/firebase-export/${roomId}`}>현재 방 Firebase 내보내기</Link></p>
           <p><Link to={`/firebase-check/${roomId}`}>Firebase 연결 확인</Link></p>
           <hr />
