@@ -28,6 +28,7 @@ export default function App() {
       <Route path="/join/:joinCode" element={<JoinPage />} />
       <Route path="/player/:roomId/:playerId" element={<PlayerPage />} />
       <Route path="/team/:roomId/:teamId" element={<TeamPage />} />
+      <Route path="/play/:roomId/:teamId" element={<FirebaseTeamPage />} />
       <Route path="/competencies/:roomId" element={<CompetencyProfilesPage />} />
       <Route path="/compare/:roomId" element={<MultiTeamComparePage />} />
       <Route path="/report/:roomId" element={<ReportPage />} />
