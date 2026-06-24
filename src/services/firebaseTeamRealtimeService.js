@@ -1,4 +1,4 @@
-import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getFirebaseEnvStatus, getFirestoreDb } from './firebaseClient';
 
 function id(value) {
@@ -25,6 +25,7 @@ function refs(roomId, teamId, roundId = 'round0') {
   return {
     roomRef: doc(db, 'rooms', room),
     teamRef: doc(db, 'rooms', room, 'teams', team),
+    teamMembersRef: collection(db, 'rooms', room, 'teamMembers'),
     decisionRef: doc(db, 'rooms', room, 'teamDecisions', `${round}_${team}`),
     submissionRef: doc(db, 'rooms', room, 'submissions', `${round}_${team}`),
     declarationRef: doc(db, 'rooms', room, 'declarations', team),
@@ -40,15 +41,23 @@ export function isFirebaseTeamReady() {
 export function subscribeFirebaseTeamScreen({ roomId, teamId, roundId, onChange, onError }) {
   if (!isFirebaseTeamReady()) return () => {};
   const targetRefs = refs(roomId, teamId, roundId);
-  const state = { room: null, team: null, decision: null, submission: null, declaration: null, calculation: null, finalResult: null };
+  const state = { room: null, team: null, teamMembers: {}, decision: null, submission: null, declaration: null, calculation: null, finalResult: null };
   const emit = () => onChange?.({ ...state });
   const listen = (ref, key) => onSnapshot(ref, snapshot => {
     state[key] = snapshot.exists() ? { firebaseDocId: snapshot.id, ...snapshot.data() } : null;
     emit();
   }, error => onError?.(error));
+  const listenMembers = () => onSnapshot(targetRefs.teamMembersRef, snapshot => {
+    state.teamMembers = Object.fromEntries(snapshot.docs
+      .map(item => ({ firebaseDocId: item.id, ...item.data() }))
+      .filter(item => item.teamId === teamId)
+      .map(item => [item.firebaseDocId, item]));
+    emit();
+  }, error => onError?.(error));
   const unsubs = [
     listen(targetRefs.roomRef, 'room'),
     listen(targetRefs.teamRef, 'team'),
+    listenMembers(),
     listen(targetRefs.decisionRef, 'decision'),
     listen(targetRefs.submissionRef, 'submission'),
     listen(targetRefs.declarationRef, 'declaration'),
@@ -56,6 +65,18 @@ export function subscribeFirebaseTeamScreen({ roomId, teamId, roundId, onChange,
     listen(targetRefs.finalResultRef, 'finalResult')
   ];
   return () => unsubs.forEach(unsub => unsub());
+}
+
+export async function registerFirebaseTeamMember({ roomId, teamId, memberId, memberName, role = 'member' }) {
+  const { teamMembersRef } = refs(roomId, teamId, 'round0');
+  await setDoc(doc(teamMembersRef, id(memberId)), {
+    memberId,
+    teamId,
+    memberName: memberName || '팀원',
+    role,
+    lastSeenAt: serverTimestamp(),
+    browserLastSeenAt: Date.now()
+  }, { merge: true });
 }
 
 export async function registerFirebaseTeamRepresentative({ roomId, teamId, teamName, representativeName, representativePin }) {
