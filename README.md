@@ -16,6 +16,13 @@ Claude Code를 이 폴더에서 열고, 단계마다 읽고 승인하며 과정�
 - 상태 보기·과정 바꾸기: `/과정`, `/과정 <과정이름>`. 상태는 `courses/<과정>/status.md`
 - 규칙은 `CLAUDE.md`, 설계 기준은 `knowledge/methodology.md`, 단계 지시문은 `knowledge/stage-instructions.md`
 - 시험 과정 예시: `courses/_시험/가상제약_신임팀장/`
+- 처음에는 `python3 tools/status.py`, `tools/check_time.py`, `tools/export.py` 실행마다 권한을 물을 수 있습니다. 묻지 않게 하려면 `.claude/settings.json`에 아래를 넣습니다(설계자가 직접 넣기를 권함).
+
+  ```json
+  { "permissions": { "allow": [
+      "Bash(python3 tools/status.py *)", "Bash(python3 tools/check_time.py *)",
+      "Bash(python3 tools/export.py)", "Bash(python3 tools/export.py *)" ] } }
+  ```
 
 ---
 
