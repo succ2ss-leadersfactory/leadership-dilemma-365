@@ -28,7 +28,7 @@ python3 tools/status.py archive $0
 
 ## 3. 서브에이전트로 다시 쓰기
 
-단계에 맞는 서브에이전트(1 → needs-analyst, 2·2b → client-liaison, 3-1·3-2 → structure-designer)를 Agent 도구로 부르고 아래를 넘긴다.
+단계에 맞는 서브에이전트(1 → needs-analyst, 2·2b → client-liaison, 3-1·3-2 → structure-designer)를 Agent 도구로 `run_in_background: false`로 불러(결과가 올 때까지 기다림) 아래를 넘긴다.
 
 ```
 과정 폴더: <폴더>

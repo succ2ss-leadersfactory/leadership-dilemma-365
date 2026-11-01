@@ -23,7 +23,7 @@ allowed-tools: Bash(python3 tools/status.py *) Read Write Agent
 
 ## 2. 검토자 부르기
 
-Agent 도구로 `red-team-reviewer`를 부르고 아래를 넘긴다.
+Agent 도구로 `red-team-reviewer`를 `run_in_background: false`로 불러(결과가 올 때까지 기다림) 아래를 넘긴다.
 
 ```
 과정 폴더: <폴더>

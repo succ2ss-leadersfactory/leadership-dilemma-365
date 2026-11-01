@@ -37,7 +37,7 @@ python3 tools/status.py check $0
 
 ## 3. 서브에이전트 부르기
 
-Agent 도구로 아래 서브에이전트를 부른다.
+Agent 도구로 아래 서브에이전트를 부른다. 반드시 `run_in_background: false`로 불러 결과가 올 때까지 기다린다(백그라운드로 돌리면 이 명령의 도구 허용이 끝난 뒤 결과가 와서 검산·기록을 못 한다).
 
 | 단계 | subagent_type |
 | --- | --- |
@@ -77,4 +77,4 @@ knowledge/methodology.md와 knowledge/stage-instructions.md의 AGENT_ROLE과 이
 - "설계자 확인 필요" 항목 그대로
 - 다음 할 일: 읽어 보고 `/검토 $0`, `/수정 $0 <요청>`, 또는 채팅에서 `/승인 $0`
 
-승인은 기록하지 않는다. 다음 단계를 이어서 시작하지 않는다.
+승인은 기록하지 않는다. 다음 단계를 이어서 시작하지 않는다. 4번의 기록(`status.py mark`)을 마치기 전에는 답을 끝내지 않는다.
