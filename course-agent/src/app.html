@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>과정개발 에이전트</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#f3f4f0; --panel:#ffffff; --ink:#18222c; --muted:#5f6a74; --line:#d9ddd5; --soft:#eceee8;
+  --accent:#0e6f63; --accent-soft:#dff0ea; --on-accent:#ffffff;
+  --good:#1d7f47; --good-soft:#e1f2e7; --warn:#9a6511; --warn-soft:#f7ecd6; --bad:#b3372a; --bad-soft:#f7e1dd;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11171c; --panel:#192128; --ink:#e4e9e6; --muted:#9aa5ac; --line:#2b353e; --soft:#212a31;
+    --accent:#4fc3b0; --accent-soft:#17332f; --on-accent:#0f1b24;
+    --good:#5cc98a; --good-soft:#163424; --warn:#e0b060; --warn-soft:#3a2d14; --bad:#f08a7c; --bad-soft:#3d1f1b;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Pretendard Variable","Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:15px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+button,input,textarea,select{font:inherit;color:inherit}
+button{font-weight:500;border-radius:8px;padding:7px 13px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+button.ghost:hover{color:var(--ink);border-color:var(--line)}
+button.danger{color:var(--bad)}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=text],input[type=password],input[type=number],textarea,select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{resize:vertical;min-height:72px;line-height:1.55}
+::placeholder{color:var(--muted);opacity:.7;font-weight:400}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted);font-weight:600}
+label.f > span small{font-weight:400}
+[hidden]{display:none!important}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+/* gate */
+.gate{min-height:100%;display:grid;place-items:center;padding:40px 16px}
+.gate .card{max-width:440px;width:100%;display:grid;gap:14px}
+.gate h1{margin:0;font-size:24px}
+.eyebrow{font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:700;margin:0}
+.msg{font-size:13.5px;padding:8px 12px;border-radius:8px}
+.msg.err{background:var(--bad-soft);color:var(--bad)}
+.msg.warn{background:var(--warn-soft);color:var(--warn)}
+.msg.ok{background:var(--good-soft);color:var(--good)}
+
+/* shell */
+.app{display:grid;grid-template-columns:240px minmax(0,1fr);grid-template-rows:auto 1fr;min-height:100%}
+.top{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top .brand{font-weight:700}
+.top .title{flex:1;min-width:180px}
+.top .title input{border-color:transparent;font-weight:600;padding:5px 8px;background:transparent}
+.top .title input:hover,.top .title input:focus{border-color:var(--line);background:var(--panel)}
+.conn{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dot.ok{background:var(--good)}
+.dot.bad{background:var(--bad)}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.rail{border-right:1px solid var(--line);background:var(--panel);padding:14px 10px;display:grid;gap:4px;align-content:start}
+@media (min-width:861px){.rail{position:sticky;top:57px;height:calc(100vh - 57px);overflow:auto}}
+.rail .lab{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;padding:4px 10px 8px}
+.step{display:grid;grid-template-columns:34px 1fr;gap:2px 8px;align-items:center;text-align:left;width:100%;border:0;border-radius:10px;padding:9px 10px;background:transparent}
+.step:hover{background:var(--soft)}
+.step.cur{background:var(--accent-soft)}
+.step .no{grid-row:1/3;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:700;border:1.5px solid var(--line);color:var(--muted)}
+.step.cur .no{border-color:var(--accent);color:var(--accent)}
+.step.done .no{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.step .nm{font-weight:600;font-size:14px}
+.step .st{font-size:12px;color:var(--muted)}
+.step.locked{opacity:.55}
+.rail .later{margin-top:10px;padding:10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.main{padding:20px;display:grid;gap:14px;align-content:start;max-width:1040px;width:100%}
+.head h2{margin:0 0 4px;font-size:21px}
+.head p{margin:0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{margin:0 0 10px;font-size:14px;color:var(--muted);letter-spacing:.03em}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid2 .wide{grid-column:1/-1}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row .grow{flex:1}
+.hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+.lock{display:grid;gap:8px;place-items:start}
+
+/* output */
+.out{min-height:120px}
+.out .empty{color:var(--muted)}
+.usage{font-size:12px;color:var(--muted)}
+.md{font-size:15px}
+.md h1{font-size:20px;margin:18px 0 8px}
+.md h2{font-size:17.5px;margin:22px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+.md h2:first-child{margin-top:0;padding-top:0;border-top:0}
+.md h3{font-size:15.5px;margin:16px 0 6px}
+.md h4{font-size:14.5px;margin:12px 0 4px}
+.md p{margin:6px 0}
+.md ul,.md ol{margin:6px 0;padding-left:22px}
+.md li{margin:2px 0}
+.md .tw{overflow-x:auto;margin:8px 0}
+.md table{border-collapse:collapse;width:100%;font-size:14px}
+.md th,.md td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
+.md th{background:var(--soft);font-weight:600;white-space:nowrap}
+.md code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background:var(--soft);padding:1px 4px;border-radius:4px}
+.md pre{background:var(--soft);padding:10px;border-radius:8px;overflow-x:auto}
+.md pre code{background:none;padding:0}
+.md blockquote{margin:8px 0;padding:4px 12px;border-left:3px solid var(--accent);color:var(--muted)}
+.md hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.md .tag{font-weight:600;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:0 3px}
+.cursor{display:inline-block;width:8px;height:1.1em;vertical-align:-2px;background:var(--accent);animation:blink 1s steps(2) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.editbox{min-height:420px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}
+.approve{border-color:var(--accent);background:linear-gradient(0deg,var(--accent-soft),var(--accent-soft)) padding-box}
+.approve.done{border-color:var(--good);background:var(--good-soft)}
+.approve b{font-size:15px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,14,18,.45);display:grid;place-items:center;padding:16px;z-index:20}
+.modal .box{background:var(--panel);border-radius:14px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:18px;display:grid;gap:12px}
+.modal .box h2{margin:0;font-size:18px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:9px 16px;border-radius:999px;font-size:13.5px;z-index:30;transition:opacity .4s}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .rail{border-right:0;border-bottom:1px solid var(--line);grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);overflow-x:auto;padding:8px}
+  .rail .lab,.rail .later{display:none}
+  .main{padding:14px 16px}
+  .grid2{grid-template-columns:1fr}
+}
+@media print{
+  .top,.rail,.noprint{display:none!important}
+  .app{display:block}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<!-- 접속 -->
+<section class="gate" id="gate" hidden>
+  <div class="card">
+    <p class="eyebrow">COURSE DEVELOPMENT AGENT</p>
+    <h1>과정개발 에이전트</h1>
+    <p style="margin:0;color:var(--muted)">과정 브리프부터 커리큘럼표까지, 단계마다 설계자가 승인하며 진행합니다.</p>
+    <label class="f"><span>접속 코드</span><input type="password" id="gCode" autocomplete="current-password" placeholder="연결 서버에 넣은 ACCESS_CODE"></label>
+    <div class="msg err" id="gErr" hidden></div>
+    <button class="primary" id="gGo">들어가기</button>
+    <p class="hint">코드는 이 브라우저에만 저장됩니다. 작업 내용도 이 브라우저에만 저장되니 끝나면 ‘백업’으로 파일을 받아 두세요.</p>
+  </div>
+</section>
+
+<!-- 본 화면 -->
+<div class="app" id="app" hidden>
+  <header class="top">
+    <span class="brand">과정개발 에이전트</span>
+    <div class="title"><input type="text" id="pTitle" aria-label="과정 이름" placeholder="과정 이름(예: ○○사 팀장 평가면담)"></div>
+    <span class="conn"><i class="dot" id="cDot"></i><span id="cTxt">확인 중</span></span>
+    <div class="tools">
+      <button class="ghost" id="bExport" title="모든 단계 산출물을 마크다운 파일로">내보내기</button>
+      <button class="ghost" id="bBackup">백업</button>
+      <button class="ghost" id="bRestore">복원</button>
+      <button class="ghost" id="bSettings">설정</button>
+      <button class="ghost danger" id="bNew">새 과정</button>
+    </div>
+  </header>
+  <nav class="rail" id="rail" aria-label="단계"></nav>
+  <main class="main" id="main"></main>
+</div>
+
+<!-- 설정 -->
+<div class="modal" id="mSettings" hidden>
+  <div class="box">
+    <div class="row"><h2 class="grow">설정</h2><button class="ghost" data-close>닫기</button></div>
+    <label class="f"><span>접속 코드</span><input type="password" id="sCode"></label>
+    <div class="row"><button id="sCheck">코드 확인</button><span class="usage" id="sInfo"></span></div>
+    <label class="f"><span>방법론 문서 <small id="sKState"></small></span>
+      <textarea id="sKnow" style="min-height:340px" class="mono"></textarea></label>
+    <p class="hint">에이전트는 매 요청마다 이 문서를 기준으로 삼습니다. 고친 내용은 이 브라우저에만 저장됩니다. 모두가 같은 문서를 쓰게 하려면 원본(knowledge.md)을 고치고 다시 빌드하세요.</p>
+    <div class="row"><button id="sKReset">기본 문서로 되돌리기</button><span class="grow"></span><button class="primary" id="sSave">저장</button></div>
+  </div>
+</div>
+
+<input type="file" id="fRestore" accept="application/json,.json" hidden>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/*__STAGES__*/
+</script>
+<script>
+const DEFAULT_KNOWLEDGE = __KNOWLEDGE_JSON__;
+const APP_VERSION = "1.0.0";
+const STORE_KEY = "courseAgent.v1";
+
+/* ---------- 저장 ---------- */
+function load(){ try{ const s = localStorage.getItem(STORE_KEY); return s ? JSON.parse(s) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); return true; }catch(e){ toast("브라우저 저장에 실패했습니다. ‘백업’으로 파일을 받아 두세요."); return false; } }
+function newProject(){
+  const stages = {};
+  STAGES.forEach(st => stages[st.id] = { status:"empty", output:"", history:[], extra:{}, usage:null, stale:false, updatedAt:null });
+  return { id: "p" + Date.now().toString(36), title:"", createdAt:new Date().toISOString(), inputs:{}, stages, log:[] };
+}
+let S = load() || { code:"", knowledge:null, project:newProject(), cur:"s1" };
+if(!S.project) S.project = newProject();
+STAGES.forEach(st => { if(!S.project.stages[st.id]) S.project.stages[st.id] = { status:"empty", output:"", history:[], extra:{}, usage:null, stale:false }; });
+let SERVER = { ok:false, model:"", maxTokens:0 };
+let RUN = null; // { stageId, ctrl }
+
+/* ---------- 유틸 ---------- */
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(t){ const el = $("toast"); el.textContent = t; el.hidden = false; el.style.opacity = 1; clearTimeout(toast._t); toast._t = setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.hidden = true, 400); }, 2600); }
+function stageById(id){ return STAGES.find(s => s.id === id); }
+function knowledge(){ return S.knowledge || DEFAULT_KNOWLEDGE; }
+function stamp(){ return new Date().toLocaleString("ko-KR", { hour12:false }); }
+function download(name, text, type){
+  const blob = new Blob([text], { type: type || "text/plain;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function fileSafe(s){ return (s || "과정").replace(/[\\/:*?"<>|]+/g, " ").trim().slice(0, 60) || "과정"; }
+
+/* ---------- 마크다운 (간단 렌더러) ---------- */
+function inline(s){
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+  s = s.replace(/\[(가정|확인 필요|근거 찾기 필요[^\]]*|근거 부족|불일치)\]/g, '<span class="tag">[$1]</span>');
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  return s;
+}
+function splitRow(line){
+  let t = line.trim(); if(t.startsWith("|")) t = t.slice(1); if(t.endsWith("|")) t = t.slice(0, -1);
+  return t.split(/(?<!\\)\|/).map(c => c.trim().replace(/\\\|/g, "|"));
+}
+function md(src){
+  const lines = String(src || "").replace(/\r/g, "").split("\n");
+  let html = "", i = 0;
+  const isTableSep = l => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l);
+  while(i < lines.length){
+    let l = lines[i];
+    if(/^\s*$/.test(l)){ i++; continue; }
+    if(/^```/.test(l)){
+      let buf = []; i++;
+      while(i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]);
+      i++; html += "<pre><code>" + esc(buf.join("\n")) + "</code></pre>"; continue;
+    }
+    let h = l.match(/^(#{1,4})\s+(.*)$/);
+    if(h){ const n = h[1].length; html += `<h${n}>${inline(h[2])}</h${n}>`; i++; continue; }
+    if(/^\s*(-{3,}|\*{3,})\s*$/.test(l)){ html += "<hr>"; i++; continue; }
+    if(/\|/.test(l) && i + 1 < lines.length && isTableSep(lines[i + 1])){
+      const head = splitRow(l); i += 2; const rows = [];
+      while(i < lines.length && /\|/.test(lines[i]) && !/^\s*$/.test(lines[i])) rows.push(splitRow(lines[i++]));
+      html += '<div class="tw"><table><thead><tr>' + head.map(c => "<th>" + inline(c) + "</th>").join("") + "</tr></thead><tbody>" +
+        rows.map(r => "<tr>" + head.map((_, k) => "<td>" + inline(r[k] || "").replace(/&lt;br\s*\/?&gt;/g, "<br>") + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+      continue;
+    }
+    if(/^\s*>\s?/.test(l)){
+      let buf = []; while(i < lines.length && /^\s*>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ""));
+      html += "<blockquote>" + md(buf.join("\n")) + "</blockquote>"; continue;
+    }
+    if(/^\s*([-*+]|\d+[.)])\s+/.test(l)){
+      const items = [];
+      while(i < lines.length && (/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) || (/^\s{2,}\S/.test(lines[i]) && items.length))){
+        const m = lines[i].match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
+        if(m) items.push({ ind: m[1].replace(/\t/g, "    ").length, ord: /\d/.test(m[2]), num: parseInt(m[2], 10), text: m[3] });
+        else items[items.length - 1].text += " " + lines[i].trim();
+        i++;
+      }
+      html += renderList(items, 0, items.length);
+      continue;
+    }
+    let buf = [l]; i++;
+    while(i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,4}\s|```|\s*>|\s*([-*+]|\d+[.)])\s+)/.test(lines[i]) && !(/\|/.test(lines[i]) && i + 1 < lines.length && isTableSep(lines[i + 1]))) buf.push(lines[i++]);
+    html += "<p>" + buf.map(inline).join("<br>") + "</p>";
+  }
+  return html;
+}
+function renderList(items, a, b){
+  if(a >= b) return "";
+  const base = items[a].ind, ord = items[a].ord;
+  let out = ord ? `<ol${items[a].num > 1 ? ' start="' + items[a].num + '"' : ""}>` : "<ul>";
+  let k = a;
+  while(k < b){
+    const it = items[k]; let j = k + 1;
+    while(j < b && items[j].ind > base) j++;
+    out += "<li>" + inline(it.text) + (j > k + 1 ? renderList(items, k + 1, j) : "") + "</li>";
+    k = j;
+  }
+  return out + (ord ? "</ol>" : "</ul>");
+}
+
+/* ---------- 서버 ---------- */
+async function api(path, body, signal){
+  return fetch(path, { method:"POST", headers:{ "content-type":"application/json", "x-access-code": S.code || "" }, body: JSON.stringify(body || {}), signal });
+}
+async function checkServer(code){
+  const old = S.code; if(code != null) S.code = code;
+  try{
+    const r = await api("/api/check", {});
+    const j = await r.json().catch(() => ({}));
+    if(!r.ok){ if(code != null) S.code = old; return { ok:false, error: j.error || ("연결 오류 " + r.status) }; }
+    SERVER = { ok:true, model:j.model, maxTokens:j.maxTokens };
+    save(); return { ok:true };
+  }catch(e){ if(code != null) S.code = old; return { ok:false, error:"연결 서버에 닿지 못했습니다. 인터넷 연결을 확인해 주세요." }; }
+}
+function paintConn(){
+  $("cDot").className = "dot " + (SERVER.ok ? "ok" : "bad");
+  $("cTxt").textContent = SERVER.ok ? SERVER.model : "연결 안 됨";
+}
+
+/* ---------- 프롬프트 조립 ---------- */
+const BRIEF_FIELDS = [
+  ["client", "고객사", "예: ○○제약", false],
+  ["industry", "업종", "예: 제약 영업", false],
+  ["audience", "대상", "예: 신임 팀장", false],
+  ["headcount", "인원", "예: 30명, 6개 조", false],
+  ["duration", "교육 시간·형식", "예: 4시간, 집합 1회, 13:00–17:00", false],
+  ["ratio", "요청 비중", "예: 강의:실습 5:5", false],
+  ["aiEnv", "AI 실습 환경", "예: 개인 노트북, 무료 ChatGPT·Claude / 실습앱 / AI 불가", true],
+  ["topic", "주제와 고객이 말한 문제", "고객 담당자가 한 말을 그대로 적어 주세요. 길어도 됩니다.", true],
+  ["material", "고객이 준 자료 (붙여 넣기)", "제도 설명, 지난 과정 평가, 진단 결과 요약 등. 개인정보는 빼고 붙여 넣으세요.", true],
+  ["note", "설계자 메모", "꼭 넣을 것, 피할 것, 쓰고 싶은 무대나 장치", true],
+];
+function requestBlock(){
+  const I = S.project.inputs || {};
+  return "<요청>\n" + BRIEF_FIELDS.map(([k, lab]) => `- ${lab}: ${(I[k] || "").trim() || "(비어 있음)"}`).join("\n") + "\n</요청>";
+}
+function approvedBlock(ids){
+  return ids.map(id => {
+    const st = stageById(id), d = S.project.stages[id];
+    if(!d.output) return "";
+    return `<승인된 산출물 단계="${st.no} ${st.name}">\n${d.output}\n</승인된 산출물>`;
+  }).filter(Boolean).join("\n\n");
+}
+function firstUserMessage(st){
+  const d = S.project.stages[st.id], ex = d.extra || {};
+  const parts = [];
+  if(st.id === "s2" && (ex.reply || "").trim()) parts.push(st.replyInstruction); else parts.push(st.instruction);
+  parts.push(requestBlock());
+  const prev = approvedBlock(st.needs);
+  if(prev) parts.push(prev);
+  if(st.id === "s2"){
+    if((ex.reply || "").trim()){
+      const s2prev = (ex.requestDoc || "").trim();
+      if(s2prev) parts.push("<보낸 확인 요청서>\n" + s2prev + "\n</보낸 확인 요청서>");
+      parts.push("<고객 회신>\n" + ex.reply.trim() + "\n</고객 회신>");
+    }
+  }
+  if(st.id === "s3a" && (ex.note || "").trim()) parts.push("<설계자 방향>\n" + ex.note.trim() + "\n</설계자 방향>");
+  if(st.id === "s3b"){
+    parts.push("<설계자 선택>\n" + ((ex.pick || "").trim() || "(비어 있음)") + "\n</설계자 선택>");
+    const t = [];
+    if((ex.start || "").trim()) t.push("시작 시각: " + ex.start.trim());
+    if((ex.breaks || "").trim()) t.push("휴식: " + ex.breaks.trim());
+    if(t.length) parts.push("<시간 조건>\n" + t.join("\n") + "\n</시간 조건>");
+  }
+  return parts.join("\n\n");
+}
+function systemBlocks(){
+  return [{ type:"text", text: AGENT_ROLE + "\n\n<방법론>\n" + knowledge() + "\n</방법론>", cache_control:{ type:"ephemeral" } }];
+}
+
+/* ---------- 실행 ---------- */
+async function run(stageId, mode, feedback){
+  if(RUN) return;
+  const st = stageById(stageId), d = S.project.stages[stageId];
+  let messages;
+  if(mode === "revise"){
+    const base = d.history.length ? d.history.slice() : [{ role:"user", content: firstUserMessage(st) }];
+    if(base[base.length - 1].role !== "assistant") base.push({ role:"assistant", content: d.output });
+    else base[base.length - 1] = { role:"assistant", content: d.output }; // 직접 고친 내용 반영
+    messages = base.concat([{ role:"user", content: REVISE_INSTRUCTION + "\n\n<수정 요청>\n" + feedback + "\n</수정 요청>" }]);
+  } else {
+    messages = [{ role:"user", content: firstUserMessage(st) }];
+  }
+  const ctrl = new AbortController();
+  RUN = { stageId, ctrl };
+  const prevOutput = d.output, prevStatus = d.status;
+  d.output = ""; d.status = "running"; d.stopReason = null;
+  renderAll();
+  let text = "", usage = { input:0, cacheRead:0, cacheWrite:0, output:0 }, stop = null, err = null;
+  try{
+    const r = await api("/api/messages", { system: systemBlocks(), messages }, ctrl.signal);
+    if(!r.ok){
+      const j = await r.json().catch(() => ({}));
+      throw new Error(j.error || ("요청 실패 (" + r.status + ")"));
+    }
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for(;;){
+      const { value, done } = await reader.read();
+      if(done) break;
+      buf += dec.decode(value, { stream:true });
+      let k;
+      while((k = buf.indexOf("\n\n")) >= 0){
+        const ev = buf.slice(0, k); buf = buf.slice(k + 2);
+        const dataLine = ev.split("\n").filter(x => x.startsWith("data:")).map(x => x.slice(5).trim()).join("");
+        if(!dataLine) continue;
+        let o; try{ o = JSON.parse(dataLine); }catch(e){ continue; }
+        if(o.type === "message_start" && o.message && o.message.usage){
+          const u = o.message.usage; usage.input = u.input_tokens || 0; usage.cacheRead = u.cache_read_input_tokens || 0; usage.cacheWrite = u.cache_creation_input_tokens || 0;
+        } else if(o.type === "content_block_delta" && o.delta && o.delta.type === "text_delta"){
+          text += o.delta.text; d.output = text; paintStream();
+        } else if(o.type === "message_delta"){
+          if(o.delta && o.delta.stop_reason) stop = o.delta.stop_reason;
+          if(o.usage && o.usage.output_tokens != null) usage.output = o.usage.output_tokens;
+        } else if(o.type === "error"){
+          throw new Error((o.error && o.error.message) || "응답 중 오류가 났습니다.");
+        }
+      }
+    }
+  }catch(e){
+    err = e.name === "AbortError" ? "중지했습니다." : (e.message || String(e));
+  }
+  RUN = null;
+  if(!text){
+    d.output = prevOutput; d.status = prevStatus === "running" ? "empty" : prevStatus;
+    d.error = err || "응답이 비어 있습니다."; save(); renderAll(); return;
+  }
+  d.output = text; d.status = "draft"; d.error = err; d.stopReason = stop; d.usage = usage; d.updatedAt = new Date().toISOString(); d.stale = false;
+  d.history = messages.concat([{ role:"assistant", content:text }]);
+  if(stageId === "s2" && !(d.extra.reply || "").trim()) d.extra.requestDoc = text;
+  S.project.log.push({ at:stamp(), stage:st.no, what: mode === "revise" ? "수정 요청 반영" : "생성", feedback: feedback || "" });
+  markLaterStale(stageId);
+  save(); renderAll();
+}
+function markLaterStale(stageId){
+  const idx = STAGES.findIndex(s => s.id === stageId);
+  STAGES.slice(idx + 1).forEach(s => {
+    const d = S.project.stages[s.id];
+    if(d.output){ d.stale = true; if(d.status === "approved") d.status = "draft"; }
+  });
+}
+let paintQueued = false;
+function paintStream(){
+  if(paintQueued) return; paintQueued = true;
+  requestAnimationFrame(() => {
+    paintQueued = false;
+    const el = $("outBody"); if(!el || !RUN) return;
+    el.innerHTML = md(S.project.stages[RUN.stageId].output) + '<span class="cursor"></span>';
+  });
+}
+
+/* ---------- 화면 ---------- */
+function statusText(st){
+  const d = S.project.stages[st.id];
+  if(d.status === "running") return "작성 중";
+  if(d.status === "approved") return "승인";
+  if(d.stale && d.output) return "앞 단계 바뀜";
+  if(d.status === "draft") return "초안 · 승인 전";
+  return unlocked(st) ? "시작 전" : "잠김";
+}
+function unlocked(st){ return st.needs.every(id => S.project.stages[id].status === "approved"); }
+function renderRail(){
+  const rail = $("rail");
+  rail.innerHTML = '<div class="lab">진행 단계</div>' + STAGES.map(st => {
+    const d = S.project.stages[st.id];
+    const cls = ["step", S.cur === st.id ? "cur" : "", d.status === "approved" ? "done" : "", unlocked(st) ? "" : "locked"].join(" ");
+    return `<button class="${cls}" data-go="${st.id}"><span class="no">${d.status === "approved" ? "✓" : esc(st.no)}</span><span class="nm">${esc(st.name)}</span><span class="st">${esc(statusText(st))}</span></button>`;
+  }).join("") + '<div class="later">다음 버전: 4 실습 설계 · 5 강의 설계 · 6 제작 · 7 레드팀 · 8 사전 실행</div>';
+}
+function field(id, label, value, ph, opts){
+  opts = opts || {};
+  const v = esc(value || "");
+  if(opts.area) return `<label class="f ${opts.wide ? "wide" : ""}"><span>${esc(label)}${opts.small ? " <small>" + esc(opts.small) + "</small>" : ""}</span><textarea data-in="${id}" rows="${opts.rows || 3}" placeholder="${esc(ph || "")}">${v}</textarea></label>`;
+  return `<label class="f"><span>${esc(label)}</span><input type="text" data-in="${id}" value="${v}" placeholder="${esc(ph || "")}"></label>`;
+}
+function inputsCard(st){
+  const d = S.project.stages[st.id], ex = d.extra || {}, I = S.project.inputs || {};
+  if(st.id === "s1"){
+    return `<div class="card"><h3>고객 요청</h3><div class="grid2">` +
+      BRIEF_FIELDS.map(([k, lab, ph, wide]) => wide ? field("in." + k, lab, I[k], ph, { area:true, wide:true, rows: k === "material" ? 6 : 3 }) : field("in." + k, lab, I[k], ph)).join("") +
+      `</div><p class="hint">비어 있는 칸은 에이전트가 [확인 필요]로 표시합니다. 이 내용은 모든 단계에 함께 전달됩니다.</p></div>`;
+  }
+  if(st.id === "s2"){
+    return `<div class="card"><h3>고객 회신</h3>` +
+      field("ex.reply", "회신이 오면 붙여 넣기", ex.reply, "회신이 없으면 비워 두고 ‘생성’을 누르면 확인 요청서를 만듭니다. 회신을 붙여 넣고 다시 생성하면 회신 반영 결과를 만듭니다.", { area:true, rows:5, small:"(선택)" }) +
+      (ex.requestDoc && (ex.reply || "").trim() ? `<p class="hint">보낸 확인 요청서와 비교해 정리합니다.</p>` : "") + `</div>`;
+  }
+  if(st.id === "s3a"){
+    return `<div class="card"><h3>설계자 방향</h3>` +
+      field("ex.note", "원하는 방향이 있으면", ex.note, "예: 해커톤형도 한 안 넣어 줘 / 무대는 제조업 공장으로 / 롤플레이 비중 크게", { area:true, rows:3, small:"(선택)" }) + `</div>`;
+  }
+  if(st.id === "s3b"){
+    return `<div class="card"><h3>설계자 선택</h3><div class="grid2">` +
+      field("ex.pick", "고른 안과 바꿀 점", ex.pick, "예: 안 B로. 무대는 안 A의 물류센터로 바꾸고, 롤플레이는 2라운드로.", { area:true, wide:true, rows:3 }) +
+      field("ex.start", "시작 시각", ex.start, "예: 09:00") +
+      field("ex.breaks", "휴식", ex.breaks, "예: 50분마다 10분, 점심 60분") +
+      `</div></div>`;
+  }
+  return "";
+}
+function canGenerate(st){
+  if(!unlocked(st)) return false;
+  if(st.id === "s1"){ const I = S.project.inputs || {}; return !!((I.topic || "").trim() || (I.audience || "").trim()); }
+  if(st.id === "s3b") return !!((S.project.stages.s3b.extra.pick || "").trim());
+  return true;
+}
+function renderMain(){
+  const st = stageById(S.cur), d = S.project.stages[st.id], main = $("main");
+  const running = RUN && RUN.stageId === st.id, busy = !!RUN;
+  if(!unlocked(st)){
+    const need = st.needs.filter(id => S.project.stages[id].status !== "approved").map(id => stageById(id));
+    main.innerHTML = head(st) + `<div class="card lock"><b>앞 단계 승인이 필요합니다.</b><span class="hint">${need.map(n => esc(n.no + " " + n.name)).join(", ")} 단계를 승인하면 열립니다.</span><button data-go="${need[0].id}">${esc(need[0].no + " " + need[0].name)}(으)로</button></div>`;
+    return;
+  }
+  let html = head(st) + inputsCard(st);
+  html += `<div class="row noprint">
+    <button class="primary" id="bGen" ${(!canGenerate(st) || busy) ? "disabled" : ""}>${d.output ? "처음부터 다시 생성" : "생성"}</button>
+    ${running ? '<button id="bStop">중지</button>' : ""}
+    <span class="grow"></span>
+    ${d.output && !running ? '<button class="ghost" id="bCopy">복사</button><button class="ghost" id="bEdit">직접 고치기</button>' : ""}
+  </div>`;
+  if(d.error) html += `<div class="msg ${d.output ? "warn" : "err"}">${esc(d.error)}</div>`;
+  if(d.stale && d.output && !running) html += `<div class="msg warn">앞 단계 산출물이 바뀌었습니다. 다시 생성하거나, 바뀐 점을 수정 요청으로 반영해 주세요.</div>`;
+  if(d.stopReason === "max_tokens" && !running) html += `<div class="msg warn">응답이 최대 길이에 닿아 끝부분이 잘렸습니다. 수정 요청으로 “표를 줄여 다시”라고 하거나, 연결 서버의 MAX_TOKENS를 늘려 주세요.</div>`;
+  html += `<div class="card out"><h3>산출물 · ${esc(st.product)}</h3>`;
+  if(S._editing === st.id){
+    html += `<textarea class="editbox" id="editBox">${esc(d.output)}</textarea><div class="row" style="margin-top:8px"><span class="grow hint">마크다운으로 고칩니다. 저장하면 이 내용이 다음 단계로 넘어갑니다.</span><button id="bEditCancel">취소</button><button class="primary" id="bEditSave">저장</button></div>`;
+  } else {
+    html += `<div class="md" id="outBody">${d.output ? md(d.output) + (running ? '<span class="cursor"></span>' : "") : (running ? '<span class="empty">에이전트가 쓰는 중입니다…</span><span class="cursor"></span>' : '<p class="empty">아직 산출물이 없습니다. 위 칸을 채우고 ‘생성’을 누르세요.</p>')}</div>`;
+    if(d.usage && !running) html += `<p class="usage" style="margin-top:12px">${esc(SERVER.model || "")} · 입력 ${num(d.usage.input)}${d.usage.cacheRead ? " + 캐시 " + num(d.usage.cacheRead) : ""}${d.usage.cacheWrite ? " + 캐시 저장 " + num(d.usage.cacheWrite) : ""} · 출력 ${num(d.usage.output)} 토큰 · ${d.updatedAt ? new Date(d.updatedAt).toLocaleString("ko-KR", { hour12:false }) : ""}</p>`;
+  }
+  html += `</div>`;
+  if(d.output && !running && S._editing !== st.id){
+    html += `<div class="card noprint"><h3>수정 요청</h3><textarea id="fbBox" rows="3" placeholder="예: 학습목표를 4개로 줄이고, 두 번째 목표는 면담 실습과 이어지게. 핵심 메시지는 더 짧게."></textarea><div class="row" style="margin-top:8px"><span class="grow hint">에이전트가 이번 단계 산출물 전체를 고쳐 다시 씁니다.</span><button id="bRevise" ${busy ? "disabled" : ""}>수정 요청 보내기</button></div></div>`;
+    const ok = d.status === "approved";
+    const nextSt = STAGES[STAGES.findIndex(s => s.id === st.id) + 1];
+    html += `<div class="card approve ${ok ? "done" : ""} noprint"><div class="row"><div class="grow"><span class="hint" style="margin:0">승인 포인트</span><br><b>${esc(st.approve)}?</b></div>` +
+      (ok ? `<span class="chip acc">승인됨</span><button id="bUnapprove">승인 취소</button>${nextSt ? `<button class="primary" data-go="${nextSt.id}">${esc(nextSt.no + " " + nextSt.name)}(으)로</button>` : ""}`
+          : `<button class="primary" id="bApprove">승인${nextSt ? "하고 다음 단계로" : ""}</button>`) + `</div></div>`;
+  }
+  main.innerHTML = html;
+}
+function head(st){
+  const d = S.project.stages[st.id];
+  return `<div class="head"><h2>${esc(st.no)}. ${esc(st.name)}</h2><p>${esc(st.does)}</p><div class="chips"><span class="chip acc">산출물 · ${esc(st.product)}</span><span class="chip">승인 포인트 · ${esc(st.approve)}</span>${d.status === "draft" ? '<span class="chip warn">승인 전</span>' : ""}</div></div>`;
+}
+function num(n){ return (n || 0).toLocaleString("ko-KR"); }
+function renderAll(){
+  $("pTitle").value = S.project.title || "";
+  renderRail(); renderMain(); paintConn();
+}
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener("click", e => {
+  const go = e.target.closest("[data-go]");
+  if(go){ S.cur = go.dataset.go; S._editing = null; save(); renderAll(); window.scrollTo(0, 0); return; }
+  if(e.target.closest("[data-close]")){ e.target.closest(".modal").hidden = true; return; }
+  const id = e.target.id;
+  const st = stageById(S.cur), d = st && S.project.stages[st.id];
+  if(id === "bGen"){
+    if(d.output && !confirm("지금 산출물을 지우고 처음부터 다시 만듭니다. 계속할까요?")) return;
+    d.error = null; run(st.id, "new");
+  }
+  else if(id === "bStop"){ if(RUN) RUN.ctrl.abort(); }
+  else if(id === "bRevise"){
+    const fb = ($("fbBox").value || "").trim();
+    if(!fb){ toast("고칠 점을 적어 주세요."); return; }
+    d.error = null; run(st.id, "revise", fb);
+  }
+  else if(id === "bCopy"){ navigator.clipboard.writeText(d.output).then(() => toast("복사했습니다."), () => toast("복사하지 못했습니다.")); }
+  else if(id === "bEdit"){ S._editing = st.id; renderMain(); }
+  else if(id === "bEditCancel"){ S._editing = null; renderMain(); }
+  else if(id === "bEditSave"){
+    const v = $("editBox").value;
+    if(v !== d.output){
+      d.output = v; d.updatedAt = new Date().toISOString();
+      if(d.history.length && d.history[d.history.length - 1].role === "assistant") d.history[d.history.length - 1].content = v;
+      if(d.status === "approved") d.status = "draft";
+      S.project.log.push({ at:stamp(), stage:st.no, what:"설계자가 직접 고침" });
+      markLaterStale(st.id);
+    }
+    S._editing = null; save(); renderAll();
+  }
+  else if(id === "bApprove"){
+    d.status = "approved"; d.stale = false; d.approvedAt = new Date().toISOString();
+    S.project.log.push({ at:stamp(), stage:st.no, what:"승인" });
+    const next = STAGES[STAGES.findIndex(s => s.id === st.id) + 1];
+    if(next) S.cur = next.id;
+    save(); renderAll(); window.scrollTo(0, 0); toast(st.no + " " + st.name + " 승인");
+  }
+  else if(id === "bUnapprove"){
+    d.status = "draft"; S.project.log.push({ at:stamp(), stage:st.no, what:"승인 취소" });
+    STAGES.slice(STAGES.findIndex(s => s.id === st.id) + 1).forEach(s => { const x = S.project.stages[s.id]; if(x.status === "approved") x.status = "draft"; });
+    save(); renderAll();
+  }
+  else if(id === "bExport") exportMd();
+  else if(id === "bBackup") download(fileSafe(S.project.title) + "_과정개발_백업_" + new Date().toISOString().slice(0, 10) + ".json", JSON.stringify({ app:"course-agent", version:APP_VERSION, project:S.project, knowledge:S.knowledge }, null, 2), "application/json");
+  else if(id === "bRestore") $("fRestore").click();
+  else if(id === "bNew"){
+    if(!confirm("새 과정을 시작합니다. 지금 과정은 지워집니다. 먼저 ‘백업’을 받아 두셨나요?")) return;
+    S.project = newProject(); S.cur = "s1"; S._editing = null; save(); renderAll();
+  }
+  else if(id === "bSettings") openSettings();
+  else if(id === "sCheck"){
+    $("sInfo").textContent = "확인 중…";
+    checkServer($("sCode").value.trim()).then(r => { $("sInfo").textContent = r.ok ? "연결됨 · " + SERVER.model + " · 최대 " + num(SERVER.maxTokens) + " 토큰" : r.error; paintConn(); });
+  }
+  else if(id === "sKReset"){ $("sKnow").value = DEFAULT_KNOWLEDGE; $("sKState").textContent = "(기본 문서)"; }
+  else if(id === "sSave"){
+    const k = $("sKnow").value; S.knowledge = (k.trim() && k !== DEFAULT_KNOWLEDGE) ? k : null;
+    const c = $("sCode").value.trim(); if(c) S.code = c;
+    save(); $("mSettings").hidden = true; toast("저장했습니다."); checkServer().then(paintConn);
+  }
+  else if(id === "gGo") enter();
+});
+document.addEventListener("input", e => {
+  const k = e.target.dataset && e.target.dataset.in;
+  if(k){
+    const [scope, key] = k.split(".");
+    if(scope === "in"){ S.project.inputs[key] = e.target.value; }
+    else if(scope === "ex"){ S.project.stages[S.cur].extra[key] = e.target.value; }
+    save();
+    const st = stageById(S.cur), b = $("bGen"); if(b) b.disabled = !canGenerate(st) || !!RUN;
+  }
+  if(e.target.id === "pTitle"){ S.project.title = e.target.value; save(); }
+});
+$("gCode").addEventListener("keydown", e => { if(e.key === "Enter") enter(); });
+$("fRestore").addEventListener("change", e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const j = JSON.parse(r.result);
+      if(j.app !== "course-agent" || !j.project) throw new Error();
+      if(!confirm("백업 파일로 지금 과정을 바꿉니다. 계속할까요?")) return;
+      S.project = j.project; if(j.knowledge !== undefined) S.knowledge = j.knowledge;
+      STAGES.forEach(st => { if(!S.project.stages[st.id]) S.project.stages[st.id] = { status:"empty", output:"", history:[], extra:{}, usage:null }; if(S.project.stages[st.id].status === "running") S.project.stages[st.id].status = S.project.stages[st.id].output ? "draft" : "empty"; });
+      S.cur = "s1"; save(); renderAll(); toast("복원했습니다.");
+    }catch(err){ toast("과정개발 에이전트 백업 파일이 아닙니다."); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+window.addEventListener("beforeunload", e => { if(RUN){ e.preventDefault(); e.returnValue = ""; } });
+
+function openSettings(){
+  $("sCode").value = S.code || "";
+  $("sKnow").value = knowledge();
+  $("sKState").textContent = S.knowledge ? "(이 브라우저에서 고친 문서)" : "(기본 문서)";
+  $("sInfo").textContent = SERVER.ok ? "연결됨 · " + SERVER.model + " · 최대 " + num(SERVER.maxTokens) + " 토큰" : "";
+  $("mSettings").hidden = false;
+}
+function exportMd(){
+  const P = S.project, I = P.inputs || {};
+  let out = `# ${P.title || "과정 설계"}\n\n과정개발 에이전트 v${APP_VERSION} · 내보낸 때 ${stamp()}${SERVER.model ? " · 모델 " + SERVER.model : ""}\n\n## 고객 요청\n\n` +
+    BRIEF_FIELDS.map(([k, lab]) => `- **${lab}**: ${(I[k] || "").trim().replace(/\n+/g, " / ") || "(비어 있음)"}`).join("\n") + "\n";
+  STAGES.forEach(st => {
+    const d = P.stages[st.id];
+    if(!d.output) return;
+    const tag = d.status === "approved" ? "승인" : "초안 · 승인 전";
+    out += `\n---\n\n# ${st.no}. ${st.name} — ${st.product} (${tag})\n\n` + d.output.replace(/^#\s/gm, "## ") + "\n";
+  });
+  if(P.log && P.log.length) out += "\n---\n\n## 작업 기록\n\n" + P.log.map(l => `- ${l.at} · ${l.stage} · ${l.what}${l.feedback ? " — " + l.feedback.replace(/\n+/g, " ") : ""}`).join("\n") + "\n";
+  download(fileSafe(P.title) + "_과정설계_" + new Date().toISOString().slice(0, 10) + ".md", out, "text/markdown;charset=utf-8");
+}
+
+/* ---------- 시작 ---------- */
+async function enter(){
+  const c = $("gCode").value.trim();
+  if(!c){ $("gErr").textContent = "접속 코드를 넣어 주세요."; $("gErr").hidden = false; return; }
+  $("gGo").disabled = true; $("gErr").hidden = true;
+  const r = await checkServer(c);
+  $("gGo").disabled = false;
+  if(!r.ok){ $("gErr").textContent = r.error; $("gErr").hidden = false; return; }
+  showApp();
+}
+function showApp(){ $("gate").hidden = true; $("app").hidden = false; renderAll(); }
+(async function init(){
+  const q = new URLSearchParams(location.search);
+  if(q.get("code")){ S.code = q.get("code"); save(); history.replaceState(null, "", location.pathname); }
+  STAGES.forEach(st => { const d = S.project.stages[st.id]; if(d.status === "running") d.status = d.output ? "draft" : "empty"; });
+  if(S.code){
+    const r = await checkServer();
+    if(r.ok){ showApp(); return; }
+    $("gErr").textContent = r.error; $("gErr").hidden = false;
+  }
+  $("gCode").value = S.code || "";
+  $("gate").hidden = false;
+})();
+</script>
+</body>
+</html>
